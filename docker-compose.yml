@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+  # mongo:
+  #   image: mongo:4.2.5
+  app:
+    build: .
+    environment:
+      FLASK_APP: backend/server.py
+    ports:
+      - '80:80'
