@@ -7,3 +7,4 @@
 - Your project must be publically available and under source control (organizers need to be able to view your code repository) -  you can use GitHub, GitLab, Bitbucket, or any other code hosting service
 - Projects can not have been submitted to another event, including other hackathons this weekend.
 - [Code of Conduct](https://drive.google.com/file/d/1RH_TtRu6EOHSbOoiSj2h1Q4jswtVILzE/view)
+Hello
