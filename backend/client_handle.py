@@ -14,14 +14,13 @@ class ClientHandleNamespace(Namespace):
     def __create_tab(self, device_name, device_type):
         return {device_name: {'tabs': {}, 'device_type': device_type}}
     
-    def __get_tab_data(self, user_id, device_name, device_type, tabs):
+    def __get_tab_data(self, device_name, device_type):
         new_device = {
-            'user_id': user_id,
-            'tabs': {},
             'device_type': device_type,
             'device_name': device_name
         }
         return new_device
+
     def __get_tabs_data(self, data):
         user_id = data.get('user_id')
         devices = data.get('devices')
@@ -29,12 +28,9 @@ class ClientHandleNamespace(Namespace):
         tabs_data = data.get('tabs_data')
         for (key, value) in tabs_data.items():
             new_structure = {
-                'user_id': user_id,
-                'tabs': value.get('tabs'),
                 'device_type': devices.get(key),
                 'device_name': key
             }
-            self.__get_tab_data(user_id, key, devices.get(key), value.get('tabs'))
             return_tabs_data.append(new_structure)
 
         return return_tabs_data
@@ -51,16 +47,16 @@ class ClientHandleNamespace(Namespace):
                     'tabs_data': self.__create_tab(data.get('device_name'), data.get('device_type'))}
             collection.insert_one(user)
         elif user.get('devices').get(data.get('device_name')) == None:
-            user.get('devices')[data.get('device_name')] = data.get('device_type')
+            devices = user.get('devices') 
+            devices[data.get('device_name')] = data.get('device_type')
             new_device = self.__create_tab(data.get('device_name'), data.get('device_type'))
             user.get('tabs_data').update(new_device)
-            collection.update_one({'user_id':data.get('user_id')},
-                                {"$set":{'devices':user.get('devices'), 'tabs_data': user.get('tabs_data')}})
+            collection.update_one({'user_id':data.get('user_id')}, {"$set":{'devices':devices, 'tabs_data': user.get('tabs_data')}})
             send_update = list(filter(lambda x:x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
-            emit('add_device', self.__get_tab_data(data.get('user_id'), data.get('device_name'), data.get('device_type'), {}), to=send_update)
+            emit('add_device', self.__get_tab_data(data.get('device_name'), data.get('device_type')), to=send_update)
         
         emit('login', {'sucessful': True, "message": ""})
-        emit('tabs_updated', self.__get_tabs_data(user))
+        emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()
         sys.stdout.flush()
 
