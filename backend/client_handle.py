@@ -124,3 +124,9 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': data.get('user_id')})
         del user['_id']
         emit('get', user)
+    
+    def on_get_my_tabs(self, data):
+        user = collection.find_one({'user_id': data.get('user_id')})
+        return_data = user.get('tabs_data').get(data.get('device_name')).get('tabs')
+        emit('get_my_tabs', return_data)
+        

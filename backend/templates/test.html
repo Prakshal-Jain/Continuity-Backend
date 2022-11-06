@@ -45,8 +45,8 @@
       console.log("========================");
     });
 
-    socket.on('add_device', function(data) {
-      console.log("add_device");
+    socket.on('get_my_tabs', function(data) {
+      console.log("on_get_my_tabs");
       console.log(data);
       console.log("========================");
     });
@@ -87,6 +87,10 @@
       socket.emit("remove_all_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}});
     }
 
+    function get_my_tabs(){
+      socket.emit("get_my_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -97,5 +101,7 @@
     <button onclick="update_tab();">update_tab</button>
     <button onclick="get();">get</button>
     <button onclick="remove_all_tabs();">remove_all_tabs</button>
+    <button onclick="get_my_tabs();">get_my_tabs</button>
+
 </body>
 </html>
