@@ -23,7 +23,7 @@ class ClientHandleNamespace(Namespace):
             new_structure = {
                 'user_id': user_id,
                 'tabs': value.get('tabs'),
-                'device_type': devices.get('key'),
+                'device_type': devices.get(key),
                 'device_name': key
             }
             return_tabs_data.append(new_structure)
