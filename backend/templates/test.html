@@ -39,8 +39,26 @@
       console.log("========================");
     });
 
+    socket.on('add_device', function(data) {
+      console.log("add_device");
+      console.log(data);
+      console.log("========================");
+    });
+
+    socket.on('add_device', function(data) {
+      console.log("add_device");
+      console.log(data);
+      console.log("========================");
+    });
+
     socket.on('get', function(data) {
       console.log("get");
+      console.log(data);
+      console.log;("========================")
+    });
+
+    socket.on('remove_all_tabs', function(data) {
+      console.log("remove_all_tabs");
       console.log(data);
       console.log;("========================")
     });
@@ -65,6 +83,10 @@
       socket.emit("update_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}});
     }
 
+    function remove_all_tabs(){
+      socket.emit("remove_all_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -74,5 +96,6 @@
     <button onclick="remove_tab();">remove_tab</button>
     <button onclick="update_tab();">update_tab</button>
     <button onclick="get();">get</button>
+    <button onclick="remove_all_tabs();">remove_all_tabs</button>
 </body>
 </html>
