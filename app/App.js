@@ -23,7 +23,7 @@ export default class App extends React.Component {
     credentials: null,
   }
 
-  socket = io("http://0.0.0.0");
+  socket = io("http://161.35.127.215");
 
   componentDidMount = () => {
     this.socket.on('login', (data) => {
