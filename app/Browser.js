@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {
     StyleSheet,
-    Text,
     View,
     TextInput,
     Keyboard,
@@ -12,7 +11,6 @@ import {
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import validUrl from 'valid-url';
 
 // keeps the reference to the browser
 let browserRef = null;

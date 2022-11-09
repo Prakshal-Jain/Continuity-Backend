@@ -39,7 +39,7 @@ class Tabs extends Component {
                     </View>
                 )}
 
-                <ScrollView style={styles.tabsContainer}>
+                <ScrollView style={styles.tabsContainer} contentContainerStyle={{paddingVertical: 15}}>
                     {this.props.metadata.size > 0 ?
                         this.renderMetadata()
                         :
@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     tabsContainer: {
-        paddingVertical: 10,
         width: Dimensions.get('window').width,
     },
     browserBar: {
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: '#28282B',
         borderRadius: 10,
-        marginVertical: 5,
+        marginVertical: 10,
         marginHorizontal: 20,
         flexDirection: "row",
     },
