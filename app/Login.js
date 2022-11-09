@@ -16,7 +16,7 @@ export default function Login(props) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.h1}>Flow</Text>
+            <Text style={styles.h1}>Continuity</Text>
             {/* <Image source={require('../assets/TripTok_logo.png')} style={{width: 200, height: 200}} /> */}
             <Text style={styles.h2}>Sign Up</Text>
             <View style={styles.horizontal_flex}>
@@ -57,8 +57,7 @@ const styles = StyleSheet.create({
     },
     h1: {
         fontWeight: 'bold',
-        fontStyle: 'italic',
-        fontSize: 80,
+        fontSize: 40,
         marginVertical: 20,
     },
     h2: {
@@ -69,3 +68,4 @@ const styles = StyleSheet.create({
         backgroundColor: '#A66CFF',
     }
 });
+
