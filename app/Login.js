@@ -30,7 +30,7 @@ export default function Login(props) {
 
             <Text style={{ fontWeight: 'bold', fontSize: 18, marginTop: 10 }}>Device Type</Text>
             <View style={styles.horizontal_flex}>
-                <CheckBoxList check_list={data} onSelect={setSelected} />
+                <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} />
             </View>
             <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => { props.postCredentials({ 'device_name': deviceName, 'user_id': username, 'device_type': selected }) }} />
         </ScrollView>
@@ -66,8 +66,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 25
     },
-    button: {
-        backgroundColor: '#A66CFF',
-    }
 });
 

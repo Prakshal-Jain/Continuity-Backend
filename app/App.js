@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Platform,
   StatusBar,
 } from "react-native";
 import Login from './Login';
@@ -83,6 +82,11 @@ export default class App extends React.Component {
                           <Text style={{ textAlign: 'center' }}>
                             {x.device_name}
                           </Text>
+                          {x.device_name === this.state.credentials.device_name && (
+                            <Text style={{ textAlign: 'center', color: '#1B8E2D', marginTop: 5, }}>
+                              <FontAwesome name={'circle'} color="#1B8E2D" /> This Device
+                            </Text>
+                          )}
                         </View>
                       </TouchableOpacity>
                     )))
