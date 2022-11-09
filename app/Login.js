@@ -1,6 +1,8 @@
-import { Text, View, StyleSheet, TextInput, Image, Button, Appearance } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollView } from 'react-native';
 import SelectList from 'react-native-dropdown-select-list'
 import React from "react";
+import CheckBoxList from './components/CheckBoxList'
+import feather from "./assets/feather.png"
 
 export default function Login(props) {
     const [deviceName, setDeviceName] = React.useState(null);
@@ -8,16 +10,16 @@ export default function Login(props) {
     const [selected, setSelected] = React.useState(null);
 
     const data = [
-        { key: 'mobile-phone', value: 'Mobile Phone' },
-        { key: 'tablet', value: 'Tablet' },
-        { key: 'laptop', value: 'Laptop' },
-        { key: 'desktop', value: 'Desktop' },
+        { id: 'mobile-phone', label: 'Mobile Phone' },
+        { id: 'tablet', label: 'Tablet' },
+        { id: 'laptop', label: 'Laptop' },
+        { id: 'desktop', label: 'Desktop' },
     ];
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
             <Text style={styles.h1}>Continuity</Text>
-            {/* <Image source={require('../assets/TripTok_logo.png')} style={{width: 200, height: 200}} /> */}
+            <Image source={feather} style={{ width: 150, height: 150 }} />
             <Text style={styles.h2}>Sign Up</Text>
             <View style={styles.horizontal_flex}>
                 <TextInput style={styles.text_input} placeholder="Username" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setUsername} />
@@ -25,11 +27,13 @@ export default function Login(props) {
             <View style={styles.horizontal_flex}>
                 <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setDeviceName} />
             </View>
+
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginTop: 10 }}>Device Type</Text>
             <View style={styles.horizontal_flex}>
-                <SelectList setSelected={setSelected} data={data} search={false} />
+                <CheckBoxList check_list={data} onSelect={setSelected} />
             </View>
-            <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => {props.postCredentials({'device_name': deviceName, 'user_id': username, 'device_type': selected})}} />
-        </View>
+            <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => { props.postCredentials({ 'device_name': deviceName, 'user_id': username, 'device_type': selected }) }} />
+        </ScrollView>
     );
 }
 
@@ -50,15 +54,13 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(27,57,107,1)',
     },
     container: {
-        alignItems: 'center',
         padding: 20,
         flex: 1,
-        width: '100%'
+        width: '100%',
     },
     h1: {
         fontWeight: 'bold',
         fontSize: 40,
-        marginVertical: 20,
     },
     h2: {
         fontWeight: 'bold',
