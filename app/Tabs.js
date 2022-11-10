@@ -50,12 +50,17 @@ class Tabs extends Component {
                 )}
 
                 <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
-                    <RefreshControl
-                        refreshing={this.state.refreshing}
-                        onRefresh={this.onRefresh}
-                    />
+                    tabCount > 0 ? (
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={this.onRefresh}
+                        />
+                    )
+                        : null
                 }>
-                    <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
+                    {tabCount > 0 && (
+                        <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
+                    )}
                     {this.props.metadata.size > 0 ?
                         this.renderMetadata()
                         :
