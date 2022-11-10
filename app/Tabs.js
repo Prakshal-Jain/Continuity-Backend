@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -7,6 +7,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 class Tabs extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            refreshing: false,
+        }
     }
 
     addNewTab = () => {
@@ -26,8 +30,14 @@ class Tabs extends Component {
         return tabs;
     }
 
+    onRefresh = () => {
+        this.setState({ refreshing: true });
+        this.props.clearTabCache();
+        this.setState({ refreshing: false });
+    }
+
     render() {
-        const tabCount = this.props.tabs.size;
+        const tabCount = this.props.metadata.size;
         return (
             <View style={styles.root}>
                 {(tabCount > 0) && (
@@ -39,7 +49,13 @@ class Tabs extends Component {
                     </View>
                 )}
 
-                <ScrollView style={styles.tabsContainer} contentContainerStyle={{paddingVertical: 15}}>
+                <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.onRefresh}
+                    />
+                }>
+                    <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
                     {this.props.metadata.size > 0 ?
                         this.renderMetadata()
                         :
