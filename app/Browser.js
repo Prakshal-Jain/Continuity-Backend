@@ -2,11 +2,12 @@ import React, { Component } from "react";
 import {
     StyleSheet,
     View,
+    Text,
     TextInput,
     Keyboard,
     ActivityIndicator,
     Share,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -37,6 +38,7 @@ const injectedJavaScript = `
 class Browser extends Component {
     constructor(props) {
         super(props);
+        this.browserBarRef = React.createRef(0)
     }
 
     state = {
@@ -54,6 +56,7 @@ class Browser extends Component {
         },
         refreshing: false,
         url: this.props.url,
+        displayBrowserBar: true,
     };
 
 
@@ -199,6 +202,21 @@ class Browser extends Component {
         this.props.switchCurrOpenWindow(-1);
     }
 
+    handleScroll = (event) => {
+        // 0 means the top of the screen, 100 would be scrolled 100px down
+        const currentYPosition = event.nativeEvent.contentOffset.y
+        const oldPosition = this.browserBarRef.current
+
+        if (oldPosition < currentYPosition && currentYPosition > 15) {
+            // this.setState({ displayBrowserBar: false });
+        } else {
+            // this.setState({ displayBrowserBar: true });
+            // we scrolled up
+        }
+        // save the current position for the next onScroll event
+        this.browserBarRef.current = currentYPosition
+    }
+
     render() {
         const { config, state } = this;
         const { url, canGoForward, canGoBack, incognito } = state;
@@ -232,8 +250,10 @@ class Browser extends Component {
                         injectedJavaScript={injectedJavaScript}
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
+                    // onScroll={this.handleScroll}
                     />
                 </View>
+
 
                 <View style={{ borderTopWidth: 0.5, borderTopColor: '#a9a9a9' }}>
                     <LinearGradient
@@ -242,17 +262,22 @@ class Browser extends Component {
                         style={styles.browserBar}
                     >
                         <View style={styles.layers}>
-                            <View style={styles.browserAddressBar}>
-                                <TextInput
-                                    onChangeText={this.updateUrlText}
-                                    value={this.state.url}
-                                    style={styles.searchBox}
-                                    returnKeyType="search"
-                                    onSubmitEditing={this.loadURL}
-                                    editable={false}
-                                />
-                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
-                            </View>
+                            {this.state.displayBrowserBar ? (
+                                <View style={styles.browserAddressBar}>
+                                    <TextInput
+                                        onChangeText={this.updateUrlText}
+                                        value={this.state.url}
+                                        style={styles.searchBox}
+                                        returnKeyType="search"
+                                        onSubmitEditing={this.loadURL}
+                                        editable={false}
+                                    />
+                                    {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
+                                </View>
+                            )
+                                :
+                                <Text numberOfLines={1}>{this.state.url}</Text>
+                            }
                         </View>
 
                         <View style={styles.layers}>
@@ -296,12 +321,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         marginBottom: 10,
     },
+    collapsedBrowserBar: {
+        alignItems: 'center',
+        flexDirection: 'column',
+        padding: 15,
+    },
     layers: {
         flexDirection: 'row',
         alignItems: "center",
         marginVertical: 8,
         justifyContent: "space-between",
-        width: '100%'
+        width: '100%',
     },
     browserAddressBar: {
         backgroundColor: 'white',

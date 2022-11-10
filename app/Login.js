@@ -17,23 +17,30 @@ export default function Login(props) {
     ];
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={styles.h1}>Continuity</Text>
-            <Image source={feather} style={{ width: 150, height: 150 }} />
-            <Text style={styles.h2}>Sign Up</Text>
-            <View style={styles.horizontal_flex}>
-                <TextInput style={styles.text_input} placeholder="Username" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setUsername} />
-            </View>
-            <View style={styles.horizontal_flex}>
-                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setDeviceName} />
-            </View>
+        <View style={{flex: 1, width: '100%',}}>
+            <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={styles.h1}>Continuity</Text>
+                <Image source={feather} style={{ width: 150, height: 150 }} />
+                <Text style={styles.h2}>Sign Up</Text>
+                <View style={styles.horizontal_flex}>
+                    <TextInput style={styles.text_input} placeholder="Username" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setUsername} />
+                </View>
+                <View style={styles.horizontal_flex}>
+                    <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setDeviceName} />
+                </View>
 
-            <Text style={{ fontWeight: 'bold', fontSize: 18, marginTop: 10 }}>Device Type</Text>
-            <View style={styles.horizontal_flex}>
-                <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} />
+                <Text style={{ fontWeight: 'bold', fontSize: 18, marginTop: 10 }}>Device Type</Text>
+                <View style={styles.horizontal_flex}>
+                    <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} />
+                </View>
+                <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => { props.postCredentials({ 'device_name': deviceName, 'user_id': username, 'device_type': selected }) }} />
+            </ScrollView>
+            <View style={{justifyContent: 'center', alignItems: 'center', padding: 10}}>
+                <Text>
+                    Privacy Policy
+                </Text>
             </View>
-            <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => { props.postCredentials({ 'device_name': deviceName, 'user_id': username, 'device_type': selected }) }} />
-        </ScrollView>
+        </View>
     );
 }
 
