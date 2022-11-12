@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import web from './assets/web.png'
 
 class Tabs extends Component {
     constructor(props) {
@@ -10,6 +11,7 @@ class Tabs extends Component {
 
         this.state = {
             refreshing: false,
+            searchQuery: ""
         }
     }
 
@@ -19,9 +21,19 @@ class Tabs extends Component {
 
     renderMetadata = () => {
         const tabs = [];
-        for (const [key, tab] of this.props.metadata) {
+        const filtered = Array.from(this.props.metadata).filter(x => (x[1].title.toLowerCase().includes(this.state.searchQuery.toLowerCase())) || (x[1].url.toLowerCase().includes(this.state.searchQuery.toLowerCase())))
+        for (const [key, tab] of filtered) {
+            let img_url =
+                `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab.url}&sz=64`
             tabs.push(
                 <View key={key} style={styles.tabTitle}>
+                    <Image
+                        style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
+                        source={{ uri: img_url }}
+                        onError={() => {
+                            img_url = 'https://www.nicepng.com/png/full/170-1709508_web-solutions-web-icon-white-png.png'
+                        }}
+                    />
                     <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5 }} onPress={() => this.props.switchCurrOpenWindow(key)} >{tab.title}</Text>
                     <FontAwesome name="close" size={20} color="#e23838" style={{ padding: 15 }} onPress={() => this.props.removeTab(key)} />
                 </View>
@@ -34,6 +46,10 @@ class Tabs extends Component {
         this.setState({ refreshing: true });
         this.props.clearTabCache();
         this.setState({ refreshing: false });
+    }
+
+    onSearch = (text) => {
+        this.setState({ searchQuery: text });
     }
 
     render() {
@@ -59,7 +75,21 @@ class Tabs extends Component {
                         : null
                 }>
                     {tabCount > 0 && (
-                        <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
+                        <View>
+                            <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
+                            <View style={styles.searchBar}>
+                                <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" />
+                                <TextInput
+                                    onChangeText={this.onSearch}
+                                    style={styles.searchBox}
+                                    placeholder="Search Tabs"
+                                    value={this.state.searchQuery}
+                                />
+                                {this.state.searchQuery.length > 0 && (
+                                    <Icon name="close-circle-outline" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" onPress={() => { this.setState({ searchQuery: "" }) }} />
+                                )}
+                            </View>
+                        </View>
                     )}
                     {this.props.metadata.size > 0 ?
                         this.renderMetadata()
@@ -128,7 +158,27 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderTopWidth: 0.5,
         borderTopColor: '#a9a9a9'
-    }
+    },
+    searchBar: {
+        backgroundColor: 'white',
+        shadowColor: '#171717',
+        shadowOffset: { width: 1, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        borderRadius: 10,
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: "space-between",
+        padding: 12,
+        margin: 20,
+        borderWidth: 0.1,
+        borderColor: '#171717',
+        alignItems: "center"
+    },
+    searchBox: {
+        flex: 1,
+        marginRight: 8
+    },
 });
 
 export default Tabs
