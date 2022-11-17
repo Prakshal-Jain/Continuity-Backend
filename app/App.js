@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import Login from './Login';
 import { io } from "socket.io-client";
-import FadeInTouchableOpacity from './components/FadeInTouchableOpacity';
+import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 
 
 export default class App extends React.Component {
@@ -74,7 +74,7 @@ export default class App extends React.Component {
                 <ScrollView key="device_list" style={{ width: '100%' }} contentContainerStyle={styles.devices_container}>
                   {
                     this.state.devices.map((x => (
-                      <FadeInTouchableOpacity key={x.device_name} style={styles.device_box} onPress={() => this.setCurrentDeviceName(x.device_name)}>
+                      <ScaleTouchableOpacity key={x.device_name} style={styles.device_box} onPress={() => this.setCurrentDeviceName(x.device_name)}>
                         <View style={styles.icon_style}>
                           <FontAwesome name={x.device_type} size={50} color="#28282B" />
                         </View>
@@ -89,7 +89,7 @@ export default class App extends React.Component {
                             </Text>
                           )}
                         </View>
-                      </FadeInTouchableOpacity>
+                      </ScaleTouchableOpacity>
                     )))
                   }
                 </ScrollView>]

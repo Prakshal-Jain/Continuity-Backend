@@ -3,7 +3,7 @@ import { TouchableOpacity, Animated } from "react-native";
 
 const FadeInTouchableOpacity = ({ style, children, onPress, ...props }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current  // Initial value for opacity: 0
-
+    
     useEffect(() => {
         Animated.timing(
             fadeAnim,

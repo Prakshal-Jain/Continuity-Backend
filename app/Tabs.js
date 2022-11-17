@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image, TouchableOpacity, Animated } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ScaleXView from "./components/ScaleXView";
 
 class Tabs extends Component {
     constructor(props) {
@@ -21,11 +22,25 @@ class Tabs extends Component {
     renderMetadata = () => {
         const tabs = [];
         const filtered = Array.from(this.props.metadata).filter(x => (x[1].title.toLowerCase().includes(this.state.searchQuery.toLowerCase())) || (x[1].url.toLowerCase().includes(this.state.searchQuery.toLowerCase())))
+
         for (const [key, tab] of filtered) {
             let img_url =
                 `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab.url}&sz=64`
+
+
+            const deleteScaleRef = new Animated.Value(1);
+            const onDelete = () => {
+                Animated.timing(deleteScaleRef, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }).start(() => {
+                    this.props.removeTab(key)
+                });
+            }
+
             tabs.push(
-                <View key={key} style={styles.tabTitle}>
+                <ScaleXView key={key} style={styles.tabTitle} deleteScaleRef={deleteScaleRef}>
                     <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)}>
                         <Image
                             style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
@@ -36,8 +51,8 @@ class Tabs extends Component {
                         />
                     </TouchableOpacity>
                     <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5 }} onPress={() => this.props.switchCurrOpenWindow(key)} numberOfLines={2}>{tab.title}</Text>
-                    <FontAwesome name="close" size={20} color="#e23838" style={{ padding: 15 }} onPress={() => this.props.removeTab(key)} />
-                </View>
+                    <FontAwesome name="close" size={20} color="#e23838" style={{ padding: 15 }} onPress={onDelete} />
+                </ScaleXView>
             )
         }
         return tabs;
