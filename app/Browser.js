@@ -8,6 +8,7 @@ import {
     ActivityIndicator,
     Share,
     KeyboardAvoidingView,
+    Animated,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,6 +40,8 @@ class Browser extends Component {
     constructor(props) {
         super(props);
         this.browserBarRef = React.createRef(0)
+        this.collapsedBrowserBarAnimRef = new Animated.Value(100);
+        this.expandedBrowserBarAnimRef = new Animated.Value(0);
     }
 
     state = {
@@ -202,20 +205,78 @@ class Browser extends Component {
         this.props.switchCurrOpenWindow(-1);
     }
 
-    handleScroll = (event) => {
+    handleScroll = lodash.throttle((event) => {
         // 0 means the top of the screen, 100 would be scrolled 100px down
         const currentYPosition = event.nativeEvent.contentOffset.y
         const oldPosition = this.browserBarRef.current
 
         if (oldPosition < currentYPosition && currentYPosition > 15) {
-            // this.setState({ displayBrowserBar: false });
-        } else {
-            // this.setState({ displayBrowserBar: true });
+            Animated.timing(this.expandedBrowserBarAnimRef, {
+                toValue: 200,
+                duration: 200,
+                useNativeDriver: true,
+            }).start(() => {
+                Animated.timing(this.collapsedBrowserBarAnimRef, {
+                    toValue: 0,
+                    duration: 100,
+                    useNativeDriver: true,
+                }).start(() => {
+                    this.setState({ displayBrowserBar: false });
+                })
+            })
+
+            // we scrolled down
+
+            // Animated.parallel(
+            //     Animated.timing(this.collapsedBrowserBarAnimRef, {
+            //         toValue: 0,
+            //         duration: 200,
+            //         useNativeDriver: true,
+            //     }).start(),
+            //     Animated.timing(this.expandedBrowserBarAnimRef, {
+            //         toValue: 100,
+            //         duration: 200,
+            //         useNativeDriver: true,
+            //     }).start(),
+            // ).start(() => {
+            //     this.setState({ displayBrowserBar: false });
+            // });
+        }
+
+        else {
+            Animated.timing(this.collapsedBrowserBarAnimRef, {
+                toValue: 100,
+                duration: 100,
+                useNativeDriver: true,
+            }).start(() => {
+                Animated.timing(this.expandedBrowserBarAnimRef, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }).start(() => {
+                    this.setState({ displayBrowserBar: true });
+                })
+            })
             // we scrolled up
+
+            // Animated.parallel(
+            //     Animated.timing(this.collapsedBrowserBarAnimRef, {
+            //         toValue: 100,
+            //         duration: 200,
+            //         useNativeDriver: true,
+            //     }).start(),
+            //     Animated.timing(this.expandedBrowserBarAnimRef, {
+            //         toValue: 0,
+            //         duration: 200,
+            //         useNativeDriver: true,
+            //     }).start(),
+            // ).start(() => {
+            //     this.setState({ displayBrowserBar: true });
+            // });
         }
         // save the current position for the next onScroll event
         this.browserBarRef.current = currentYPosition
-    }
+    })
 
     render() {
         const { config, state } = this;
@@ -250,19 +311,19 @@ class Browser extends Component {
                         injectedJavaScript={injectedJavaScript}
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
-                    // onScroll={this.handleScroll}
+                        onScroll={this.handleScroll}
                     />
                 </View>
 
 
-                <View style={{ borderTopWidth: 0.5, borderTopColor: '#a9a9a9' }}>
-                    <LinearGradient
-                        // Button Linear Gradient
-                        colors={['#FAFAFA', '#FFFFFF']}
-                        style={styles.browserBar}
-                    >
-                        <View style={styles.layers}>
-                            {this.state.displayBrowserBar ? (
+                {this.state.displayBrowserBar ? (
+                    <Animated.View style={{ transform: [{ translateY: this.expandedBrowserBarAnimRef }], borderTopWidth: 0.5, borderTopColor: '#a9a9a9', opacity: ((100 - this.expandedBrowserBarAnimRef._value) / 100) }}>
+                        <LinearGradient
+                            // Button Linear Gradient
+                            colors={['#FAFAFA', '#FFFFFF']}
+                            style={styles.browserBar}
+                        >
+                            <View style={styles.layers}>
                                 <View style={styles.browserAddressBar}>
                                     <TextInput
                                         onChangeText={this.updateUrlText}
@@ -274,26 +335,34 @@ class Browser extends Component {
                                     />
                                     {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
                                 </View>
-                            )
-                                :
-                                <Text numberOfLines={1}>{this.state.url}</Text>
-                            }
-                        </View>
+                            </View>
 
-                        <View style={styles.layers}>
-                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? 'black' : '#D3D3D3' }} disabled={!canGoBack} />
-                            <Icon name="export-variant" size={25} onPress={this.onShare} />
-                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} />
-                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? 'black' : '#D3D3D3' }} disabled={!canGoForward} />
-                        </View>
+                            <View style={styles.layers}>
+                                <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? 'black' : '#D3D3D3' }} disabled={!canGoBack} />
+                                <Icon name="export-variant" size={25} onPress={this.onShare} />
+                                <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} />
+                                <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? 'black' : '#D3D3D3' }} disabled={!canGoForward} />
+                            </View>
+                        </LinearGradient>
+                    </Animated.View>
+                )
+                    :
+                    <Animated.View style={{ transform: [{ translateY: this.collapsedBrowserBarAnimRef }], borderTopWidth: 0.5, borderTopColor: '#a9a9a9', opacity: ((100 - this.collapsedBrowserBarAnimRef._value) / 100) }}>
+                        <LinearGradient
+                            // Button Linear Gradient
+                            colors={['#FAFAFA', '#FFFFFF']}
+                            style={styles.browserBar}
+                        >
+                            <Text numberOfLines={1}>{this.state.url}</Text>
+                        </LinearGradient>
+                    </Animated.View>
+                }
 
-                        {/* <TouchableHighlight onPress={this.toggleIncognito}>
+                {/* <TouchableHighlight onPress={this.toggleIncognito}>
                                 <Image
                                     style={[styles.icon, incognito ? {} : styles.disabled]}
                                     source={incognitoIcon} />
                             </TouchableHighlight> */}
-                    </LinearGradient>
-                </View>
             </KeyboardAvoidingView>
         );
     }
