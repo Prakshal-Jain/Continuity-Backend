@@ -40,8 +40,7 @@ class Browser extends Component {
     constructor(props) {
         super(props);
         this.browserBarRef = React.createRef(0)
-        this.collapsedBrowserBarAnimRef = new Animated.Value(100);
-        this.expandedBrowserBarAnimRef = new Animated.Value(0);
+        this.expandedBrowserBarAnimRef = new Animated.Value(1);
     }
 
     state = {
@@ -211,19 +210,12 @@ class Browser extends Component {
         const oldPosition = this.browserBarRef.current
 
         if (oldPosition < currentYPosition && currentYPosition > 15) {
+            // Scroll down
             Animated.timing(this.expandedBrowserBarAnimRef, {
-                toValue: 200,
-                duration: 200,
+                toValue: 1,
+                duration: 100,
                 useNativeDriver: true,
-            }).start(() => {
-                Animated.timing(this.collapsedBrowserBarAnimRef, {
-                    toValue: 0,
-                    duration: 100,
-                    useNativeDriver: true,
-                }).start(() => {
-                    this.setState({ displayBrowserBar: false });
-                })
-            })
+            }).start()
 
             // we scrolled down
 
@@ -244,19 +236,11 @@ class Browser extends Component {
         }
 
         else {
-            Animated.timing(this.collapsedBrowserBarAnimRef, {
-                toValue: 100,
+            Animated.timing(this.expandedBrowserBarAnimRef, {
+                toValue: 0,
                 duration: 100,
                 useNativeDriver: true,
-            }).start(() => {
-                Animated.timing(this.expandedBrowserBarAnimRef, {
-                    toValue: 0,
-                    duration: 200,
-                    useNativeDriver: true,
-                }).start(() => {
-                    this.setState({ displayBrowserBar: true });
-                })
-            })
+            }).start()
             // we scrolled up
 
             // Animated.parallel(
@@ -311,52 +295,38 @@ class Browser extends Component {
                         injectedJavaScript={injectedJavaScript}
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
-                        onScroll={this.handleScroll}
+                    // onScroll={this.handleScroll}
                     />
                 </View>
 
-
-                {this.state.displayBrowserBar ? (
-                    <Animated.View style={{ transform: [{ translateY: this.expandedBrowserBarAnimRef }], borderTopWidth: 0.5, borderTopColor: '#a9a9a9', opacity: ((100 - this.expandedBrowserBarAnimRef._value) / 100) }}>
-                        <LinearGradient
-                            // Button Linear Gradient
-                            colors={['#FAFAFA', '#FFFFFF']}
-                            style={styles.browserBar}
-                        >
-                            <View style={styles.layers}>
-                                <View style={styles.browserAddressBar}>
-                                    <TextInput
-                                        onChangeText={this.updateUrlText}
-                                        value={this.state.url}
-                                        style={styles.searchBox}
-                                        returnKeyType="search"
-                                        onSubmitEditing={this.loadURL}
-                                        editable={false}
-                                    />
-                                    {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
-                                </View>
+                <Animated.View style={{ borderTopWidth: 0.5, borderTopColor: '#a9a9a9', transform: [{ scale: this.expandedBrowserBarAnimRef }] }}>
+                    <LinearGradient
+                        // Button Linear Gradient
+                        colors={['#FAFAFA', '#FFFFFF']}
+                        style={styles.browserBar}
+                    >
+                        <View style={styles.layers}>
+                            <View style={styles.browserAddressBar}>
+                                <TextInput
+                                    onChangeText={this.updateUrlText}
+                                    value={this.state.url}
+                                    style={styles.searchBox}
+                                    returnKeyType="search"
+                                    onSubmitEditing={this.loadURL}
+                                    editable={false}
+                                />
+                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
                             </View>
+                        </View>
 
-                            <View style={styles.layers}>
-                                <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? 'black' : '#D3D3D3' }} disabled={!canGoBack} />
-                                <Icon name="export-variant" size={25} onPress={this.onShare} />
-                                <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} />
-                                <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? 'black' : '#D3D3D3' }} disabled={!canGoForward} />
-                            </View>
-                        </LinearGradient>
-                    </Animated.View>
-                )
-                    :
-                    <Animated.View style={{ transform: [{ translateY: this.collapsedBrowserBarAnimRef }], borderTopWidth: 0.5, borderTopColor: '#a9a9a9', opacity: ((100 - this.collapsedBrowserBarAnimRef._value) / 100) }}>
-                        <LinearGradient
-                            // Button Linear Gradient
-                            colors={['#FAFAFA', '#FFFFFF']}
-                            style={styles.browserBar}
-                        >
-                            <Text numberOfLines={1}>{this.state.url}</Text>
-                        </LinearGradient>
-                    </Animated.View>
-                }
+                        <View style={styles.layers}>
+                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? 'black' : '#D3D3D3' }} disabled={!canGoBack} />
+                            <Icon name="export-variant" size={25} onPress={this.onShare} />
+                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} />
+                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? 'black' : '#D3D3D3' }} disabled={!canGoForward} />
+                        </View>
+                    </LinearGradient>
+                </Animated.View>
 
                 {/* <TouchableHighlight onPress={this.toggleIncognito}>
                                 <Image
