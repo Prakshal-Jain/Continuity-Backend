@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import web from './assets/web.png'
 
 class Tabs extends Component {
     constructor(props) {
@@ -27,14 +26,16 @@ class Tabs extends Component {
                 `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab.url}&sz=64`
             tabs.push(
                 <View key={key} style={styles.tabTitle}>
-                    <Image
-                        style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
-                        source={{ uri: img_url }}
-                        onError={() => {
-                            img_url = 'https://www.nicepng.com/png/full/170-1709508_web-solutions-web-icon-white-png.png'
-                        }}
-                    />
-                    <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5 }} onPress={() => this.props.switchCurrOpenWindow(key)} >{tab.title}</Text>
+                    <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)}>
+                        <Image
+                            style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
+                            source={{ uri: img_url }}
+                            onError={() => {
+                                img_url = 'https://www.nicepng.com/png/full/170-1709508_web-solutions-web-icon-white-png.png'
+                            }}
+                        />
+                    </TouchableOpacity>
+                    <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5 }} onPress={() => this.props.switchCurrOpenWindow(key)} numberOfLines={2}>{tab.title}</Text>
                     <FontAwesome name="close" size={20} color="#e23838" style={{ padding: 15 }} onPress={() => this.props.removeTab(key)} />
                 </View>
             )
@@ -56,14 +57,12 @@ class Tabs extends Component {
         const tabCount = this.props.metadata.size;
         return (
             <View style={styles.root}>
-                {(tabCount > 0) && (
-                    <View style={styles.tab_count}>
-                        <Text style={{ color: 'black', textAlign: "center" }}>{this.props.device_name} <FontAwesome name={this.props.device_type} size={18} color="#28282B" /></Text>
-                        <Text style={{ color: 'black', textAlign: "center", fontWeight: "bold" }}>
-                            {tabCount} {tabCount > 1 ? "Tabs" : "Tab"}
-                        </Text>
-                    </View>
-                )}
+                <View style={styles.tab_count}>
+                    <Text style={{ color: 'black', textAlign: "center" }}>{this.props.device_name} <FontAwesome name={this.props.device_type} size={18} color="#28282B" /></Text>
+                    <Text style={{ color: 'black', textAlign: "center", fontWeight: "bold" }}>
+                        {tabCount} {tabCount === 1 ? "Tabs" : "Tab"}
+                    </Text>
+                </View>
 
                 <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
                     tabCount > 0 ? (
@@ -148,6 +147,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 20,
         flexDirection: "row",
+        paddingVertical: 7,
     },
     footer_options: {
         alignItems: 'center',

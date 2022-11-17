@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollVie
 import SelectList from 'react-native-dropdown-select-list'
 import React from "react";
 import CheckBoxList from './components/CheckBoxList'
-import feather from "./assets/feather.png"
+import feather from "./assets/feather-shadow.png"
 
 export default function Login(props) {
     const [deviceName, setDeviceName] = React.useState(null);
