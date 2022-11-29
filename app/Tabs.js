@@ -119,9 +119,9 @@ class Tabs extends Component {
                     }
                 </ScrollView>
                 <View style={styles.footer_options}>
-                    <MaterialIcons name="devices" size={40} color="#28282B" onPress={() => this.props.setCurrentDeviceName(null)} />
-                    <Icon name="plus-circle-outline" size={50} color="#06c" onPress={this.addNewTab} />
-                    <Icon name="delete" size={40} color="#e23838" onPress={this.props.deleteAllTabs} />
+                    <MaterialIcons style={{ padding: 10 }} name="devices" size={35} color="#28282B" onPress={() => this.props.setCurrentDeviceName(null)} />
+                    <Icon style={{ padding: 10 }} name="plus-circle-outline" size={40} color="#06c" onPress={this.addNewTab} />
+                    <Icon style={{ padding: 10 }} name="delete" size={35} color="#e23838" onPress={this.props.deleteAllTabs} />
                 </View>
             </View>
         )
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         width: '100%',
         padding: 5,
-        borderBottomColor: '#28282B',
+        borderBottomColor: '#a9a9a9',
         marginTop: 5,
     },
     centerAligned: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         width: Dimensions.get('window').width,
         paddingHorizontal: 15,
-        paddingVertical: 10,
+        paddingVertical: 7,
         borderTopWidth: 0.5,
         borderTopColor: '#a9a9a9'
     },

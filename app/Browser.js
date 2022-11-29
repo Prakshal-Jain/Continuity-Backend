@@ -295,7 +295,8 @@ class Browser extends Component {
                         injectedJavaScript={injectedJavaScript}
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
-                    // onScroll={this.handleScroll}
+                        mediaPlaybackRequiresUserAction={true}
+                        // onScroll={this.handleScroll}
                     />
                 </View>
 
