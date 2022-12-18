@@ -51,7 +51,7 @@ class Tabs extends Component {
                         />
                     </TouchableOpacity>
                     <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5 }} onPress={() => this.props.switchCurrOpenWindow(key)} numberOfLines={2}>{tab.title}</Text>
-                    <FontAwesome name="close" size={20} color="#e23838" style={{ padding: 15 }} onPress={onDelete} />
+                    <FontAwesome name="close" size={20} color={this.props.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ padding: 15 }} onPress={onDelete} />
                 </ScaleXView>
             )
         }
@@ -73,8 +73,8 @@ class Tabs extends Component {
         return (
             <View style={styles.root}>
                 <View style={styles.tab_count}>
-                    <Text style={{ color: 'black', textAlign: "center" }}>{this.props.device_name} <FontAwesome name={this.props.device_type} size={18} color="#28282B" /></Text>
-                    <Text style={{ color: 'black', textAlign: "center", fontWeight: "bold" }}>
+                    <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>{this.props.device_name} <FontAwesome name={this.props.device_type} size={18} color={this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} /></Text>
+                    <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center", fontWeight: "bold" }}>
                         {tabCount} {tabCount === 1 ? "Tabs" : "Tab"}
                     </Text>
                 </View>
@@ -90,7 +90,7 @@ class Tabs extends Component {
                 }>
                     {tabCount > 0 && (
                         <View>
-                            <Text style={{ color: 'gray', textAlign: "center" }}>Pull to sync with other devices</Text>
+                            <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
                             <View style={styles.searchBar}>
                                 <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" />
                                 <TextInput
@@ -109,19 +109,19 @@ class Tabs extends Component {
                         this.renderMetadata()
                         :
                         <View style={styles.centerAligned}>
-                            <Text>
-                                No open tabs on <Text style={{ fontWeight: "bold" }}>{this.props.device_name}</Text> <FontAwesome name={this.props.device_type} size={18} color="#28282B" />
+                            <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                No open tabs on <Text style={{ fontWeight: "bold" }}>{this.props.device_name}</Text> <FontAwesome name={this.props.device_type} size={18} color={this.props.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} />
                             </Text>
-                            <Text>
-                                Click on the <Icon name="plus-circle-outline" size={18} color="#06c" /> icon below to open a new tab.
+                            <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                Click on the <Icon name="plus-circle-outline" size={18} color={this.props.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} /> icon below to open a new tab.
                             </Text>
                         </View>
                     }
                 </ScrollView>
                 <View style={styles.footer_options}>
-                    <MaterialIcons style={{ padding: 10 }} name="devices" size={35} color="#28282B" onPress={() => this.props.setCurrentDeviceName(null)} />
-                    <Icon style={{ padding: 10 }} name="plus-circle-outline" size={40} color="#06c" onPress={this.addNewTab} />
-                    <Icon style={{ padding: 10 }} name="delete" size={35} color="#e23838" onPress={this.props.deleteAllTabs} />
+                    <MaterialIcons style={{ padding: 10 }} name="devices" size={35} color={this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setCurrentDeviceName(null)} />
+                    <Icon style={{ padding: 10 }} name="plus" size={40} color={this.props.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} onPress={this.addNewTab} />
+                    <Icon style={{ padding: 10 }} name="delete" size={30} color={this.props.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={this.props.deleteAllTabs} />
                 </View>
             </View>
         )
@@ -131,7 +131,6 @@ class Tabs extends Component {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: "center",
     },
     tabsContainer: {
@@ -157,7 +156,9 @@ const styles = StyleSheet.create({
     },
     tabTitle: {
         alignItems: "center",
-        backgroundColor: '#28282B',
+        backgroundColor: 'rgba(58, 58, 60, 1)',
+        borderWidth: 1,
+        borderColor: 'rgba(99, 99, 102, 1)',
         borderRadius: 10,
         marginVertical: 10,
         marginHorizontal: 20,

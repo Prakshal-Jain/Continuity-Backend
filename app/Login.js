@@ -1,13 +1,46 @@
-import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollView } from 'react-native';
-import SelectList from 'react-native-dropdown-select-list'
-import React from "react";
-import CheckBoxList from './components/CheckBoxList'
-import feather from "./assets/feather-shadow.png"
+import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from "react";
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import CheckBoxList from './components/CheckBoxList';
+import logoDark from "./assets/logo-dark.png";
+import logoLight from "./assets/logo-light.png";
+import GoogleSignInButton from './components/GoogleSignInButton';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login(props) {
     const [deviceName, setDeviceName] = React.useState(null);
-    const [username, setUsername] = React.useState(null);
     const [selected, setSelected] = React.useState(null);
+
+    const [accessToken, setAccessToken] = useState(null);
+    const [user, setUser] = useState(null);
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+        clientId: "934339026423-698c5rptdnkdrr1mfog4og13naph71o1.apps.googleusercontent.com",
+        iosClientId: "934339026423-o22n4psf53vs2a759e4v2233cordkg6q.apps.googleusercontent.com",
+        androidClientId: "934339026423-gsjgka37gp62e5uevccgsqd0o7m8s907.apps.googleusercontent.com"
+    });
+
+    useEffect(() => {
+        if (response?.type === "success") {
+            setAccessToken(response.authentication.accessToken);
+            accessToken && fetchUserInformation();
+        }
+    }, [response, accessToken])
+
+    const fetchUserInformation = async () => {
+        const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        });
+
+        const userInfo = await response.json();
+        if (userInfo !== null || userInfo !== undefined) {
+            userInfo.user_id = userInfo?.id;
+            setUser(userInfo);
+        }
+    }
 
     const data = [
         { id: 'mobile-phone', label: 'Mobile Phone' },
@@ -16,62 +49,102 @@ export default function Login(props) {
         { id: 'desktop', label: 'Desktop' },
     ];
 
-    return (
-        <View style={{flex: 1, width: '100%',}}>
-            <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={styles.h1}>Continuity</Text>
-                <Image source={feather} style={{ width: 150, height: 150 }} />
-                <Text style={styles.h2}>Sign Up</Text>
-                <View style={styles.horizontal_flex}>
-                    <TextInput style={styles.text_input} placeholder="Username" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setUsername} />
-                </View>
-                <View style={styles.horizontal_flex}>
-                    <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor="rgba(27,57,107,255)" onChangeText={setDeviceName} />
-                </View>
 
-                <Text style={{ fontWeight: 'bold', fontSize: 18, marginTop: 10 }}>Device Type</Text>
-                <View style={styles.horizontal_flex}>
-                    <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} />
-                </View>
-                <Button style={styles.button} title="Sign Up" color='rgba(27,57,107,255)' onPress={() => { props.postCredentials({ 'device_name': deviceName, 'user_id': username, 'device_type': selected }) }} />
+    const styles = StyleSheet.create({
+        horizontal_flex: {
+            flexDirection: 'row',
+            width: '100%',
+            paddingVertical: 15,
+        },
+        text_input: {
+            borderWidth: 1,
+            padding: 15,
+            flex: 1,
+            borderRadius: 8,
+            color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            borderColor: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+        },
+        container: {
+            padding: 20,
+            flex: 1,
+            width: '100%',
+        },
+        h1: {
+            fontWeight: 'bold',
+            fontSize: 40,
+        },
+        get h2() {
+            return {
+                marginTop: 10,
+                fontWeight: 'bold',
+                fontSize: 25,
+                color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            }
+        },
+        get privacy() {
+            return {
+                color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            }
+        },
+        loginScreenButton: {
+            marginRight: 40,
+            marginLeft: 40,
+            marginTop: 10,
+            paddingTop: 10,
+            paddingBottom: 10,
+            backgroundColor: 'rgba(10, 132, 255, 1)',
+            borderRadius: 10,
+        },
+        loginText: {
+            color: '#fff',
+            textAlign: 'center',
+            paddingLeft: 10,
+            paddingRight: 10,
+            fontSize: 20,
+            fontWeight: 'bold'
+        }
+    });
+
+
+    return (
+        <View style={{ flex: 1, width: '100%' }}>
+            <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Image source={props.colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                {user === null ? (
+                    <GoogleSignInButton
+                        onPress={() => promptAsync()}
+                        // onPress={() => setUser({ "email": "prakshaljain422@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                        colorScheme={props.colorScheme}
+                    />
+                )
+                    :
+                    (
+                        <>
+                            <View style={styles.horizontal_flex}>
+                                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
+                            </View>
+
+                            <Text style={styles.h2}>Device Type</Text>
+                            <View style={styles.horizontal_flex}>
+                                <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} colorScheme={props.colorScheme} />
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.loginScreenButton}
+                                onPress={() => { props.postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
+                                underlayColor='#fff'>
+                                <Text style={styles.loginText}>Get Started</Text>
+                            </TouchableOpacity>
+                        </>
+                    )
+                }
+
             </ScrollView>
-            <View style={{justifyContent: 'center', alignItems: 'center', padding: 10}}>
-                <Text>
+            <View style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                <Text style={styles.privacy}>
                     Privacy Policy
                 </Text>
             </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    text_styles: {
-        color: Appearance.getColorScheme() === 'dark' ? '#fff' : '#000',
-    },
-    horizontal_flex: {
-        flexDirection: 'row',
-        width: '100%',
-        paddingVertical: 15,
-    },
-    text_input: {
-        borderWidth: 1,
-        padding: 15,
-        flex: 1,
-        borderRadius: 8,
-        borderColor: 'rgba(27,57,107,1)',
-    },
-    container: {
-        padding: 20,
-        flex: 1,
-        width: '100%',
-    },
-    h1: {
-        fontWeight: 'bold',
-        fontSize: 40,
-    },
-    h2: {
-        fontWeight: 'bold',
-        fontSize: 25
-    },
-});
-
