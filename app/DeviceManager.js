@@ -98,7 +98,7 @@ export default class DeviceManager extends React.Component {
     switchCurrOpenWindow = (tabIdx) => {
         if ((!this.state.tabs.has(tabIdx)) && tabIdx !== -1) {
             const tabs = this.state.tabs;
-            tabs.set(tabIdx, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />)
+            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />)
             this.setState({ tabs: tabs });
         }
         this.setState({ currOpenTab: tabIdx });
@@ -110,10 +110,10 @@ export default class DeviceManager extends React.Component {
             id: Number(uniqueID) + 1,
             tabs: new Map([
                 ...this.state.tabs,
-                [uniqueID, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />]
+                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />]
             ])
         }, () => {
-            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": "https://www.google.com/" } } };
+            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
             this.props.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })

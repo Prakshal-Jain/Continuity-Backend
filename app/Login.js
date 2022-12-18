@@ -112,8 +112,8 @@ export default function Login(props) {
                 <Image source={props.colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ? (
                     <GoogleSignInButton
-                        onPress={() => promptAsync()}
-                        // onPress={() => setUser({ "email": "prakshaljain422@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                        // onPress={() => promptAsync()}
+                        onPress={() => setUser({ "email": "prakshaljain422@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
                         colorScheme={props.colorScheme}
                     />
                 )

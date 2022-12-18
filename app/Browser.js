@@ -41,6 +41,7 @@ class Browser extends Component {
         super(props);
         this.browserBarRef = React.createRef(0)
         this.expandedBrowserBarAnimRef = new Animated.Value(1);
+        this.browserBarOpacityAnimRef = new Animated.Value(1);
     }
 
     state = {
@@ -59,6 +60,7 @@ class Browser extends Component {
         refreshing: false,
         url: this.props.url,
         displayBrowserBar: true,
+        isScrollDown: false
     };
 
 
@@ -204,18 +206,23 @@ class Browser extends Component {
         this.props.switchCurrOpenWindow(-1);
     }
 
-    handleScroll = lodash.throttle((event) => {
+    handleScroll = (event) => {
         // 0 means the top of the screen, 100 would be scrolled 100px down
-        const currentYPosition = event.nativeEvent.contentOffset.y
-        const oldPosition = this.browserBarRef.current
-
-        if (oldPosition < currentYPosition && currentYPosition > 15) {
-            // Scroll down
-            Animated.timing(this.expandedBrowserBarAnimRef, {
-                toValue: 1,
-                duration: 100,
-                useNativeDriver: true,
-            }).start()
+        const currentYPosition = event.nativeEvent.contentOffset.y;
+        const oldPosition = this.browserBarRef.current;
+        //  && currentYPosition > 15
+        if (oldPosition < currentYPosition) {
+            console.log("Scroll Down");
+            if (this.state.isScrollDown) {
+                Animated.timing(this.expandedBrowserBarAnimRef, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }).start()
+            }
+            else {
+                this.setState({ isScrollDown: true });
+            }
 
             // we scrolled down
 
@@ -236,11 +243,17 @@ class Browser extends Component {
         }
 
         else {
-            Animated.timing(this.expandedBrowserBarAnimRef, {
-                toValue: 0,
-                duration: 100,
-                useNativeDriver: true,
-            }).start()
+            if (!this.state.isScrollDown) {
+                Animated.timing(this.expandedBrowserBarAnimRef, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: true,
+                }).start()
+            }
+            else {
+                this.setState({ isScrollDown: false });
+            }
+
             // we scrolled up
 
             // Animated.parallel(
@@ -260,7 +273,7 @@ class Browser extends Component {
         }
         // save the current position for the next onScroll event
         this.browserBarRef.current = currentYPosition
-    })
+    }
 
     render() {
         const { config, state } = this;
@@ -296,35 +309,37 @@ class Browser extends Component {
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
                         mediaPlaybackRequiresUserAction={true}
+                        style={{ backgroundColor: (this.props.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', }}
                         // onScroll={this.handleScroll}
                     />
                 </View>
 
-                <Animated.View style={{ borderTopWidth: 0.5, borderTopColor: '#a9a9a9', transform: [{ scale: this.expandedBrowserBarAnimRef }] }}>
+                <Animated.View style={{ borderTopWidth: 0.5, borderTopColor: 'rgba(142, 142, 147, 1)', transform: [{ scaleY: this.expandedBrowserBarAnimRef }] }}>
                     <LinearGradient
                         // Button Linear Gradient
-                        colors={['#FAFAFA', '#FFFFFF']}
+                        colors={[(this.props.colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (this.props.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
                         style={styles.browserBar}
                     >
                         <View style={styles.layers}>
-                            <View style={styles.browserAddressBar}>
+                            <Animated.View style={{ ...styles.browserAddressBar, backgroundColor: (this.props.colorScheme === 'dark') ? '#171717' : '#f8f8ff' }}>
                                 <TextInput
                                     onChangeText={this.updateUrlText}
                                     value={this.state.url}
-                                    style={styles.searchBox}
+                                    style={{ ...styles.searchBox, color: (this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)' }}
                                     returnKeyType="search"
                                     onSubmitEditing={this.loadURL}
                                     editable={false}
+                                    placeholderTextColor={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'}
                                 />
-                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} />}
-                            </View>
+                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
+                            </Animated.View>
                         </View>
 
                         <View style={styles.layers}>
-                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? 'black' : '#D3D3D3' }} disabled={!canGoBack} />
-                            <Icon name="export-variant" size={25} onPress={this.onShare} />
-                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} />
-                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? 'black' : '#D3D3D3' }} disabled={!canGoForward} />
+                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
+                            <Icon name="export-variant" size={25} onPress={this.onShare} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
                     </LinearGradient>
                 </Animated.View>
@@ -344,7 +359,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     root: {
-        backgroundColor: '#fff',
+        // backgroundColor: '#fff',
     },
     icon: {
         width: 30,
@@ -374,7 +389,6 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     browserAddressBar: {
-        backgroundColor: 'white',
         shadowColor: '#171717',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.2,
