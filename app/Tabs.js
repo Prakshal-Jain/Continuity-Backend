@@ -90,14 +90,15 @@ class Tabs extends Component {
                 }>
                     {tabCount > 0 && (
                         <View>
-                            <Text style={{ color: this.props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
+                            <Text style={{ color: (this.props.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
                             <View style={styles.searchBar}>
-                                <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" />
+                                <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
                                 <TextInput
                                     onChangeText={this.onSearch}
                                     style={styles.searchBox}
                                     placeholder="Search Tabs"
                                     value={this.state.searchQuery}
+                                    placeholderTextColor="#000"
                                 />
                                 {this.state.searchQuery.length > 0 && (
                                     <Icon name="close-circle-outline" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" onPress={() => { this.setState({ searchQuery: "" }) }} />
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
         borderTopColor: '#a9a9a9'
     },
     searchBar: {
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(209, 209, 214, 1)',
         shadowColor: '#171717',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.2,
@@ -188,12 +189,13 @@ const styles = StyleSheet.create({
         padding: 12,
         margin: 20,
         borderWidth: 0.1,
-        borderColor: '#171717',
+        borderColor: 'rgba(44, 44, 46, 1)',
         alignItems: "center"
     },
     searchBox: {
         flex: 1,
-        marginRight: 8
+        marginRight: 8,
+        color: '#000'
     },
 });
 
