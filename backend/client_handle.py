@@ -233,7 +233,6 @@ class ClientHandleNamespace(Namespace):
 
         device_tabs_data = tabs_data.get(device)
 
-        print(checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')))
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return

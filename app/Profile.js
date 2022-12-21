@@ -123,7 +123,7 @@ export default function ({ navigation, route, ...props }) {
             <View>
                 <TouchableOpacity
                     style={styles.logoutButton}
-                    onPress={() => onLogout}
+                    onPress={onLogout}
                     underlayColor='#fff'>
                     <Text style={styles.logoutText}>Logout</Text>
                 </TouchableOpacity>
