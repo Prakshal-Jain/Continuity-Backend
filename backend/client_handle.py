@@ -47,7 +47,7 @@ class ClientHandleNamespace(Namespace):
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
         
-        return device_token
+        return bytes(device_token)
 
 
     def on_login(self, data):
