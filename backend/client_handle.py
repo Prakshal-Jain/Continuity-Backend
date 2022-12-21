@@ -111,7 +111,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
@@ -135,7 +135,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
@@ -159,7 +159,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
         
             emit('Error: device token does not match')
             return
@@ -183,7 +183,7 @@ class ClientHandleNamespace(Namespace):
         
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
     
@@ -213,7 +213,7 @@ class ClientHandleNamespace(Namespace):
         
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
@@ -233,7 +233,7 @@ class ClientHandleNamespace(Namespace):
 
         device_tabs_data = tabs_data.get(device)
 
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
