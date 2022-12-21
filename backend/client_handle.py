@@ -79,8 +79,21 @@ class ClientHandleNamespace(Namespace):
                                ClientHandleNamespace.devices_in_use[data.get('user_id')]))
             emit('add_device', self.__get_tab_data(
                 data.get('device_name'), data.get('device_type')), to=send_update)
+        else:
+            device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
+            device_tabs_data = user.get('tabs_data').get(user.get('device_name'))
+            device_tabs_data['device_token'] = hashpw(device_token, gensalt())
+            collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
+            
 
-        credentials = {"name": data.get('name'), "picture": data.get('picture'), "device_name": data.get('device_name'), 'device_type': data.get('device_type'), 'device_token': device_token}
+        credentials = {
+            "name": data.get('name'),
+            "picture": data.get('picture'),
+            "email": data.get('email'),
+            "device_name": data.get('device_name'),
+            'device_type': data.get('device_type'),
+            'device_token': device_token,
+            }
         emit('login', {'sucessful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()
@@ -96,8 +109,9 @@ class ClientHandleNamespace(Namespace):
 
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
+        device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
@@ -119,8 +133,9 @@ class ClientHandleNamespace(Namespace):
         
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
+        device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
@@ -142,8 +157,10 @@ class ClientHandleNamespace(Namespace):
     
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
-    
-        if not checkpw(data.get('device_token'), tabs_data.get('device_token')):
+        device_tabs_data = tabs_data.get(device)
+        
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        
             emit('Error: device token does not match')
             return
     
@@ -164,7 +181,9 @@ class ClientHandleNamespace(Namespace):
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
         
-        if not checkpw(data.get('device_token'), tabs_data.get('device_token')):
+        device_tabs_data = tabs_data.get(device)
+        
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
     
@@ -189,11 +208,39 @@ class ClientHandleNamespace(Namespace):
             emit("Error: User not found")
             return
 
+        device = data.get('device_name')
         tabs_data = user.get('tabs_data')
         
-        if not checkpw(data.get('device_token'), tabs_data.get('device_token')):
+        device_tabs_data = tabs_data.get(device)
+        
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
         
         return_data = tabs_data.get(data.get('device_name')).get('tabs')
         emit('get_my_tabs', return_data)
+    
+    def on_logout(self, data):
+        # {user_id: _, device_token: _, device_name: _}
+        user = collection.find_one({'user_id': data.get('user_id')})
+        
+        if user == None:
+            emit("Error: User not found")
+            return
+
+        device = data.get('device_name')
+        tabs_data = user.get('tabs_data')
+
+        device_tabs_data = tabs_data.get(device)
+
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+            emit('Error: device token does not match')
+            return
+        
+        device_tabs_data = user.get('tabs_data').get(device)
+        device_tabs_data['device_token'] = None
+        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
+
+        emit("Success")
+        
+
