@@ -89,7 +89,7 @@ class ClientHandleNamespace(Namespace):
         credentials = {
             "name": data.get('name'),
             "picture": data.get('picture'),
-            "email": data.get('email'),
+            "user_id": data.get('user_id'),
             "device_name": data.get('device_name'),
             'device_type': data.get('device_type'),
             'device_token': device_token,
