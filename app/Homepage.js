@@ -16,7 +16,7 @@ import {
 import Login from './Login';
 import { io } from "socket.io-client";
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
-
+// import EncryptedStorage from 'react-native-encrypted-storage';
 
 export default function App({ navigation }) {
 
@@ -37,7 +37,6 @@ export default function App({ navigation }) {
                 return;
             }
             else {
-                console.log(data?.message)
                 setCredentials(data?.message);
                 setIsLoggedIn(true);
             }
@@ -57,6 +56,7 @@ export default function App({ navigation }) {
     });
 
     const postCredentials = (creds) => {
+        console.log(creds);
         socket.emit("login", creds);
     }
 
@@ -152,7 +152,7 @@ export default function App({ navigation }) {
                                         <MaterialIcons name="help-outline" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Profile', { credentials })}>
                                         <Image source={{ uri: credentials?.picture }} style={{ width: 32, height: 32, borderRadius: (32 / 2) }} />
                                     </TouchableOpacity>
                                 </View>
