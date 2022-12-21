@@ -24,7 +24,7 @@
     "android": {
       "package": "com.continuity",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo-dark.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#FFFFFF"
       }
     },

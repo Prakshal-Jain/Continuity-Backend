@@ -61,7 +61,7 @@ class ClientHandleNamespace(Namespace):
             emit('add_device', self.__get_tab_data(
                 data.get('device_name'), data.get('device_type')), to=send_update)
 
-        credentials = {"name": data.get('name'), "picture": data.get('picture')}
+        credentials = {"name": data.get('name'), "picture": data.get('picture'), "device_name": data.get('device_name')}
         emit('login', {'sucessful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()

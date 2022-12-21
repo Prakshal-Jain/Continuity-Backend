@@ -370,11 +370,10 @@ const styles = StyleSheet.create({
         opacity: 0.3
     },
     browserBar: {
-        padding: 10,
+        paddingVertical: 10,
         alignItems: 'center',
         flexDirection: 'column',
         paddingHorizontal: 15,
-        marginBottom: 10,
     },
     collapsedBrowserBar: {
         alignItems: 'center',

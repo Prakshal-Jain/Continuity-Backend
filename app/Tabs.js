@@ -101,7 +101,7 @@ class Tabs extends Component {
                                     placeholderTextColor="#000"
                                 />
                                 {this.state.searchQuery.length > 0 && (
-                                    <Icon name="close-circle-outline" style={{ marginRight: 12, fontSize: 18 }} color="#a9a9a9" onPress={() => { this.setState({ searchQuery: "" }) }} />
+                                    <Icon name="close-circle-outline" style={{ marginRight: 12, fontSize: 18 }} color="#000" onPress={() => { this.setState({ searchQuery: "" }) }} />
                                 )}
                             </View>
                         </View>
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         borderTopColor: '#a9a9a9'
     },
     searchBar: {
-        backgroundColor: 'rgba(209, 209, 214, 1)',
+        backgroundColor: 'rgba(229, 229, 234, 1)',
         shadowColor: '#171717',
         shadowOffset: { width: 1, height: 1 },
         shadowOpacity: 0.2,
