@@ -42,7 +42,7 @@ class ClientHandleNamespace(Namespace):
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
         while token != b'':
-            if checkpw(device_token, token):
+            if token != None and checkpw(device_token, token):
                 device_token = token_urlsafe(27).encode()
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
@@ -225,7 +225,7 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': data.get('user_id')})
         
         if user == None:
-            emit("Error: User not found")
+            emit('logout', "Error: User not found")
             return
 
         device = data.get('device_name')
@@ -234,7 +234,7 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('Error: device token does not match')
+            emit('logout', 'Error: device token does not match')
             return
         
         device_tabs_data = user.get('tabs_data').get(device)
