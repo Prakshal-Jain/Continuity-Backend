@@ -42,7 +42,7 @@ class ClientHandleNamespace(Namespace):
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
         while token != b'':
-            if checkpw(device_token, token):
+            if token != None and checkpw(device_token, token):
                 device_token = token_urlsafe(27).encode()
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
