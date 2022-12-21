@@ -47,7 +47,7 @@ class ClientHandleNamespace(Namespace):
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
         
-        return bytes(device_token)
+        return device_token
 
 
     def on_login(self, data):
@@ -92,7 +92,7 @@ class ClientHandleNamespace(Namespace):
             "user_id": data.get('user_id'),
             "device_name": data.get('device_name'),
             'device_type': data.get('device_type'),
-            'device_token': device_token,
+            'device_token': device_token.decode(),
             }
         emit('login', {'sucessful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
@@ -111,7 +111,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
             emit('Error: device token does not match')
             return
         
@@ -135,7 +135,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
             emit('Error: device token does not match')
             return
         
@@ -159,7 +159,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
         
             emit('Error: device token does not match')
             return
@@ -183,7 +183,7 @@ class ClientHandleNamespace(Namespace):
         
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
             emit('Error: device token does not match')
             return
     
@@ -213,7 +213,7 @@ class ClientHandleNamespace(Namespace):
         
         device_tabs_data = tabs_data.get(device)
         
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
             emit('Error: device token does not match')
             return
         
@@ -233,7 +233,7 @@ class ClientHandleNamespace(Namespace):
 
         device_tabs_data = tabs_data.get(device)
 
-        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token')):
+        if not checkpw(data.get('device_token'), device_tabs_data.get('device_token').encode()):
             emit('Error: device token does not match')
             return
         
