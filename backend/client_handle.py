@@ -38,7 +38,7 @@ class ClientHandleNamespace(Namespace):
         return return_tabs_data
     
     def __check_for_same_token(self, device_token, tabs_data):
-        tokens_in_use = [device_tab_data.device_token for device_tab_data in tabs_data.values()]
+        tokens_in_use = [device_tab_data.get("device_token") for device_tab_data in tabs_data.values()]
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
         while token != b'':
