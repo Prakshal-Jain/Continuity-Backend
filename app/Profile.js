@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -11,9 +12,16 @@ import {
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-export default function ({ route, ...props }) {
+export default function ({ navigation, route, ...props }) {
     const colorScheme = useColorScheme();
     const credentials = route.params.credentials;
+    const socket = route.params.socket;
+
+    useEffect(() => {
+        socket.on("logout", (data) => {
+            console.log("LOGGED OUT SEXUXFULLY", data)
+        })
+    }, [])
 
     const styles = StyleSheet.create({
         root: {
@@ -74,6 +82,9 @@ export default function ({ route, ...props }) {
         }
     })
 
+    const onLogout = () => {
+        socket.emit("logout", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token });
+    }
 
     return (
         <SafeAreaView style={styles.root}>
@@ -112,7 +123,7 @@ export default function ({ route, ...props }) {
             <View>
                 <TouchableOpacity
                     style={styles.logoutButton}
-                    onPress={() => { }}
+                    onPress={() => onLogout}
                     underlayColor='#fff'>
                     <Text style={styles.logoutText}>Logout</Text>
                 </TouchableOpacity>

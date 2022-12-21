@@ -81,7 +81,7 @@ class ClientHandleNamespace(Namespace):
                 data.get('device_name'), data.get('device_type')), to=send_update)
         else:
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
-            device_tabs_data = user.get('tabs_data').get(user.get('device_name'))
+            device_tabs_data = user.get('tabs_data').get(data.get('device_name'))
             device_tabs_data['device_token'] = hashpw(device_token, gensalt())
             collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
             
@@ -233,6 +233,7 @@ class ClientHandleNamespace(Namespace):
 
         device_tabs_data = tabs_data.get(device)
 
+        print(checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')))
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
             emit('Error: device token does not match')
             return
@@ -242,5 +243,5 @@ class ClientHandleNamespace(Namespace):
         collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
 
         emit('logout', "Success")
-        
+        print("Logged Out Successfully")
 

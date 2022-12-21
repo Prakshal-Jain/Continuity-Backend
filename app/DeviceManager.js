@@ -15,7 +15,7 @@ export default class DeviceManager extends React.Component {
     }
 
     componentDidMount = () => {
-        this.props.socket.emit("get_my_tabs", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name })
+        this.props.socket.emit("get_my_tabs", { "user_id": this.props.credentials?.user_id, "device_name": this.props.tabs_data?.device_name, "device_token": this.props.credentials?.device_token })
 
         this.props.socket.on("get_my_tabs", (data) => {
             const metadata_list = Object.entries(data).map(([key, value]) => [Number(key), value]);
@@ -113,14 +113,14 @@ export default class DeviceManager extends React.Component {
                 [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />]
             ])
         }, () => {
-            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
+            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
             this.props.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })
     }
 
     deleteAllTabs = () => {
-        this.props.socket.emit("remove_all_tabs", { 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name, 'tabs_data': { 0: 'link_1_updated' } });
+        this.props.socket.emit("remove_all_tabs", { 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, 'tabs_data': { 0: 'link_1_updated' } });
         this.setState({
             currOpenTab: -1,
             tabs: new Map(),
@@ -170,7 +170,7 @@ export default class DeviceManager extends React.Component {
             const newMap = this.state.metadata;
             newMap.delete(id);
             this.setState({ metadata: newMap });
-            this.props.socket.emit("remove_tab", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, 'id': id });
+            this.props.socket.emit("remove_tab", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, 'id': id, "device_token": this.props.credentials?.device_token });
         }
     }
 

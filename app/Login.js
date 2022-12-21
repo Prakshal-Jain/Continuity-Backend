@@ -37,7 +37,7 @@ export default function Login(props) {
 
         const userInfo = await response.json();
         if (userInfo !== null || userInfo !== undefined) {
-            userInfo.user_id = userInfo?.id;
+            userInfo.user_id = userInfo?.email;
             setUser(userInfo);
         }
     }
