@@ -22,11 +22,10 @@ export default function App({ navigation }) {
 
     const [devices, setDevices] = useState([]);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [credentials, setCredentials] = useState(null);
 
     // const socket = io("http://161.35.127.215");
-    const socket = io("http://10.4.3.41");
+    const socket = io("http://10.3.12.22");
     const colorScheme = useColorScheme();
 
     useEffect(() => {
@@ -39,7 +38,6 @@ export default function App({ navigation }) {
             else {
                 console.log(data?.message);
                 setCredentials(data?.message);
-                setIsLoggedIn(true);
             }
         });
 
@@ -57,9 +55,15 @@ export default function App({ navigation }) {
     });
 
     const postCredentials = (creds) => {
+        creds.user_id = creds?.email;
         socket.emit("login", creds);
     }
 
+    const deleteAllData = () => {
+        setDevices([]);
+        setCurrentDeviceName(null);
+        setCredentials(null);
+    }
 
     const styles = StyleSheet.create({
         root: {
@@ -119,7 +123,7 @@ export default function App({ navigation }) {
             <StatusBar animated={true}
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
-            {isLoggedIn ?
+            {(credentials !== null) ?
                 (
                     currDeviceName === null ? (
                         [
@@ -152,7 +156,7 @@ export default function App({ navigation }) {
                                         <MaterialIcons name="help-outline" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('Profile', { credentials, socket })}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Profile', { credentials, socket, deleteAllData })}>
                                         <Image source={{ uri: credentials?.picture }} style={{ width: 32, height: 32, borderRadius: (32 / 2) }} />
                                     </TouchableOpacity>
                                 </View>

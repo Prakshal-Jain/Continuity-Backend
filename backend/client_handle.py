@@ -51,6 +51,7 @@ class ClientHandleNamespace(Namespace):
 
 
     def on_login(self, data):
+        print(data)
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), [])
         ClientHandleNamespace.devices_in_use[data.get(
@@ -94,6 +95,7 @@ class ClientHandleNamespace(Namespace):
             'device_type': data.get('device_type'),
             'device_token': device_token.decode(),
             }
+        
         emit('login', {'sucessful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()
@@ -221,7 +223,6 @@ class ClientHandleNamespace(Namespace):
         emit('get_my_tabs', return_data)
     
     def on_logout(self, data):
-        # {user_id: _, device_token: _, device_name: _}
         user = collection.find_one({'user_id': data.get('user_id')})
         
         if user == None:

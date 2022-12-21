@@ -16,12 +16,17 @@ export default function ({ navigation, route, ...props }) {
     const colorScheme = useColorScheme();
     const credentials = route.params.credentials;
     const socket = route.params.socket;
+    const deleteAllData = route.params.deleteAllData;
 
     useEffect(() => {
         socket.on("logout", (data) => {
-            console.log("LOGGED OUT SEXUXFULLY", data)
+            console.log("LOGGED OUT", data)
+            deleteAllData();
+            navigation.navigate('Homepage');
         })
     }, [])
+
+    console.log(credentials)
 
     const styles = StyleSheet.create({
         root: {
@@ -100,7 +105,7 @@ export default function ({ navigation, route, ...props }) {
                     />
                     <View style={styles.infoContainer}>
                         <Text style={styles.name}>{credentials?.name}</Text>
-                        <Text style={styles.email}>{credentials?.email}</Text>
+                        <Text style={styles.email}>{credentials?.user_id}</Text>
                     </View>
                 </View>
 
