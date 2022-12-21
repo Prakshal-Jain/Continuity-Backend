@@ -9,11 +9,11 @@ import {
     Image,
     TouchableOpacity,
 } from "react-native";
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export default function ({ route, ...props }) {
     const colorScheme = useColorScheme();
     const credentials = route.params.credentials;
-    console.log(credentials);
 
     const styles = StyleSheet.create({
         root: {
@@ -22,6 +22,10 @@ export default function ({ route, ...props }) {
             display: 'flex',
             backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
             padding: 10,
+        },
+
+        scrollContainer: {
+            flex: 1,
         },
 
         container: {
@@ -35,6 +39,8 @@ export default function ({ route, ...props }) {
             height: 80,
             borderRadius: 40,
             marginRight: 20,
+            borderWidth: 1,
+            borderColor: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
         },
         infoContainer: {
             flex: 1,
@@ -48,6 +54,24 @@ export default function ({ route, ...props }) {
             color: colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
             fontSize: 16,
         },
+        logoutButton: {
+            marginRight: 40,
+            marginLeft: 40,
+            marginTop: 10,
+            paddingTop: 10,
+            paddingBottom: 10,
+            borderWidth: 1,
+            borderColor: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
+            borderRadius: 10,
+        },
+        logoutText: {
+            color: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
+            textAlign: 'center',
+            paddingLeft: 10,
+            paddingRight: 10,
+            fontSize: 20,
+            fontWeight: 'bold'
+        }
     })
 
 
@@ -57,7 +81,7 @@ export default function ({ route, ...props }) {
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
 
-            <ScrollView>
+            <ScrollView style={styles.scrollContainer}>
                 <View style={styles.container}>
                     <Image
                         style={styles.picture}
@@ -76,8 +100,23 @@ export default function ({ route, ...props }) {
                     }}
                 />
 
-                <Text style={styles.title}>{credentials.device_name}</Text>
+                <View style={styles.container}>
+                    <FontAwesome name={credentials?.device_type} size={50} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.name}>{credentials?.device_name}</Text>
+                    </View>
+                </View>
+
             </ScrollView>
+
+            <View>
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={() => { }}
+                    underlayColor='#fff'>
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     )
 }
