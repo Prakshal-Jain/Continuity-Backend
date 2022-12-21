@@ -241,6 +241,6 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data['device_token'] = None
         collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
 
-        emit("Success")
+        emit('logout', "Success")
         
 
