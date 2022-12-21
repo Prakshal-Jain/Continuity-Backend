@@ -225,7 +225,7 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': data.get('user_id')})
         
         if user == None:
-            emit("Error: User not found")
+            emit('logout', "Error: User not found")
             return
 
         device = data.get('device_name')
@@ -235,7 +235,7 @@ class ClientHandleNamespace(Namespace):
 
         print(checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')))
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('Error: device token does not match')
+            emit('logout', 'Error: device token does not match')
             return
         
         device_tabs_data = user.get('tabs_data').get(device)
