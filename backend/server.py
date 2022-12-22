@@ -9,7 +9,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def index():
-    return render_template('test.html', device_name='Dell'+str(randint(0,10)))
+    return render_template('test.html', device_name='Dell_'+str(randint(0,10)))
 
 if __name__ == '__main__':
     socketio.on_namespace(ClientHandleNamespace('/'))
