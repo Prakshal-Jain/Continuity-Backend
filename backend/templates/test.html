@@ -72,12 +72,18 @@
       console.log;("========================")
     });
 
+    socket.on('auto_authenticate', function(data) {
+      console.log("auto_authenticate");
+      console.log(data);
+      console.log;("========================")
+    });
+
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
     }
 
     function login(){
-      socket.emit("login", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_type': 'Laptop'});
+      socket.emit("login", {'user_id': 'Swastik', 'name': 'Swastik', 'picture': 'Test picture',  'device_name': '{{device_name}}', 'device_type': 'Laptop'});
     }
 
     function logout(){
@@ -104,6 +110,10 @@
       socket.emit("get_my_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
     }
 
+    function auto_authenticate(){
+      socket.emit("auto_authenticate", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -116,5 +126,6 @@
     <button onclick="get();">get</button>
     <button onclick="remove_all_tabs();">remove_all_tabs</button>
     <button onclick="get_my_tabs();">get_my_tabs</button>
+    <button onclick="auto_authenticate();">auto_authenticate</button>
 </body>
 </html>

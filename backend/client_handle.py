@@ -52,8 +52,9 @@ class ClientHandleNamespace(Namespace):
             "device_token") for device_tab_data in tabs_data.values()]
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
+        print("tokens_in_use: ", tokens_in_use, flush=True)
         while token != b'':
-            if checkpw(device_token, token):
+            if token != None and checkpw(device_token, token):
                 device_token = token_urlsafe(27).encode()
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
@@ -71,7 +72,10 @@ class ClientHandleNamespace(Namespace):
         device_token = token_urlsafe(27).encode()
 
         if user == None:
-            user = {'user_id': data.get('user_id'),
+            user = {
+                    'user_id': data.get('user_id'),
+                    'name': data.get('name'),
+                    'picture': data.get('picture'),
                     'devices': {data.get('device_name'): data.get('device_type')},
                     'tabs_data': self.__create_tab(data.get('device_name'), data.get('device_type'), device_token)
                     }
@@ -145,6 +149,7 @@ class ClientHandleNamespace(Namespace):
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        del data['device_token']
         emit('add_tab', data, to=send_update)
         sys.stderr.flush()
         sys.stdout.flush()
@@ -178,6 +183,7 @@ class ClientHandleNamespace(Namespace):
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        del data['device_token']
         emit('remove_tab', data, to=send_update)
 
     def on_remove_all_tabs(self, data):
@@ -208,6 +214,7 @@ class ClientHandleNamespace(Namespace):
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        del data['device_token']
         emit('remove_all_tabs', data, to=send_update)
 
     def on_update_tab(self, data):
@@ -240,6 +247,7 @@ class ClientHandleNamespace(Namespace):
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        del data['device_token']
         emit('update_tab', data, to=send_update)
 
     def on_get(self, data):
@@ -310,3 +318,42 @@ class ClientHandleNamespace(Namespace):
         # Check if user is enrolled for UltraSearch
         response = ultra_search_query(data)    # This function will call the API
         emit("ultra_search_query", response)
+
+    def on_auto_authenticate(self, data):
+        user_id = data.get('user_id')
+        device_name = data.get('device_name')
+        device_token = data.get('device_token')
+
+        data = collection.find({f'tabs_data.{device_name}':  {'$exists': True}})
+
+        for d in data:
+            print('Data: ', d, flush=True)
+            user_id_from_data = d.get('user_id')
+            tabs_data_from_data = d.get('tabs_data')
+            device_data_from_data = tabs_data_from_data.get(device_name)
+            device_token_from_data = device_data_from_data.get('device_token')
+
+            if device_token_from_data != None and checkpw(device_token.encode(), device_token_from_data):
+                credentials = {
+                    "name": d.get('name'),
+                    "picture": d.get('picture'),
+                    "user_id": user_id_from_data,
+                    "device_name": device_name,
+                    'device_type': device_data_from_data.get('device_type'),
+                    'device_token': device_token,
+                }
+                emit('auto_authenticate', {'successful': True, 'message': credentials})
+                return
+        
+        emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
+
+
+
+
+
+
+
+        
+
+
+
