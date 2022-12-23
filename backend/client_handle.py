@@ -4,10 +4,20 @@ import sys
 from pymongo import MongoClient
 from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
+from features.ultra_search import ultra_search_query
 
 client = MongoClient('mongo')
 db = client['user-data']
 collection = db['records']
+
+'''
+TODO:
+1.  Create a new field in user for "enrolled_features"
+    Sample: {"ultraBrowsing": True, ...}
+2. Fix the current authentication functionality and bugs
+3. Introduce "Intelligent Tracking" --> Free
+4. Introduce "Tracking Prevention" --> Paid (Later V2.0)
+'''
 
 
 class ClientHandleNamespace(Namespace):
@@ -89,6 +99,9 @@ class ClientHandleNamespace(Namespace):
             collection.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'tabs_data': user.get('tabs_data')}})
 
+        # Need another field here for enrolled features (see below)
+        # enrolled_features: {"ultraBrowsing": True, ...}       # So that we can scale this with other features in the future
+        
         credentials = {
             "name": data.get('name'),
             "picture": data.get('picture'),
@@ -291,3 +304,9 @@ class ClientHandleNamespace(Namespace):
 
         emit('logout', "Success")
         print("Logged Out Successfully")
+
+    def on_ultra_search_query(self, data):
+        # Check if user exist
+        # Check if user is enrolled for UltraSearch
+        response = ultra_search_query(data)    # This function will call the API
+        emit("ultra_search_query", response)

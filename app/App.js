@@ -7,6 +7,8 @@ import {
   useColorScheme
 } from "react-native";
 import PrivacyPolicy from './PrivacyPolicy';
+import Settings from './Settings';
+import UltraSearch from './UltraSearch';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,6 +48,30 @@ export default function () {
           }}
         />
         <Stack.Screen name="Privacy Policy" component={PrivacyPolicy}
+          options={{
+            headerStyle: {
+              backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+            },
+            headerTintColor: (colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+
+        <Stack.Screen name="Settings" component={Settings}
+          options={{
+            headerStyle: {
+              backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+            },
+            headerTintColor: (colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+
+        <Stack.Screen name="Ultra Search" component={UltraSearch}
           options={{
             headerStyle: {
               backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',

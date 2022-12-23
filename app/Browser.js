@@ -13,6 +13,7 @@ import {
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { URL, URLSearchParams } from 'react-native-url-polyfill';
 
 // keeps the reference to the browser
 let browserRef = null;
@@ -171,7 +172,12 @@ class Browser extends Component {
 
     // can prevent requests from fulfilling, good to log requests
     // or filter ads and adult content.
-    filterRequest = (request) => {
+    onShouldStartLoadWithRequest = (request) => {
+        const parsedUrl = new URL(request.url);
+        if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
+            // Extract the searched string from the q query parameter
+            this.props.socket.emit('ultra_search_query', { query: parsedUrl.searchParams.get('q'), ...this.props.update_tab_data })
+        }
         return true;
     };
 
@@ -297,7 +303,7 @@ class Browser extends Component {
                         onError={this.onBrowserError}
                         onNavigationStateChange={this.onNavigationStateChange}
                         renderLoading={() => <ActivityIndicator size="small" color="#ffffff" />}
-                        onShouldStartLoadWithRequest={this.filterRequest}
+                        onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest}
                         onMessage={this.onBrowserMessage}
                         dataDetectorTypes={config.detectorTypes}
                         thirdPartyCookiesEnabled={config.allowCookies}
@@ -310,7 +316,7 @@ class Browser extends Component {
                         allowsBackForwardNavigationGestures={true}
                         mediaPlaybackRequiresUserAction={true}
                         style={{ backgroundColor: (this.props.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', }}
-                        // onScroll={this.handleScroll}
+                    // onScroll={this.handleScroll}
                     />
                 </View>
 

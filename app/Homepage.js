@@ -16,7 +16,7 @@ import {
 import Login from './Login';
 import { io } from "socket.io-client";
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
-// import EncryptedStorage from 'react-native-encrypted-storage';
+import storage from "./utilities/storage";
 
 export default function App({ navigation }) {
 
@@ -28,8 +28,30 @@ export default function App({ navigation }) {
     const socket = io("http://10.3.12.22");
     const colorScheme = useColorScheme();
 
+    const autoAuthenticate = async () => {
+        const user_id = await storage.get("user_id");
+        const device_name = await storage.get("device_name");
+        const device_token = await storage.get("device_token");
+        socket.emit("auto_authenticate", { user_id, device_name, device_token })
+    }
+
     useEffect(() => {
-        socket.on('login', (data) => {
+        // Emit for auto authentication
+        (async () => { await autoAuthenticate(); })();
+
+
+        socket.on('auto_authenticate', async (data) => {
+            // Set the correct states and credentials
+            if (!data.sucessful) {
+                setCredentials(null);
+                return
+            }
+            else{
+                setCredentials(data?.message);
+            }
+        })
+
+        socket.on('login', async (data) => {
             if (!data.sucessful) {
                 console.log("Unsuccessful Login");
                 setCredentials(null);
@@ -38,6 +60,9 @@ export default function App({ navigation }) {
             else {
                 console.log(data?.message);
                 setCredentials(data?.message);
+                await storage.set("user_id", data?.message?.user_id);
+                await storage.set("device_name", data?.message?.device_name);
+                await storage.set("device_token", data?.message?.device_token);
             }
         });
 
@@ -51,7 +76,6 @@ export default function App({ navigation }) {
                 data
             ])
         });
-
     });
 
     const postCredentials = (creds) => {
@@ -154,6 +178,10 @@ export default function App({ navigation }) {
                                 <View style={styles.footer_options} key="footer">
                                     <TouchableOpacity onPress={() => navigation.navigate('Help')}>
                                         <MaterialIcons name="help-outline" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                                        <MaterialIcons name="settings" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity onPress={() => navigation.navigate('Profile', { credentials, socket, deleteAllData })}>
