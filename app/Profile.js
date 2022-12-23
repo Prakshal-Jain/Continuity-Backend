@@ -26,8 +26,6 @@ export default function ({ navigation, route, ...props }) {
         })
     }, [])
 
-    console.log(credentials)
-
     const styles = StyleSheet.create({
         root: {
             flex: 1,
@@ -39,6 +37,7 @@ export default function ({ navigation, route, ...props }) {
 
         scrollContainer: {
             flex: 1,
+            padding: 10,
         },
 
         container: {
@@ -117,11 +116,19 @@ export default function ({ navigation, route, ...props }) {
                 />
 
                 <View style={styles.container}>
-                    <FontAwesome name={credentials?.device_type} size={50} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+                    <FontAwesome name={credentials?.device_type} size={50} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 20 }} />
                     <View style={styles.infoContainer}>
-                        <Text style={styles.name}>{credentials?.device_name}</Text>
+                        <Text style={styles.name}>Device Name</Text>
+                        <Text style={styles.email}>{credentials?.device_name}</Text>
                     </View>
                 </View>
+
+                <View
+                    style={{
+                        borderBottomColor: '#a9a9a9',
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                    }}
+                />
 
             </ScrollView>
 
@@ -130,7 +137,7 @@ export default function ({ navigation, route, ...props }) {
                     style={styles.logoutButton}
                     onPress={onLogout}
                     underlayColor='#fff'>
-                    <Text style={styles.logoutText}>Logout</Text>
+                    <Text style={styles.logoutText}>Sign Out</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

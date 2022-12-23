@@ -151,7 +151,7 @@ export default function App({ navigation }) {
                                 }
                             </ScrollView>,
                             (credentials !== null && credentials !== undefined) ? (
-                                <View style={styles.footer_options}>
+                                <View style={styles.footer_options} key="footer">
                                     <TouchableOpacity onPress={() => navigation.navigate('Help')}>
                                         <MaterialIcons name="help-outline" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
@@ -169,7 +169,7 @@ export default function App({ navigation }) {
                         <DeviceManager setCurrentDeviceName={setCurrentDeviceName} tabs_data={(devices.filter(device => device.device_name === currDeviceName))[0]} credentials={credentials} socket={socket} colorScheme={colorScheme} />
                 )
                 :
-                <Login postCredentials={postCredentials} colorScheme={colorScheme} />
+                <Login postCredentials={postCredentials} colorScheme={colorScheme} navigation={navigation} />
             }
         </SafeAreaView>
     );

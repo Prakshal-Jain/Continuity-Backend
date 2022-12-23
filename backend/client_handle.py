@@ -42,7 +42,7 @@ class ClientHandleNamespace(Namespace):
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
         while token != b'':
-            if token != None and checkpw(device_token, token):
+            if checkpw(device_token, token):
                 device_token = token_urlsafe(27).encode()
                 current_iter = iter(tokens_in_use)
             token = next(current_iter, b'')
@@ -51,7 +51,6 @@ class ClientHandleNamespace(Namespace):
 
 
     def on_login(self, data):
-        print(data)
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), [])
         ClientHandleNamespace.devices_in_use[data.get(
@@ -95,7 +94,6 @@ class ClientHandleNamespace(Namespace):
             'device_type': data.get('device_type'),
             'device_token': device_token.decode(),
             }
-        
         emit('login', {'sucessful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()
@@ -223,10 +221,11 @@ class ClientHandleNamespace(Namespace):
         emit('get_my_tabs', return_data)
     
     def on_logout(self, data):
+        # {user_id: _, device_token: _, device_name: _}
         user = collection.find_one({'user_id': data.get('user_id')})
         
         if user == None:
-            emit('logout', "Error: User not found")
+            emit("Error: User not found")
             return
 
         device = data.get('device_name')
@@ -235,7 +234,7 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('logout', 'Error: device token does not match')
+            emit('Error: device token does not match')
             return
         
         device_tabs_data = user.get('tabs_data').get(device)

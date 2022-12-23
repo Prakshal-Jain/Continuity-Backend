@@ -123,7 +123,7 @@ export default function Login(props) {
 
                             <Text style={styles.h2}>Device Type</Text>
                             <View style={styles.horizontal_flex}>
-                                <CheckBoxList check_list={data} onSelect={setSelected} default={data[0]} colorScheme={props.colorScheme} />
+                                <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={props.colorScheme} />
                             </View>
 
                             <TouchableOpacity
@@ -137,11 +137,11 @@ export default function Login(props) {
                 }
 
             </ScrollView>
-            <View style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => props.navigation.navigate('Privacy Policy')}>
                 <Text style={styles.privacy}>
                     Privacy Policy
                 </Text>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 }

@@ -6,6 +6,7 @@ import Help from "./Help";
 import {
   useColorScheme
 } from "react-native";
+import PrivacyPolicy from './PrivacyPolicy';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,17 @@ export default function () {
           }}
         />
         <Stack.Screen name="Help" component={Help}
+          options={{
+            headerStyle: {
+              backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+            },
+            headerTintColor: (colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+        <Stack.Screen name="Privacy Policy" component={PrivacyPolicy}
           options={{
             headerStyle: {
               backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
