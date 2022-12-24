@@ -23,13 +23,13 @@ TODO:
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
 
-    def __init__(self) -> None:
-        super().__init__()
+    # def __init__(self) -> None:
+    #     super().__init__()
 
-        users = collection.find({})
+    #     users = collection.find({})
 
-        for user in users:
-            ClientHandleNamespace.devices_in_use[user.get('user_id')] = user.get('user_id', [])
+    #     for user in users:
+    #         ClientHandleNamespace.devices_in_use[user.get('user_id')] = user.get('user_id', [])
 
     def __create_tab(self, device_name, device_type, device_token):
         return {device_name: {'tabs': {}, 'device_type': device_type, "device_token": hashpw(device_token, gensalt())}}
