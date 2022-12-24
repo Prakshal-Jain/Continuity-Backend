@@ -279,6 +279,32 @@ class ClientHandleNamespace(Namespace):
 
         return_data = tabs_data.get(data.get('device_name')).get('tabs')
         emit('get_my_tabs', return_data)
+    
+    def on_all_devices(self, data):
+        user = collection.find_one({'user_id': data.get('user_id')})
+
+        if user == None:
+            emit('all_devices', {'sucessful': False,
+                 "message": "Error: User not found"})
+            return
+
+        device = data.get('device_name')
+        tabs_data = user.get('tabs_data')
+
+        device_tabs_data = tabs_data.get(device)
+
+        if data.get('device_token') == None:
+            emit("all_devices", {'sucessful': False,
+                 "message": 'Error: device_token is null'})
+            return
+
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
+            emit('all_devices', {'sucessful': False,
+                 "message": 'Error: device token does not match'})
+            return
+
+        emit('all_devices', self.__get_tabs_data(user))
+
 
     def on_logout(self, data):
         # {user_id: _, device_token: _, device_name: _}
