@@ -368,6 +368,7 @@ class ClientHandleNamespace(Namespace):
                     'device_token': device_token,
                 }
                 emit('auto_authenticate', {'successful': True, 'message': credentials})
+                emit('all_devices', self.__get_tabs_data(user_id_from_data))
                 return
         
         emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
