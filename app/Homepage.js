@@ -18,21 +18,23 @@ import { io } from "socket.io-client";
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import storage from "./utilities/storage";
 
+const socket = io("http://10.4.3.41");
+
 export default function App({ navigation }) {
 
-    const [devices, setDevices] = useState([]);
+    const [devices, setDevices] = useState(null);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
     const [credentials, setCredentials] = useState(null);
 
     // const socket = io("http://161.35.127.215");
-    const socket = io("http://10.4.3.41");
     const colorScheme = useColorScheme();
 
     const autoAuthenticate = async () => {
+        await storage.clearAll();
         const user_id = await storage.get("user_id");
         const device_name = await storage.get("device_name");
         const device_token = await storage.get("device_token");
-        console.log({ user_id, device_name, device_token })
+        // console.log({ user_id, device_name, device_token })
         socket.emit("auto_authenticate", { user_id, device_name, device_token })
     }
 
@@ -57,7 +59,7 @@ export default function App({ navigation }) {
                 return;
             }
             else {
-                console.log("Setting Credentials in login ")
+                // console.log("Setting Credentials in login ")
                 await storage.set("user_id", data?.message?.user_id);
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
@@ -66,15 +68,17 @@ export default function App({ navigation }) {
         });
 
         socket.on('all_devices', (data) => {
-            console.log(data);
+            console.log("ALL Devices", data)
             setDevices(data);
         });
 
         socket.on('add_device', (data) => {
-            setDevices([
-                ...devices,
+            const all_dev = [
+                ...(devices ?? []),
                 data
-            ])
+            ];
+            console.log("Devices added: ", all_dev);
+            setDevices(all_dev);
         });
     }, []);
 
@@ -83,7 +87,9 @@ export default function App({ navigation }) {
         socket.emit("login", creds);
     }
 
-    const deleteAllData = () => {
+    const deleteAllData = async () => {
+        console.log("DELETE DEVICES", devices);
+        await storage.clearAll();
         setDevices([]);
         setCurrentDeviceName(null);
         setCredentials(null);

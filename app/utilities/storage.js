@@ -43,7 +43,7 @@ export const clearAll = async () => {
     return false;
   }
 
-  console.log('Done.')
+  // console.log('Done.')
 }
 
 export default { set, get, remove, clearAll };

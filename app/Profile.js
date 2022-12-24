@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import storage from "./utilities/storage";
 
 export default function ({ navigation, route, ...props }) {
     const colorScheme = useColorScheme();
@@ -20,7 +21,7 @@ export default function ({ navigation, route, ...props }) {
 
     useEffect(() => {
         socket.on("logout", (data) => {
-            console.log("LOGGED OUT", data)
+            // console.log("LOGGED OUT", data)
             deleteAllData();
             navigation.navigate('Homepage');
         })

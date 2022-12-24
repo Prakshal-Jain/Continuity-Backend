@@ -189,9 +189,9 @@ class Browser extends Component {
 
     // called when the browser sends a message using "window.ReactNativeWebView.postMessage"
     onBrowserMessage = (event) => {
-        console.log('*'.repeat(10));
-        console.log('Got message from the browser:', event.nativeEvent.data);
-        console.log('*'.repeat(10));
+        // console.log('*'.repeat(10));
+        // console.log('Got message from the browser:', event.nativeEvent.data);
+        // console.log('*'.repeat(10));
     };
 
     onShare = async () => {
@@ -224,7 +224,7 @@ class Browser extends Component {
         const oldPosition = this.browserBarRef.current;
         //  && currentYPosition > 15
         if (oldPosition < currentYPosition) {
-            console.log("Scroll Down");
+            // console.log("Scroll Down");
             if (this.state.isScrollDown) {
                 Animated.timing(this.expandedBrowserBarAnimRef, {
                     toValue: 0,

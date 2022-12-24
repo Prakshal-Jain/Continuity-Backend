@@ -7,75 +7,75 @@
     var device_token = null;
     
     socket.on('connect', function() {
-      console.log("User connected")
+      // console.log("User connected")
     });
     
     socket.on('login', function(data) {
-      console.log("login")  
-      console.log(data)
+      // console.log("login")  
+      // console.log(data)
       device_token = data.message.device_token;
-      console.log("========================")
+      // console.log("========================")
     });
 
     socket.on('logout', function(data) {
-      console.log("logout")  
-      console.log(data)
-      console.log("========================")
+      // console.log("logout")  
+      // console.log(data)
+      // console.log("========================")
     });
 
     socket.on('add_tab', function(data) {
-      console.log("add_tab")  
-      console.log(data)
-      console.log("========================")
+      // console.log("add_tab")  
+      // console.log(data)
+      // console.log("========================")
     });
 
 
     socket.on('update_tab', function(data) {
-      console.log("update_tab")  
-      console.log(data)
-      console.log("========================")
+      // console.log("update_tab")  
+      // console.log(data)
+      // console.log("========================")
     });
 
     socket.on('remove_tab', function(data) {
-      console.log("remove_tab")  
-      console.log(data)
-      console.log("========================")
+      // console.log("remove_tab")  
+      // console.log(data)
+      // console.log("========================")
     });
 
     socket.on('all_devices', function(data) {
-      console.log("all_devices");
-      console.log(data);
-      console.log("========================");
+      // console.log("all_devices");
+      // console.log(data);
+      // console.log("========================");
     });
 
     socket.on('add_device', function(data) {
-      console.log("add_device");
-      console.log(data);
-      console.log("========================");
+      // console.log("add_device");
+      // console.log(data);
+      // console.log("========================");
     });
 
     socket.on('get_my_tabs', function(data) {
-      console.log("on_get_my_tabs");
-      console.log(data);
-      console.log("========================");
+      // console.log("on_get_my_tabs");
+      // console.log(data);
+      // console.log("========================");
     });
 
     socket.on('get', function(data) {
-      console.log("get");
-      console.log(data);
-      console.log;("========================")
+      // console.log("get");
+      // console.log(data);
+      // console.lo;("========================")
     });
 
     socket.on('remove_all_tabs', function(data) {
-      console.log("remove_all_tabs");
-      console.log(data);
-      console.log;("========================")
+      // console.log("remove_all_tabs");
+      // console.log(data);
+      // console.lo;("========================")
     });
 
     socket.on('auto_authenticate', function(data) {
-      console.log("auto_authenticate");
-      console.log(data);
-      console.log;("========================")
+      // console.log("auto_authenticate");
+      // console.log(data);
+      // console.lo;("========================")
     });
 
     function get(){
