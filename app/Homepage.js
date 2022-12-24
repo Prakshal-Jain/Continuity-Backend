@@ -25,48 +25,48 @@ export default function App({ navigation }) {
     const [credentials, setCredentials] = useState(null);
 
     // const socket = io("http://161.35.127.215");
-    const socket = io("http://10.3.12.22");
+    const socket = io("http://10.4.3.41");
     const colorScheme = useColorScheme();
 
     const autoAuthenticate = async () => {
         const user_id = await storage.get("user_id");
         const device_name = await storage.get("device_name");
         const device_token = await storage.get("device_token");
+        console.log({ user_id, device_name, device_token })
         socket.emit("auto_authenticate", { user_id, device_name, device_token })
     }
 
     useEffect(() => {
-        // Emit for auto authentication
         (async () => { await autoAuthenticate(); })();
 
 
         socket.on('auto_authenticate', async (data) => {
             // Set the correct states and credentials
-            if (!data.sucessful) {
+            if ((!data?.successful) || credentials !== null) {
                 setCredentials(null);
                 return
             }
-            else{
+            else {
                 setCredentials(data?.message);
             }
         })
 
         socket.on('login', async (data) => {
-            if (!data.sucessful) {
-                console.log("Unsuccessful Login");
+            if ((!data?.successful) || credentials !== null) {
                 setCredentials(null);
                 return;
             }
             else {
-                console.log(data?.message);
-                setCredentials(data?.message);
+                console.log("Setting Credentials in login ")
                 await storage.set("user_id", data?.message?.user_id);
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
+                setCredentials(data?.message);
             }
         });
 
         socket.on('all_devices', (data) => {
+            console.log(data);
             setDevices(data);
         });
 
@@ -76,7 +76,7 @@ export default function App({ navigation }) {
                 data
             ])
         });
-    });
+    }, []);
 
     const postCredentials = (creds) => {
         creds.user_id = creds?.email;

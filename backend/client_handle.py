@@ -52,7 +52,6 @@ class ClientHandleNamespace(Namespace):
             "device_token") for device_tab_data in tabs_data.values()]
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
-        print("tokens_in_use: ", tokens_in_use, flush=True)
         while token != b'':
             if token != None and checkpw(device_token, token):
                 device_token = token_urlsafe(27).encode()
@@ -114,7 +113,7 @@ class ClientHandleNamespace(Namespace):
             'device_type': data.get('device_type'),
             'device_token': device_token.decode(),
         }
-        emit('login', {'sucessful': True, "message": credentials})
+        emit('login', {'successful': True, "message": credentials})
         emit('all_devices', self.__get_tabs_data(user))
         sys.stderr.flush()
         sys.stdout.flush()
@@ -122,7 +121,7 @@ class ClientHandleNamespace(Namespace):
     def on_add_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
         if user == None:
-            emit("add_tab", {'sucessful': False,
+            emit("add_tab", {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -133,12 +132,12 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("add_tab", {'sucessful': False,
+            emit("add_tab", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit("add_tab", {'sucessful': False,
+            emit("add_tab", {'successful': False,
                  "message": 'Error: device token does not match'})
             return
 
@@ -157,7 +156,7 @@ class ClientHandleNamespace(Namespace):
     def on_remove_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
         if user == None:
-            emit('remove_tab', {'sucessful': False,
+            emit('remove_tab', {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -166,12 +165,12 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("remove_tab", {'sucessful': False,
+            emit("remove_tab", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('remove_tab', {'sucessful': False,
+            emit('remove_tab', {'successful': False,
                  "message": 'Error: device token does not match'})
             return
 
@@ -189,7 +188,7 @@ class ClientHandleNamespace(Namespace):
     def on_remove_all_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
         if user == None:
-            emit('remove_all_tabs', {'sucessful': False,
+            emit('remove_all_tabs', {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -198,14 +197,14 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("remove_all_tabs", {'sucessful': False,
+            emit("remove_all_tabs", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
 
             emit('remove_all_tabs', {
-                 'sucessful': False, "message": 'Error: device token does not match'})
+                 'successful': False, "message": 'Error: device token does not match'})
             return
 
         tabs_data.get(device)['tabs'] = {}
@@ -220,7 +219,7 @@ class ClientHandleNamespace(Namespace):
     def on_update_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
         if user == None:
-            emit('update_tab', {'sucessful': False,
+            emit('update_tab', {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -231,12 +230,12 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("update_tab", {'sucessful': False,
+            emit("update_tab", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('update_tab', {'sucessful': False,
+            emit('update_tab', {'successful': False,
                  "message": 'Error: device token does not match'})
             return
 
@@ -259,7 +258,7 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': data.get('user_id')})
 
         if user == None:
-            emit("get_my_tabs", {'sucessful': False,
+            emit("get_my_tabs", {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -269,12 +268,12 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("get_my_tabs", {'sucessful': False,
+            emit("get_my_tabs", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit("get_my_tabs", {'sucessful': False,
+            emit("get_my_tabs", {'successful': False,
                  "message": 'Error: device token does not match'})
             return
 
@@ -286,7 +285,7 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': data.get('user_id')})
 
         if user == None:
-            emit('logout', {'sucessful': False,
+            emit('logout', {'successful': False,
                  "message": "Error: User not found"})
             return
 
@@ -296,12 +295,12 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         if data.get('device_token') == None:
-            emit("logout", {'sucessful': False,
+            emit("logout", {'successful': False,
                  "message": 'Error: device_token is null'})
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('logout', {'sucessful': False,
+            emit('logout', {'successful': False,
                  "message": 'Error: device token does not match'})
             return
 
@@ -327,7 +326,7 @@ class ClientHandleNamespace(Namespace):
         data = collection.find({f'tabs_data.{device_name}':  {'$exists': True}})
 
         for d in data:
-            print('Data: ', d, flush=True)
+            print(d, flush=True)
             user_id_from_data = d.get('user_id')
             tabs_data_from_data = d.get('tabs_data')
             device_data_from_data = tabs_data_from_data.get(device_name)
