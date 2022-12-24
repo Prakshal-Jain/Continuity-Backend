@@ -71,8 +71,12 @@ class ClientHandleNamespace(Namespace):
     def on_login(self, data):
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), set())
+        print(ClientHandleNamespace.devices_in_use.get(data.get(
+            'user_id')))
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')].add(request.sid)
+        print(ClientHandleNamespace.devices_in_use.get(data.get(
+            'user_id')))
 
         user = collection.find_one({'user_id': data.get('user_id')})
 
@@ -97,9 +101,9 @@ class ClientHandleNamespace(Namespace):
             user.get('tabs_data').update(new_device)
             collection.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
-            send_update = list(filter(lambda x: x != request.sid,
-                               ClientHandleNamespace.devices_in_use[data.get('user_id')]))
-            emit('add_device', self.__get_tab_data(data.get('device_name'), data.get('device_type')), to=send_update)
+            # send_update = list(filter(lambda x: x != request.sid,
+            #                    ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+            # emit('add_device', self.__get_tab_data(data.get('device_name'), data.get('device_type')), to=send_update)
         else:
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
             device_tabs_data = user.get('tabs_data').get(data.get('device_name'))
@@ -119,7 +123,7 @@ class ClientHandleNamespace(Namespace):
             'device_token': device_token.decode(),
         }
         emit('login', {'successful': True, "message": credentials})
-        emit('all_devices', self.__get_tabs_data(user))
+        emit('all_devices', self.__get_tabs_data(user), to=list(ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -339,7 +343,9 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = user.get('tabs_data').get(device)
         device_tabs_data['device_token'] = None
         collection.update_one({'user_id': user_id}, {"$set": {'tabs_data': user.get('tabs_data')}})
+        print(ClientHandleNamespace.devices_in_use.get(user_id))
         ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
+        print(ClientHandleNamespace.devices_in_use.get(user_id))
 
         emit('logout', "Success")
         print("Logged Out Successfully")
@@ -376,7 +382,9 @@ class ClientHandleNamespace(Namespace):
                 user = collection.find_one({'user_id': user_id_from_data})
                 emit('auto_authenticate', {'successful': True, 'message': credentials})
                 emit('all_devices', self.__get_tabs_data(user))
+                print(ClientHandleNamespace.devices_in_use.get(user_id))
                 ClientHandleNamespace.devices_in_use[user_id_from_data].add(request.sid)
+                print(ClientHandleNamespace.devices_in_use.get(user_id))
                 return
         emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
 
