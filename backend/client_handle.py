@@ -103,6 +103,9 @@ class ClientHandleNamespace(Namespace):
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
             send_update = list(filter(lambda x: x != request.sid,
                                ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+            print("In new device if of login", flush=True)
+            print("SENDING to: ", send_update, flush=True)
+            print("Data:", self.__get_tab_data(data.get('device_name'), data.get('device_type')), flush=True)
             emit('add_device', self.__get_tab_data(data.get('device_name'), data.get('device_type')), to=send_update)
         else:
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
