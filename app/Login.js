@@ -6,6 +6,7 @@ import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
 import GoogleSignInButton from './components/GoogleSignInButton';
+import PullUpMenu from "./components/PullUpMenu"
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -137,6 +138,7 @@ export default function Login(props) {
                 }
 
             </ScrollView>
+            {/* <PullUpMenu /> */}
             <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => props.navigation.navigate('Privacy Policy')}>
                 <Text style={styles.privacy}>
                     Privacy Policy

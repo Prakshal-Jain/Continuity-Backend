@@ -61,7 +61,8 @@ class Browser extends Component {
         refreshing: false,
         url: this.props.url,
         displayBrowserBar: true,
-        isScrollDown: false
+        isScrollDown: false,
+        ultra_search_response: null
     };
 
 
@@ -176,7 +177,12 @@ class Browser extends Component {
         const parsedUrl = new URL(request.url);
         if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
             // Extract the searched string from the q query parameter
-            this.props.socket.emit('ultra_search_query', { query: parsedUrl.searchParams.get('q'), ...this.props.update_tab_data })
+            const prompt = parsedUrl.searchParams.get('q');
+            if (prompt !== undefined && prompt !== null && this.state.ultra_search_response?.prompt !== prompt) {
+                // A new prompt from user
+                this.setState({ ultra_search_response: { "prompt": parsedUrl.searchParams.get('q'), "response": null } });
+            }
+            // this.props.socket.emit('ultra_search_query', { query: parsedUrl.searchParams.get('q'), ...this.props.update_tab_data })
         }
         return true;
     };
@@ -231,21 +237,6 @@ class Browser extends Component {
             }
 
             // we scrolled down
-
-            // Animated.parallel(
-            //     Animated.timing(this.collapsedBrowserBarAnimRef, {
-            //         toValue: 0,
-            //         duration: 200,
-            //         useNativeDriver: true,
-            //     }).start(),
-            //     Animated.timing(this.expandedBrowserBarAnimRef, {
-            //         toValue: 100,
-            //         duration: 200,
-            //         useNativeDriver: true,
-            //     }).start(),
-            // ).start(() => {
-            //     this.setState({ displayBrowserBar: false });
-            // });
         }
 
         else {
@@ -261,21 +252,6 @@ class Browser extends Component {
             }
 
             // we scrolled up
-
-            // Animated.parallel(
-            //     Animated.timing(this.collapsedBrowserBarAnimRef, {
-            //         toValue: 100,
-            //         duration: 200,
-            //         useNativeDriver: true,
-            //     }).start(),
-            //     Animated.timing(this.expandedBrowserBarAnimRef, {
-            //         toValue: 0,
-            //         duration: 200,
-            //         useNativeDriver: true,
-            //     }).start(),
-            // ).start(() => {
-            //     this.setState({ displayBrowserBar: true });
-            // });
         }
         // save the current position for the next onScroll event
         this.browserBarRef.current = currentYPosition
