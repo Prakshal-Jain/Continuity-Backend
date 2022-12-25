@@ -21,6 +21,7 @@ import storage from "./utilities/storage";
 const socket = io("http://10.3.12.22");
 
 export default function App({ navigation }) {
+    
     const [devices, setDevices] = useState(null);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
     const [credentials, setCredentials] = useState(null);
