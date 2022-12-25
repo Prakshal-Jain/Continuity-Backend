@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function Login({ selected, onSelect, ...props }) {
+export default function CheckBoxList({ selected, onSelect, ...props }) {
 
     const styles = StyleSheet.create({
         list_container: {

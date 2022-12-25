@@ -6,13 +6,12 @@ import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
 import GoogleSignInButton from './components/GoogleSignInButton';
-import PullUpMenu from "./components/PullUpMenu"
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login(props) {
     const [deviceName, setDeviceName] = React.useState(null);
-    const [selected, setSelected] = React.useState(null);
+    const [selected, setSelected] = React.useState('mobile-phone');
 
     const [accessToken, setAccessToken] = useState(null);
     const [user, setUser] = useState(null);

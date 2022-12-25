@@ -19,12 +19,15 @@ const UltraSearch = ({ navigation, route }) => {
 
     useEffect(() => {
         socket.on("enroll_feature", (data) => {
-            credentials.enrolled_features.ultra_search = (!credentials.enrolled_features.ultra_search);
-            navigation.setParams({
-                credentials
-            })
             if (data?.successful) {
+                credentials.enrolled_features.ultra_search = (!credentials.enrolled_features.ultra_search);
+                navigation.setParams({
+                    credentials
+                })
                 navigation.navigate('Settings', { credentials, socket });
+            }
+            else {
+                console.log(data?.message);
             }
         })
     })

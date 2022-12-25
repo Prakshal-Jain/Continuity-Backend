@@ -108,7 +108,13 @@ class ClientHandleNamespace(Namespace):
             print("SENDING to: ", send_update, flush=True)
             print("Data:", self.__get_tab_data(
                 data.get('device_name'), data.get('device_type')), flush=True)
-            # emit('add_device', self.__get_tab_data(data.get('device_name'), data.get('device_type')), to=send_update)
+            emit('add_device',
+                 {
+                     'successful': True,
+                     'message': self.__get_tab_data(
+                         data.get('device_name'), data.get('device_type'))
+                 },
+                 to=send_update)
         else:
             device_token = self.__check_for_same_token(
                 device_token, user.get('tabs_data'))
@@ -131,8 +137,10 @@ class ClientHandleNamespace(Namespace):
             'enrolled_features': user.get('enrolled_features')
         }
         emit('login', {'successful': True, "message": credentials})
-        emit('all_devices', self.__get_tabs_data(user), to=list(
-            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        # emit('all_devices', {'successful': True, 'message': self.__get_tabs_data(user)}, to=list(
+        #     ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        emit('all_devices', {'successful': True,
+             'message': self.__get_tabs_data(user)})
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -167,7 +175,7 @@ class ClientHandleNamespace(Namespace):
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         del data['device_token']
-        emit('add_tab', data, to=send_update)
+        emit('add_tab', {'successful': True, "message": data}, to=send_update)
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -201,7 +209,8 @@ class ClientHandleNamespace(Namespace):
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         del data['device_token']
-        emit('remove_tab', data, to=send_update)
+        emit('remove_tab', {'successful': True,
+             "message": data}, to=send_update)
 
     def on_remove_all_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -232,7 +241,8 @@ class ClientHandleNamespace(Namespace):
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         del data['device_token']
-        emit('remove_all_tabs', data, to=send_update)
+        emit('remove_all_tabs', {'successful': True,
+             "message": data}, to=send_update)
 
     def on_update_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -265,12 +275,13 @@ class ClientHandleNamespace(Namespace):
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         del data['device_token']
-        emit('update_tab', data, to=send_update)
+        emit('update_tab', {'successful': True,
+             "message": data}, to=send_update)
 
     def on_get(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
         del user['_id']
-        emit('get', user)
+        emit('get', {'successful': True, "message": user})
 
     def on_get_my_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -296,7 +307,7 @@ class ClientHandleNamespace(Namespace):
             return
 
         return_data = tabs_data.get(data.get('device_name')).get('tabs')
-        emit('get_my_tabs', return_data)
+        emit('get_my_tabs', {'successful': True, "message": return_data})
 
     def on_all_devices(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -321,7 +332,8 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: device token does not match'})
             return
 
-        emit('all_devices', self.__get_tabs_data(user))
+        emit('all_devices', {'successful': True,
+             "message": self.__get_tabs_data(user)})
 
     def on_enroll_feature(self, data):
         user_id = data.get('user_id')
@@ -407,7 +419,7 @@ class ClientHandleNamespace(Namespace):
 
         response = ultra_search_query({'prompt': data.get('prompt')})
 
-        emit("ultra_search_query", response)
+        emit("ultra_search_query", {'successful': True, "message": response})
 
     def on_auto_authenticate(self, data):
         user_id = data.get('user_id')
@@ -438,7 +450,8 @@ class ClientHandleNamespace(Namespace):
                     'enrolled_features')
                 emit('auto_authenticate', {
                      'successful': True, 'message': credentials})
-                emit('all_devices', self.__get_tabs_data(user))
+                emit('all_devices', {'successful': True,
+                     'message': self.__get_tabs_data(user)})
                 print(ClientHandleNamespace.devices_in_use.get(user_id))
                 ClientHandleNamespace.devices_in_use[user_id_from_data].add(
                     request.sid)
@@ -480,5 +493,5 @@ class ClientHandleNamespace(Namespace):
         ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
         print(ClientHandleNamespace.devices_in_use.get(user_id))
 
-        emit('logout', "Success")
+        emit('logout', {"Success": True})
         print("Logged Out Successfully")
