@@ -1,5 +1,8 @@
 import openai
 
+openai.api_key = "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"
+
+
 def enroll_user():
     return
 
@@ -19,7 +22,6 @@ def ultra_search_query(data):
     # return {"prompt": response.get("prompt", ""), "response": response.get("response", "")}
 
     # Set the API key
-    openai.api_key = "YOUR_API_KEY"
 
     # Set the prompt and model
     prompt = "Write a short story about a young girl who discovers a magical world hidden in the forest."
