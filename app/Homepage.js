@@ -18,10 +18,9 @@ import { io } from "socket.io-client";
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import storage from "./utilities/storage";
 
-const socket = io("http://10.4.3.41");
+const socket = io("http://10.3.12.22");
 
 export default function App({ navigation }) {
-
     const [devices, setDevices] = useState(null);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
     const [credentials, setCredentials] = useState(null);
@@ -73,6 +72,7 @@ export default function App({ navigation }) {
         });
 
         socket.on('add_device', (data) => {
+            console.log("OLD: ", devices);
             const all_dev = [
                 ...(devices ?? []),
                 data
