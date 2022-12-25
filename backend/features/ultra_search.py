@@ -1,34 +1,14 @@
 import openai
 
-openai.api_key = "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"
-
-
-def enroll_user():
-    return
-
+openai.api_key = 'API KEY'
 
 def ultra_search_query(data):
-    # API call
-    # Process the response to delete unnecessary fields and send response as frontend expect
-    # return the response
-    # print(data, flush=True)
-    # response = {
-    #     "id": "d3e61b1c-9f4c-4773-aa73-70e1d8e093b3",
-    #     "model": "text-davinci-002",
-    #     "prompt": "What is your name?",
-    #     "response": "My name is ChatGPT. What's yours?",
-    #     "status": "SUCCESS"
-    # }
-    # return {"prompt": response.get("prompt", ""), "response": response.get("response", "")}
-
-    # Set the API key
-
-    # Set the prompt and model
-    prompt = "Write a short story about a young girl who discovers a magical world hidden in the forest."
+    prompt = data.get('prompt', '')
     model = "text-davinci-002"
+    
+    completion = openai.Completion.create(model=model, prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.5)
 
-    # Make the API call
-    completion = openai.Completion.create(engine=model, prompt=prompt, max_tokens=1024, n=1,stop=None,temperature=0.5)
-
-    # Print the generated text
-    print(completion.choices[0].text)
+    if completion == None or completion.get('choices', []) == [] or completion.get('choices')[0].get('text', '') == '':
+        return {}
+    
+    return {'response': completion.get('choices')[0].get('text', ''), 'prompt': prompt}

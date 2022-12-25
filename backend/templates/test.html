@@ -7,75 +7,87 @@
     var device_token = null;
     
     socket.on('connect', function() {
-      // console.log("User connected")
+      console.log("User connected")
     });
     
     socket.on('login', function(data) {
-      // console.log("login")  
-      // console.log(data)
+      console.log("login")  
+      console.log(data)
       device_token = data.message.device_token;
-      // console.log("========================")
+      console.log("========================")
     });
 
     socket.on('logout', function(data) {
-      // console.log("logout")  
-      // console.log(data)
-      // console.log("========================")
+      console.log("logout")  
+      console.log(data)
+      console.log("========================")
     });
 
     socket.on('add_tab', function(data) {
-      // console.log("add_tab")  
-      // console.log(data)
-      // console.log("========================")
+      console.log("add_tab")  
+      console.log(data)
+      console.log("========================")
     });
 
 
     socket.on('update_tab', function(data) {
-      // console.log("update_tab")  
-      // console.log(data)
-      // console.log("========================")
+      console.log("update_tab")  
+      console.log(data)
+      console.log("========================")
     });
 
     socket.on('remove_tab', function(data) {
-      // console.log("remove_tab")  
-      // console.log(data)
-      // console.log("========================")
+      console.log("remove_tab")  
+      console.log(data)
+      console.log("========================")
     });
 
     socket.on('all_devices', function(data) {
-      // console.log("all_devices");
-      // console.log(data);
-      // console.log("========================");
+      console.log("all_devices");
+      console.log(data);
+      console.log("========================");
     });
 
     socket.on('add_device', function(data) {
-      // console.log("add_device");
-      // console.log(data);
-      // console.log("========================");
+      console.log("add_device");
+      console.log(data);
+      console.log("========================");
     });
 
     socket.on('get_my_tabs', function(data) {
-      // console.log("on_get_my_tabs");
-      // console.log(data);
-      // console.log("========================");
+      console.log("on_get_my_tabs");
+      console.log(data);
+      console.log("========================");
     });
 
     socket.on('get', function(data) {
-      // console.log("get");
-      // console.log(data);
-      // console.lo;("========================")
+      console.log("get");
+      console.log(data);
+      console.lo;("========================")
     });
 
     socket.on('remove_all_tabs', function(data) {
-      // console.log("remove_all_tabs");
-      // console.log(data);
-      // console.lo;("========================")
+      console.log("remove_all_tabs");
+      console.log(data);
+      console.lo;("========================")
     });
 
     socket.on('auto_authenticate', function(data) {
-      // console.log("auto_authenticate");
-      // console.log(data);
-      // console.lo;("========================")
+      console.log("auto_authenticate");
+      console.log(data);
+      console.lo;("========================")
+    });
+    
+    socket.on('enroll_user', function(data) {
+      console.log("enroll_user");
+      console.log(data);
+      console.lo;("========================")
+    });
+
+    socket.on('ultra_search_query', function(data) {
+      console.log("ultra_search_query");
+      console.log(data);
+      console.lo;("========================")
     });
 
     function get(){
@@ -114,6 +126,15 @@
       socket.emit("auto_authenticate", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token});
     }
 
+    function enroll(){
+      socket.emit("enroll_user", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
+    }
+
+    function ultra(){
+      var input_data = document.getElementById('input');
+      socket.emit("ultra_search_query", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'prompt': input_data.value});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -127,5 +148,10 @@
     <button onclick="remove_all_tabs();">remove_all_tabs</button>
     <button onclick="get_my_tabs();">get_my_tabs</button>
     <button onclick="auto_authenticate();">auto_authenticate</button>
+    <button onclick="enroll();">Enroll</button>
+    <br>
+    <input id="input" type="text" />
+    <button onclick="ultra();">ultra</button>
+
 </body>
 </html>
