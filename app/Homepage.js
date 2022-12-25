@@ -21,7 +21,7 @@ import storage from "./utilities/storage";
 const socket = io("http://10.3.12.22");
 
 export default function App({ navigation }) {
-    
+
     const [devices, setDevices] = useState(null);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
     const [credentials, setCredentials] = useState(null);
@@ -187,7 +187,7 @@ export default function App({ navigation }) {
                                         <MaterialIcons name="help-outline" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Settings', { credentials, socket })}>
                                         <MaterialIcons name="settings" size={32} color={colorScheme === 'dark' ? '#fff' : '#000'} />
                                     </TouchableOpacity>
 

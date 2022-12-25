@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation }) => {
+const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation, learnMoreParams }) => {
     const tileStyle = StyleSheet.create({
         container: {
             backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -67,14 +67,14 @@ const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation }) =>
                             marginVertical: 10
                         }}
                     />
-                    <Text onPress={() => navigation.navigate(learnMore)} style={tileStyle.link}>Learn more...</Text>
+                    <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more...</Text>
                 </View>
             )}
         </View>
     )
 }
 
-export default function ({ navigation }) {
+export default function ({ navigation, route }) {
     const colorScheme = useColorScheme();
 
     const styles = StyleSheet.create({
@@ -93,6 +93,8 @@ export default function ({ navigation }) {
         }
     })
 
+    const credentials = route.params.credentials;
+    const socket = route.params.socket;
 
     return (
         <SafeAreaView style={styles.root}>
@@ -100,7 +102,7 @@ export default function ({ navigation }) {
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
             <ScrollView style={styles.scrollContainer}>
-                <Tiles colorScheme={colorScheme} title="Ultra Search" icon={<MaterialCommunityIcons name="lightning-bolt" style={{ marginRight: 15, fontSize: 25 }} color="rgba(255, 149, 0, 1)" />} navigation={navigation} learnMore={"Ultra Search"} onSwitch={() => { }} />
+                <Tiles colorScheme={colorScheme} title="Ultra Search" icon={<MaterialCommunityIcons name="lightning-bolt" style={{ marginRight: 15, fontSize: 25 }} color="rgba(255, 149, 0, 1)" />} navigation={navigation} learnMore={"Ultra Search"} onSwitch={() => { }} learnMoreParams={{credentials, socket}} />
             </ScrollView>
         </SafeAreaView>
     )

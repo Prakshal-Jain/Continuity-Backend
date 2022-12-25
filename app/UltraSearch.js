@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
     ScrollView,
     Text,
@@ -11,8 +12,18 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
-const UltraSearch = (navigation, route) => {
+const UltraSearch = ({ navigation, route }) => {
     const colorScheme = useColorScheme();
+    const credentials = route.params.credentials;
+    const socket = route.params.socket;
+
+    useEffect(() => {
+        socket.on("enroll_feature", (data) => {
+            if (data?.successful) {
+                navigation.navigate('Settings', { credentials, socket });
+            }
+        })
+    })
 
     const styles = StyleSheet.create({
         root: {
@@ -61,6 +72,15 @@ const UltraSearch = (navigation, route) => {
         }
     });
 
+    const upgradeUltraSearch = () => {
+        socket.emit('enroll_feature', {
+            user_id: credentials?.user_id,
+            device_name: credentials?.device_name,
+            device_token: credentials?.device_token,
+            feature_name: "ultra_search_query"
+        })
+    }
+
     return (
         <SafeAreaView style={styles.root}>
             <StatusBar animated={true}
@@ -87,7 +107,7 @@ const UltraSearch = (navigation, route) => {
 
                 <TouchableOpacity
                     style={styles.upgradeBtn}
-                    onPress={() => { }}
+                    onPress={upgradeUltraSearch}
                     underlayColor='#fff'>
                     <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
                 </TouchableOpacity>
