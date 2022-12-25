@@ -69,7 +69,6 @@ function Homepage({ navigation }) {
         });
 
         socket.on('all_devices', (data) => {
-            console.log(devices);
             setDevices(data);
         });
 
