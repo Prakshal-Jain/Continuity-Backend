@@ -78,8 +78,8 @@
       console.lo;("========================")
     });
     
-    socket.on('enroll_user', function(data) {
-      console.log("enroll_user");
+    socket.on('enroll_feature', function(data) {
+      console.log("enroll_feature");
       console.log(data);
       console.lo;("========================")
     });
@@ -127,7 +127,7 @@
     }
 
     function enroll(){
-      socket.emit("enroll_user", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
+      socket.emit("enroll_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
     }
 
     function ultra(){

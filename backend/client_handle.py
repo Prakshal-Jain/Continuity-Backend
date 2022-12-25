@@ -318,7 +318,7 @@ class ClientHandleNamespace(Namespace):
 
         emit('all_devices', self.__get_tabs_data(user))
     
-    def on_enroll_user(self, data):
+    def on_enroll_feature(self, data):
         user_id = data.get('user_id')
         device_name = data.get('device_name')
         device_token = data.get('device_token')
@@ -327,17 +327,17 @@ class ClientHandleNamespace(Namespace):
         user = collection.find_one({'user_id': user_id})
 
         if user == None:
-            emit("enroll_user", {'successful': False,
+            emit("enroll_feature", {'successful': False,
                  "message": "Error: User not found"})
             return
         
         if device_token == None:
-            emit("enroll_user", {'sucessful': False,
+            emit("enroll_feature", {'sucessful': False,
                  "message": 'Error: device_token is null'})
             return
         
         if feature_name not in ['ultra_search_query', 'privacy_prevention']:
-            emit("enroll_user", {'sucessful': False,
+            emit("enroll_feature", {'sucessful': False,
                  "message": 'Error: feature_name not valid'})
             return
 
@@ -345,13 +345,13 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device_name)
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('enroll_user', {'sucessful': False,
+            emit('enroll_feature', {'sucessful': False,
                  "message": 'Error: device token does not match'})
             return
         
         collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}': True}})
 
-        emit('enroll_user', {'sucessful': True})
+        emit('enroll_feature', {'sucessful': True})
 
 
     def on_ultra_search_query(self, data):
