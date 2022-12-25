@@ -3,7 +3,7 @@ import { StyleSheet, View, Animated } from 'react-native';
 import Browser from './Browser';
 import Tabs from './Tabs';
 
-export default class DeviceManager extends React.Component {
+class DeviceManager extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -98,7 +98,7 @@ export default class DeviceManager extends React.Component {
     switchCurrOpenWindow = (tabIdx) => {
         if ((!this.state.tabs.has(tabIdx)) && tabIdx !== -1) {
             const tabs = this.state.tabs;
-            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials?.user_id, 'device_name': this.props.tabs_data?.device_name, "device_token": this.props.credentials?.device_token }} />)
+            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} />)
             this.setState({ tabs: tabs });
         }
         this.setState({ currOpenTab: tabIdx });
@@ -110,7 +110,7 @@ export default class DeviceManager extends React.Component {
             id: Number(uniqueID) + 1,
             tabs: new Map([
                 ...this.state.tabs,
-                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} update_tab_data={{ 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name }} />]
+                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} />]
             ])
         }, () => {
             const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
@@ -183,6 +183,8 @@ export default class DeviceManager extends React.Component {
         );
     }
 }
+
+export default React.memo(DeviceManager);
 
 const styles = StyleSheet.create({
     browser: {

@@ -20,7 +20,7 @@ import storage from "./utilities/storage";
 
 const socket = io("http://10.3.12.22");
 
-export default function App({ navigation }) {
+function Homepage({ navigation }) {
 
     const [devices, setDevices] = useState(null);
     const [currDeviceName, setCurrentDeviceName] = useState(null);
@@ -49,6 +49,7 @@ export default function App({ navigation }) {
                 return
             }
             else {
+                console.log(data?.message);
                 setCredentials(data?.message);
             }
         })
@@ -68,7 +69,7 @@ export default function App({ navigation }) {
         });
 
         socket.on('all_devices', (data) => {
-            console.log("ALL Devices", data)
+            console.log(devices);
             setDevices(data);
         });
 
@@ -209,3 +210,5 @@ export default function App({ navigation }) {
         </SafeAreaView>
     );
 }
+
+export default React.memo(Homepage)

@@ -19,6 +19,10 @@ const UltraSearch = ({ navigation, route }) => {
 
     useEffect(() => {
         socket.on("enroll_feature", (data) => {
+            credentials.enrolled_features.ultra_search = (!credentials.enrolled_features.ultra_search);
+            navigation.setParams({
+                credentials
+            })
             if (data?.successful) {
                 navigation.navigate('Settings', { credentials, socket });
             }
@@ -77,7 +81,7 @@ const UltraSearch = ({ navigation, route }) => {
             user_id: credentials?.user_id,
             device_name: credentials?.device_name,
             device_token: credentials?.device_token,
-            feature_name: "ultra_search_query"
+            feature_name: "ultra_search"
         })
     }
 
@@ -105,12 +109,14 @@ const UltraSearch = ({ navigation, route }) => {
                     Upgrade your search game for just $4.99 per month - that's even less than the cost of a cup of coffee! Don't miss out on this opportunity to improve your online search experience with Ultra Search. Try it out today and see the difference for yourself.
                 </Text>
 
-                <TouchableOpacity
-                    style={styles.upgradeBtn}
-                    onPress={upgradeUltraSearch}
-                    underlayColor='#fff'>
-                    <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
-                </TouchableOpacity>
+                {(credentials?.enrolled_features?.ultra_search === false) && (
+                    <TouchableOpacity
+                        style={styles.upgradeBtn}
+                        onPress={upgradeUltraSearch}
+                        underlayColor='#fff'>
+                        <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
         </SafeAreaView>
     );

@@ -156,7 +156,7 @@ class Browser extends Component {
 
         const tab_metadata = { "title": title, "url": url };
         if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
-            this.props.socket.emit("update_tab", { ...this.props.update_tab_data, "tabs_data": { [this.props.id]: tab_metadata } })
+            this.props.socket.emit("update_tab", { 'user_id': this.props?.credentials?.user_id, 'device_name': this.props?.credentials?.device_name, "device_token": this.props.credentials?.device_token, "tabs_data": { [this.props.id]: tab_metadata } })
         }
         this.props.metadata.set(this.props.id, tab_metadata);
     };
@@ -320,6 +320,9 @@ class Browser extends Component {
                         <View style={styles.layers}>
                             <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
                             <Icon name="export-variant" size={25} onPress={this.onShare} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            {(this.props?.credentials?.enrolled_features?.ultra_search === true && this.state.ultra_search_response !== null && (this.state.ultra_search_response?.prompt !== null && this.state.ultra_search_response?.prompt !== undefined)) && (
+                                <Icon name="lightning-bolt" size={30} onPress={() => { }} color="rgba(255, 149, 0, 1)" />
+                            )}
                             <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
