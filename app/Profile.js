@@ -21,9 +21,13 @@ export default function ({ navigation, route, ...props }) {
 
     useEffect(() => {
         socket.on("logout", (data) => {
-            // console.log("LOGGED OUT", data)
-            deleteAllData();
-            navigation.navigate('Homepage');
+            if (data?.successful === true) {
+                deleteAllData();
+                navigation.navigate('Homepage');
+            }
+            else {
+                console.log(data?.message);
+            }
         })
     }, [])
 

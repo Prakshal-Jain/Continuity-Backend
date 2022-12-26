@@ -156,7 +156,7 @@ class Browser extends Component {
 
         const tab_metadata = { "title": title, "url": url };
         if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
-            this.props.socket.emit("update_tab", { 'user_id': this.props?.credentials?.user_id, 'device_name': this.props?.credentials?.device_name, "device_token": this.props.credentials?.device_token, "tabs_data": { [this.props.id]: tab_metadata } })
+            this.props.socket.emit("update_tab", { 'user_id': this.props?.credentials?.user_id, 'device_name': this.props?.credentials?.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
         }
         this.props.metadata.set(this.props.id, tab_metadata);
     };
