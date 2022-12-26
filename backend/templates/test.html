@@ -95,44 +95,44 @@
     }
 
     function login(){
-      socket.emit("login", {'user_id': 'Swastik', 'name': 'Swastik', 'picture': 'Test picture',  'device_name': '{{device_name}}', 'device_type': 'Laptop'});
+      socket.emit("login", {'user_id': 'Swastik', 'name': 'Swastik', 'picture': 'Test picture',  'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_type': 'Laptop'});
     }
 
     function logout(){
-      socket.emit("logout", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_type': 'Laptop', 'device_token': device_token});
+      socket.emit("logout", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_type': 'Laptop', 'device_token': device_token});
     }
 
     function add_tab(){
-      socket.emit("add_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1'}, 'device_token': device_token});
+      socket.emit("add_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'tabs_data': {0:'link_1'}, 'device_token': device_token});
     }
 
     function remove_tab(){
-      socket.emit("remove_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'id':0, 'device_token': device_token});
+      socket.emit("remove_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'id':0, 'device_token': device_token});
     }
 
     function update_tab(){
-      socket.emit("update_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
+      socket.emit("update_tab", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
     }
 
     function remove_all_tabs(){
-      socket.emit("remove_all_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
+      socket.emit("remove_all_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
     }
 
     function get_my_tabs(){
-      socket.emit("get_my_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
+      socket.emit("get_my_tabs", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'tabs_data': {0:'link_1_updated'}, 'device_token': device_token});
     }
 
     function auto_authenticate(){
-      socket.emit("auto_authenticate", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token});
+      socket.emit("auto_authenticate", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
     }
 
     function enroll(){
-      socket.emit("enroll_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
+      socket.emit("enroll_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
     }
 
     function ultra(){
       var input_data = document.getElementById('input');
-      socket.emit("ultra_search_query", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'device_token': device_token, 'prompt': input_data.value});
+      socket.emit("ultra_search_query", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'prompt': input_data.value});
     }
 
   </script>

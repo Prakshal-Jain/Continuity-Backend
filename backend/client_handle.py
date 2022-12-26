@@ -19,6 +19,8 @@ TODO:
 4. Introduce "Tracking Prevention" --> Paid (Later V2.0)
 '''
 
+# device_name -> device with which the user is logged in
+# target_device -> device in which the user is make the changes
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
@@ -144,6 +146,8 @@ class ClientHandleNamespace(Namespace):
             return
 
         device = data.get('device_name')
+        target_device = data.get('target_device')
+
 
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
@@ -159,7 +163,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: device token does not match'})
             return
 
-        device_tabs = tabs_data.get(device).get('tabs')
+        device_tabs = tabs_data.get(target_device).get('tabs')
         device_tabs.update(new_tabs_data)
         collection.update_one({'user_id': data.get('user_id')}, {
                               "$set": {'tabs_data': tabs_data}})
@@ -178,6 +182,7 @@ class ClientHandleNamespace(Namespace):
                  "message": "Error: User not found"})
             return
 
+        target_device = data.get('target_device')
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
@@ -192,7 +197,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: device token does not match'})
             return
 
-        device_tabs = tabs_data.get(device).get('tabs')
+        device_tabs = tabs_data.get(target_device).get('tabs')
         if str(data.get('id')) in device_tabs:
             del device_tabs[str(data.get('id'))]
         collection.update_one({'user_id': data.get('user_id')}, {
@@ -210,6 +215,7 @@ class ClientHandleNamespace(Namespace):
                  "message": "Error: User not found"})
             return
 
+        target_device = data.get('target_device')
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
         device_tabs_data = tabs_data.get(device)
@@ -220,12 +226,11 @@ class ClientHandleNamespace(Namespace):
             return
 
         if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-
             emit('remove_all_tabs', {
                  'successful': False, "message": 'Error: device token does not match'})
             return
 
-        tabs_data.get(device)['tabs'] = {}
+        tabs_data.get(target_device)['tabs'] = {}
         collection.update_one({'user_id': data.get('user_id')}, {
                               "$set": {'tabs_data': tabs_data}})
 
@@ -241,6 +246,7 @@ class ClientHandleNamespace(Namespace):
                  "message": "Error: User not found"})
             return
 
+        target_device = data.get('target_device')
         device = data.get('device_name')
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
@@ -257,7 +263,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: device token does not match'})
             return
 
-        device_tabs = tabs_data.get(device).get('tabs')
+        device_tabs = tabs_data.get(target_device).get('tabs')
         device_tabs.update(new_tabs_data)
         collection.update_one({'user_id': data.get('user_id')}, {
             "$set": {'tabs_data': tabs_data}})
@@ -280,6 +286,7 @@ class ClientHandleNamespace(Namespace):
                  "message": "Error: User not found"})
             return
 
+        target_device = data.get('target_device')
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
 
@@ -295,7 +302,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: device token does not match'})
             return
 
-        return_data = tabs_data.get(data.get('device_name')).get('tabs')
+        return_data = tabs_data.get(target_device).get('tabs')
         emit('get_my_tabs', return_data)
 
     def on_all_devices(self, data):
