@@ -15,7 +15,7 @@ class DeviceManager extends React.Component {
     }
 
     componentDidMount = () => {
-        this.props.socket.emit("get_my_tabs", { "user_id": this.props.credentials?.user_id, "device_name": this.props.tabs_data?.device_name, "device_token": this.props.credentials?.device_token })
+        this.props.socket.emit("get_my_tabs", { "user_id": this.props.credentials?.user_id, "device_name": this.props.tabs_data?.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name })
 
         this.props.socket.on("get_my_tabs", (data) => {
             if (data?.successful === true) {
@@ -123,7 +123,7 @@ class DeviceManager extends React.Component {
     switchCurrOpenWindow = (tabIdx) => {
         if ((!this.state.tabs.has(tabIdx)) && tabIdx !== -1) {
             const tabs = this.state.tabs;
-            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} />)
+            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} target_device={this.props?.tabs_data?.device_name} />)
             this.setState({ tabs: tabs });
         }
         this.setState({ currOpenTab: tabIdx });
@@ -135,17 +135,17 @@ class DeviceManager extends React.Component {
             id: Number(uniqueID) + 1,
             tabs: new Map([
                 ...this.state.tabs,
-                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} />]
+                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} target_device={this.props?.tabs_data?.device_name} />]
             ])
         }, () => {
-            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
+            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
             this.props.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })
     }
 
     deleteAllTabs = () => {
-        this.props.socket.emit("remove_all_tabs", { 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, 'tabs_data': { 0: 'link_1_updated' } });
+        this.props.socket.emit("remove_all_tabs", { 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name, 'tabs_data': { 0: 'link_1_updated' } });
         this.setState({
             currOpenTab: -1,
             tabs: new Map(),
@@ -195,7 +195,7 @@ class DeviceManager extends React.Component {
             const newMap = this.state.metadata;
             newMap.delete(id);
             this.setState({ metadata: newMap });
-            this.props.socket.emit("remove_tab", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, 'id': id, "device_token": this.props.credentials?.device_token });
+            this.props.socket.emit("remove_tab", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, 'id': id, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name });
         }
     }
 

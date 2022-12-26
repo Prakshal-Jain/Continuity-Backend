@@ -26,7 +26,7 @@ import React, { useState, useEffect } from 'react';
 import storage from "./utilities/storage";
 
 const Stack = createNativeStackNavigator();
-const socket = io("http://172.20.10.2");
+const socket = io("http://10.4.3.41");
 
 export default function () {
   const colorScheme = useColorScheme();
