@@ -25,14 +25,6 @@ TODO:
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
 
-    # def __init__(self) -> None:
-    #     super().__init__()
-
-    #     users = collection.find({})
-
-    #     for user in users:
-    #         ClientHandleNamespace.devices_in_use[user.get('user_id')] = user.get('user_id', [])
-
     def __create_tab(self, device_name, device_type, device_token):
         return {device_name: {'tabs': {}, 'device_type': device_type, "device_token": hashpw(device_token, gensalt())}}
 
@@ -44,7 +36,6 @@ class ClientHandleNamespace(Namespace):
         return new_device
 
     def __get_tabs_data(self, data):
-        user_id = data.get('user_id')
         devices = data.get('devices')
         return_tabs_data = []
         tabs_data = data.get('tabs_data')
@@ -115,13 +106,12 @@ class ClientHandleNamespace(Namespace):
                                     }
                     }
             collection.insert_one(user)
+
         elif user.get('devices').get(data.get('device_name')) == None:
-            device_token = self.__check_for_same_token(
-                device_token, user.get('tabs_data'))
+            device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
             devices = user.get('devices')
             devices[data.get('device_name')] = data.get('device_type')
-            new_device = self.__create_tab(
-                data.get('device_name'), data.get('device_type'), device_token)
+            new_device = self.__create_tab(data.get('device_name'), data.get('device_type'), device_token)
             user.get('tabs_data').update(new_device)
             collection.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
@@ -135,17 +125,16 @@ class ClientHandleNamespace(Namespace):
                  },
                  to=send_update)
         else:
-            device_token = self.__check_for_same_token(
-                device_token, user.get('tabs_data'))
-            device_tabs_data = user.get(
-                'tabs_data').get(data.get('device_name'))
+            device_tabs_data = user.get('tabs_data').get(data.get('device_name'))
+            
+            if device_tabs_data.get('device_token', None) is not None:
+                emit('login', {'successful': False, 'message': 'Error: Device already logged in'})
+                return
+            
+            device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
             device_tabs_data['device_token'] = hashpw(device_token, gensalt())
-            collection.update_one({'user_id': data.get('user_id')}, {
-                                  "$set": {'tabs_data': user.get('tabs_data')}})
-
-        # Need another field here for enrolled features (see below)
-        # enrolled_features: {"ultraBrowsing": True, ...}       # So that we can scale this with other features in the future
-
+            collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
+            
         credentials = {
             "name": data.get('name'),
             "picture": data.get('picture'),
@@ -156,10 +145,7 @@ class ClientHandleNamespace(Namespace):
             'enrolled_features': user.get('enrolled_features')
         }
         emit('login', {'successful': True, "message": credentials})
-        # emit('all_devices', {'successful': True, 'message': self.__get_tabs_data(user)}, to=list(
-        #     ClientHandleNamespace.devices_in_use[data.get('user_id')]))
-        emit('all_devices', {'successful': True,
-             'message': self.__get_tabs_data(user)})
+        emit('all_devices', {'successful': True, 'message': self.__get_tabs_data(user)})
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -391,9 +377,8 @@ class ClientHandleNamespace(Namespace):
     def on_logout(self, data):
         user_id = data.get('user_id')
         user = collection.find_one({'user_id': user_id})
-        if not self.__authenticate_device('ultra_search_query', user, data):
+        if not self.__authenticate_device('logout', user, data):
             return
-
 
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
