@@ -1,15 +1,17 @@
 import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
 import GoogleSignInButton from './components/GoogleSignInButton';
+import { StateContext } from "./state_context";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login(props) {
+    const { socket, colorScheme } = useContext(StateContext);
     const [deviceName, setDeviceName] = React.useState(null);
     const [selected, setSelected] = React.useState('mobile-phone');
 
@@ -27,6 +29,11 @@ export default function Login(props) {
             accessToken && fetchUserInformation();
         }
     }, [response, accessToken])
+
+    const postCredentials = (creds) => {
+        creds.user_id = creds?.email;
+        socket.emit("login", creds);
+    }
 
     const fetchUserInformation = async () => {
         const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
@@ -58,8 +65,8 @@ export default function Login(props) {
             padding: 15,
             flex: 1,
             borderRadius: 8,
-            color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
-            borderColor: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            borderColor: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
         },
         container: {
             padding: 20,
@@ -75,12 +82,12 @@ export default function Login(props) {
                 marginTop: 10,
                 fontWeight: 'bold',
                 fontSize: 25,
-                color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+                color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
             }
         },
         get privacy() {
             return {
-                color: props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+                color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
             }
         },
         loginScreenButton: {
@@ -103,32 +110,34 @@ export default function Login(props) {
     });
 
 
+
+
     return (
         <View style={{ flex: 1, width: '100%' }}>
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Image source={props.colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ? (
                     <GoogleSignInButton
                         // onPress={() => promptAsync()}
-                        onPress={() => setUser({ "email": "prakshaljain422@gm.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
-                        colorScheme={props.colorScheme}
+                        onPress={() => setUser({ "email": "prashaljain42@gail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                        colorScheme={colorScheme}
                     />
                 )
                     :
                     (
                         <>
                             <View style={styles.horizontal_flex}>
-                                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={props.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
+                                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
                             </View>
 
                             <Text style={styles.h2}>Device Type</Text>
                             <View style={styles.horizontal_flex}>
-                                <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={props.colorScheme} />
+                                <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
                             </View>
 
                             <TouchableOpacity
                                 style={styles.loginScreenButton}
-                                onPress={() => { props.postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
+                                onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
                                 underlayColor='#fff'>
                                 <Text style={styles.loginText}>Get Started</Text>
                             </TouchableOpacity>

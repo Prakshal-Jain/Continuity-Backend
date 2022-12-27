@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -11,19 +11,25 @@ import {
     TouchableOpacity,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import storage from "./utilities/storage";
+import { StateContext } from "./state_context";
 
-export default function ({ navigation, route, ...props }) {
-    const colorScheme = useColorScheme();
-    const credentials = route.params?.credentials;
-    const socket = route.params?.socket;
-    const deleteAllData = route.params?.deleteAllData;
+export default function ({ navigation, ...props }) {
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials } = useContext(StateContext);
+
+    const deleteAllData = async () => {
+        await storage.clearAll();
+        setDevices([]);
+        setCurrentDeviceName(null);
+        setCredentials(null);
+    }
 
 
     useEffect(() => {
         socket.on("logout", (data) => {
             if (data?.successful === true) {
-                deleteAllData();
                 navigation.navigate('Homepage');
+                deleteAllData();
             }
             else {
                 console.log(data?.message);

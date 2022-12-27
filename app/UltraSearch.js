@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import {
     ScrollView,
     Text,
@@ -10,19 +10,16 @@ import {
     TouchableOpacity
 } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { StateContext } from "./state_context";
 
-
-const UltraSearch = ({ navigation, route }) => {
-    const colorScheme = useColorScheme();
-    const credentials = route.params?.credentials;
-    const socket = route.params?.socket;
+const UltraSearch = ({ navigation }) => {
+    const { socket, colorScheme, credentials, setCredentials } = useContext(StateContext);
 
     useEffect(() => {
         socket.on("enroll_feature", (data) => {
             if (data?.successful) {
-                credentials.enrolled_features.ultra_search.enrolled = (!credentials?.enrolled_features?.ultra_search?.enrolled);
-                credentials.enrolled_features.ultra_search.switch = (!credentials?.enrolled_features?.ultra_search?.switch);
-                navigation.navigate('Settings', { credentials, socket });
+                setCredentials(data?.message);
+                navigation.navigate('Settings');
             }
             else {
                 console.log(data?.message);
@@ -74,6 +71,26 @@ const UltraSearch = ({ navigation, route }) => {
             paddingRight: 10,
             fontSize: 20,
             fontWeight: 'bold'
+        },
+
+        unenrollBtn: {
+            marginRight: 40,
+            marginLeft: 40,
+            marginTop: 10,
+            paddingTop: 10,
+            paddingBottom: 10,
+            borderWidth: 1,
+            borderColor: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
+            borderRadius: 10,
+        },
+
+        unenrollText: {
+            color: '#fff',
+            textAlign: 'center',
+            paddingLeft: 10,
+            paddingRight: 10,
+            fontSize: 15,
+            color: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
         }
     });
 
@@ -82,7 +99,8 @@ const UltraSearch = ({ navigation, route }) => {
             user_id: credentials?.user_id,
             device_name: credentials?.device_name,
             device_token: credentials?.device_token,
-            feature_name: "ultra_search"
+            feature_name: "ultra_search",
+            is_enrolled: credentials?.enrolled_features?.ultra_search?.enrolled
         })
     }
 
@@ -110,14 +128,25 @@ const UltraSearch = ({ navigation, route }) => {
                     Upgrade your search game for just $4.99 per month - that's even less than the cost of a cup of coffee! Don't miss out on this opportunity to improve your online search experience with Ultra Search. Try it out today and see the difference for yourself.
                 </Text>
 
-                {(credentials?.enrolled_features?.ultra_search?.enrolled === false) && (
-                    <TouchableOpacity
-                        style={styles.upgradeBtn}
-                        onPress={upgradeUltraSearch}
-                        underlayColor='#fff'>
-                        <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
-                    </TouchableOpacity>
-                )}
+                {(credentials?.enrolled_features?.ultra_search?.enrolled === false) ?
+                    (
+                        <TouchableOpacity
+                            style={styles.upgradeBtn}
+                            onPress={upgradeUltraSearch}
+                            underlayColor='#fff'>
+                            <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
+                        </TouchableOpacity>
+                    )
+                    :
+                    (
+                        <TouchableOpacity
+                            style={styles.unenrollBtn}
+                            onPress={upgradeUltraSearch}
+                            underlayColor='#fff'>
+                            <Text style={styles.unenrollText}>Unenroll</Text>
+                        </TouchableOpacity>
+                    )
+                }
             </ScrollView>
         </SafeAreaView>
     );

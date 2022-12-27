@@ -36,7 +36,6 @@ class UltraSearchResult extends Component {
         this.socket.emit('ultra_search_query', this.query_creds)
 
         this.socket.on('ultra_search_query', (data) => {
-            console.log(data)
             if (data?.successful === true) {
                 console.log(this.state.ultra_search_response)
                 if (data?.message?.prompt === this.state.ultra_search_prompt) {

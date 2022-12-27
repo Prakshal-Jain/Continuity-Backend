@@ -280,7 +280,6 @@ class ClientHandleNamespace(Namespace):
             return
 
         collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}': {'enrolled': not is_enrolled, 'switch': not is_enrolled}}})
-        emit('enroll_feature', {'successful': True})
         credentials = {
             "name": user.get('name'),
             "picture": user.get('picture'),
@@ -290,7 +289,8 @@ class ClientHandleNamespace(Namespace):
             'device_token': data.get('device_token'),
             'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
         }
-        emit('auto_authenticate', {'successful': True, 'message': credentials}, to=list(ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        emit('enroll_feature', {'successful': True, 'message': credentials})
+    
     
     def on_switch_feature(self, data):
         user_id = data.get('user_id')
@@ -404,5 +404,5 @@ class ClientHandleNamespace(Namespace):
         
         ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
         
-        emit('logout', {"Success": True})
+        emit('logout', {"successful": True})
         print("Logged Out Successfully")

@@ -2,8 +2,10 @@ import React from 'react';
 import { StyleSheet, View, Animated } from 'react-native';
 import Browser from './Browser';
 import Tabs from './Tabs';
+import { StateContext } from "./state_context";
 
 class DeviceManager extends React.Component {
+    static contextType = StateContext;
     constructor(props) {
         super(props);
         this.state = {
@@ -11,13 +13,15 @@ class DeviceManager extends React.Component {
             tabs: new Map(),
             id: 0,
             metadata: new Map(),
+            tabs_data: null,
         }
     }
 
-    componentDidMount = () => {
-        this.props.socket.emit("get_my_tabs", { "user_id": this.props.credentials?.user_id, "device_name": this.props.tabs_data?.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name })
-
-        this.props.socket.on("get_my_tabs", (data) => {
+    componentDidMount() {
+        this.setState({ tabs_data: this?.context?.devices.filter(device => device.device_name === this?.context?.currDeviceName)[0] }, () => {
+            this?.context?.socket.emit("get_my_tabs", { "user_id": this?.context?.credentials?.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name })
+        })
+        this?.context?.socket.on("get_my_tabs", (data) => {
             if (data?.successful === true) {
                 const metadata_list = Object.entries(data?.message).map(([key, value]) => [Number(key), value]);
                 const id = metadata_list.length === 0 ? 0 : ((metadata_list.reduce((a, b) => a[1] > b[1] ? a : b, 0)[0]) + 1);
@@ -28,9 +32,9 @@ class DeviceManager extends React.Component {
             }
         })
 
-        this.props.socket.on('add_tab', (data) => {
+        this?.context?.socket.on('add_tab', (data) => {
             if (data?.successful === true) {
-                if (data?.message?.device_name !== this.props?.tabs_data?.device_name) {
+                if (data?.message?.device_name !== this.state.tabs_data?.device_name) {
                     return
                 }
                 const metadata_list = Object.entries(data?.message?.tabs_data).map(([key, value]) => [Number(key), value]);
@@ -46,9 +50,9 @@ class DeviceManager extends React.Component {
             }
         });
 
-        this.props.socket.on('update_tab', (data) => {
+        this?.context?.socket.on('update_tab', (data) => {
             if (data?.successful === true) {
-                if (data?.message?.device_name !== this.props?.tabs_data?.device_name) {
+                if (data?.message?.device_name !== this.state.tabs_data?.device_name) {
                     return
                 }
 
@@ -73,9 +77,9 @@ class DeviceManager extends React.Component {
             }
         });
 
-        this.props.socket.on('remove_all_tabs', (data) => {
+        this?.context?.socket.on('remove_all_tabs', (data) => {
             if (data?.successful === true) {
-                if (data?.message?.device_name !== this.props?.tabs_data?.device_name) {
+                if (data?.message?.device_name !== this.state.tabs_data?.device_name) {
                     return
                 }
 
@@ -91,10 +95,10 @@ class DeviceManager extends React.Component {
             }
         })
 
-        this.props.socket.on('remove_tab', (data) => {
+        this?.context?.socket.on('remove_tab', (data) => {
             if (data?.successful === true) {
                 data.message.id = Number(data?.message?.id);
-                if (data?.message?.device_name !== this.props?.tabs_data?.device_name) {
+                if (data?.message?.device_name !== this.state.tabs_data?.device_name) {
                     return
                 }
 
@@ -123,7 +127,7 @@ class DeviceManager extends React.Component {
     switchCurrOpenWindow = (tabIdx) => {
         if ((!this.state.tabs.has(tabIdx)) && tabIdx !== -1) {
             const tabs = this.state.tabs;
-            tabs.set(tabIdx, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} target_device={this.props?.tabs_data?.device_name} navigation={this.props?.navigation} />)
+            tabs.set(tabIdx, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />)
             this.setState({ tabs: tabs });
         }
         this.setState({ currOpenTab: tabIdx });
@@ -135,17 +139,17 @@ class DeviceManager extends React.Component {
             id: Number(uniqueID) + 1,
             tabs: new Map([
                 ...this.state.tabs,
-                [uniqueID, <Browser colorScheme={this.props.colorScheme} switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} socket={this.props.socket} credentials={this.props?.credentials} target_device={this.props?.tabs_data?.device_name} navigation={this.props?.navigation} />]
+                [uniqueID, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />]
             ])
         }, () => {
-            const d = { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
-            this.props.socket.emit("add_tab", d);
+            const d = { "user_id": this?.context?.credentials.user_id, "device_name": this.state.tabs_data.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
+            this?.context?.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })
     }
 
     deleteAllTabs = () => {
-        this.props.socket.emit("remove_all_tabs", { 'user_id': this.props.credentials.user_id, 'device_name': this.props.tabs_data.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name, 'tabs_data': { 0: 'link_1_updated' } });
+        this?.context?.socket.emit("remove_all_tabs", { 'user_id': this?.context?.credentials.user_id, 'device_name': this.state.tabs_data.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, 'tabs_data': { 0: 'link_1_updated' } });
         this.setState({
             currOpenTab: -1,
             tabs: new Map(),
@@ -195,16 +199,18 @@ class DeviceManager extends React.Component {
             const newMap = this.state.metadata;
             newMap.delete(id);
             this.setState({ metadata: newMap });
-            this.props.socket.emit("remove_tab", { "user_id": this.props.credentials.user_id, "device_name": this.props.tabs_data.device_name, 'id': id, "device_token": this.props.credentials?.device_token, "target_device": this.props?.tabs_data?.device_name });
+            this?.context?.socket.emit("remove_tab", { "user_id": this?.context?.credentials.user_id, "device_name": this.state.tabs_data.device_name, 'id': id, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name });
         }
     }
 
     render() {
         return (
-            <View>
-                {this.renderTabs()}
-                {this.state.currOpenTab === -1 ? <Tabs colorScheme={this.props.colorScheme} tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} setCurrentDeviceName={this.props.setCurrentDeviceName} device_name={this.props.tabs_data.device_name} device_type={this.props.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} /> : null}
-            </View>
+            (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
+                <View>
+                    {this.renderTabs()}
+                    {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} /> : null}
+                </View>
+            )
         );
     }
 }

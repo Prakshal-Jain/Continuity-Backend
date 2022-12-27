@@ -14,6 +14,7 @@ import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { URL } from 'react-native-url-polyfill';
+import { StateContext } from "./state_context";
 
 // keeps the reference to the browser
 let browserRef = null;
@@ -38,6 +39,7 @@ const injectedJavaScript = `
 `;
 
 class Browser extends Component {
+    static contextType = StateContext;
     constructor(props) {
         super(props);
         this.browserBarRef = React.createRef(0)
@@ -156,7 +158,7 @@ class Browser extends Component {
 
         const tab_metadata = { "title": title, "url": url };
         if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
-            this.props.socket.emit("update_tab", { 'user_id': this.props?.credentials?.user_id, 'device_name': this.props?.credentials?.device_name, "device_token": this.props.credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
+            this?.context?.socket?.emit("update_tab", { 'user_id': this?.context?.credentials?.user_id, 'device_name': this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
         }
         this.props.metadata.set(this.props.id, tab_metadata);
     };
@@ -290,7 +292,7 @@ class Browser extends Component {
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
                         mediaPlaybackRequiresUserAction={true}
-                        style={{ backgroundColor: (this.props.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', }}
+                        style={{ backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', }}
                     // onScroll={this.handleScroll}
                     />
                 </View>
@@ -298,32 +300,32 @@ class Browser extends Component {
                 <Animated.View style={{ borderTopWidth: 0.5, borderTopColor: 'rgba(142, 142, 147, 1)', transform: [{ scaleY: this.expandedBrowserBarAnimRef }] }}>
                     <LinearGradient
                         // Button Linear Gradient
-                        colors={[(this.props.colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (this.props.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
+                        colors={[(this?.context?.colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
                         style={styles.browserBar}
                     >
                         <View style={styles.layers}>
-                            <Animated.View style={{ ...styles.browserAddressBar, backgroundColor: (this.props.colorScheme === 'dark') ? '#171717' : '#f8f8ff' }}>
+                            <Animated.View style={{ ...styles.browserAddressBar, backgroundColor: (this?.context?.colorScheme === 'dark') ? '#171717' : '#f8f8ff' }}>
                                 <TextInput
                                     onChangeText={this.updateUrlText}
                                     value={this.state.url}
-                                    style={{ ...styles.searchBox, color: (this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)' }}
+                                    style={{ ...styles.searchBox, color: (this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)' }}
                                     returnKeyType="search"
                                     onSubmitEditing={this.loadURL}
                                     editable={false}
-                                    placeholderTextColor={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'}
+                                    placeholderTextColor={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'}
                                 />
-                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
+                                {this.state.refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={this.reload} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
                             </Animated.View>
                         </View>
 
                         <View style={styles.layers}>
-                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
-                            <Icon name="export-variant" size={25} onPress={this.onShare} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            {(this.props?.credentials?.enrolled_features?.ultra_search?.enrolled === true && this.props?.credentials?.enrolled_features?.ultra_search?.switch === true && this.state.ultra_search_prompt !== null) && (
+                            <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this?.context?.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
+                            <Icon name="export-variant" size={25} onPress={this.onShare} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === true && this?.context?.credentials?.enrolled_features?.ultra_search?.switch === true && this.state.ultra_search_prompt !== null) && (
                                 <Icon name="lightning-bolt" size={30} onPress={() => { this.props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": this.state.ultra_search_prompt }) }} color="rgba(255, 149, 0, 1)" />
                             )}
-                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
+                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this?.context?.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
                     </LinearGradient>
                 </Animated.View>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -13,15 +13,12 @@ import {
 } from "react-native";
 import React from "react";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { StateContext } from "./state_context";
 
+function Settings({ navigation }) {
+    const { colorScheme, credentials } = useContext(StateContext);
 
-function Settings({ navigation, route }) {
-    const colorScheme = useColorScheme();
-    const credentials = route.params?.credentials;
-    const socket = route.params?.socket;
-
-
-    const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation, learnMoreParams, isSwitchEnabled }) => {
+    const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, isSwitchEnabled }) => {
         const tileStyle = StyleSheet.create({
             container: {
                 backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -75,7 +72,7 @@ function Settings({ navigation, route }) {
                                 marginVertical: 10
                             }}
                         />
-                        <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more...</Text>
+                        <Text onPress={() => navigation.navigate(learnMore)} style={tileStyle.link}>Learn more...</Text>
                     </View>
                 )}
             </View>
@@ -114,9 +111,7 @@ function Settings({ navigation, route }) {
                         name="lightning-bolt"
                         style={{ marginRight: 15, fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
-                    navigation={navigation}
                     learnMore={"Ultra Search"}
-                    learnMoreParams={{ credentials, socket }}
                     onSwitch={() => { }}
                     isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
                 />
