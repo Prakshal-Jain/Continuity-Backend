@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 
-const PrivacyPolicy = ({navigation, route}) => {
+const PrivacyPolicy = () => {
     const colorScheme = useColorScheme();
 
     const styles = StyleSheet.create({
