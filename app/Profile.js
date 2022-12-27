@@ -11,13 +11,13 @@ import {
     TouchableOpacity,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import storage from "./utilities/storage";
 
 export default function ({ navigation, route, ...props }) {
     const colorScheme = useColorScheme();
-    const credentials = route.params.credentials;
-    const socket = route.params.socket;
-    const deleteAllData = route.params.deleteAllData;
+    const credentials = route.params?.credentials;
+    const socket = route.params?.socket;
+    const deleteAllData = route.params?.deleteAllData;
+
 
     useEffect(() => {
         socket.on("logout", (data) => {

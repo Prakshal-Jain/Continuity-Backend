@@ -56,6 +56,27 @@ class ClientHandleNamespace(Namespace):
             return_tabs_data.append(new_structure)
 
         return return_tabs_data
+    
+    def __authenticate_device(self, event, user, data):
+        if user is None:
+            emit(event, {'successful': False,
+                 "message": "Error: User not found"})
+            return False
+
+        device_token = data.get('device_token', '')
+        if device_token == '':
+            emit(event, {'successful': False, "message": 'Error: device_token is null'})
+            return False
+        
+        device = data.get('device_name')
+        tabs_data = user.get('tabs_data')
+        device_tabs_data = tabs_data.get(device)
+
+        if not checkpw(device_token.encode(), device_tabs_data.get('device_token', b'')):
+            emit(event, {'successful': False, "message": 'Error: device token does not match'})
+            return False
+        
+        return True
 
     def __check_for_same_token(self, device_token, tabs_data):
         tokens_in_use = [device_tab_data.get(
@@ -73,12 +94,8 @@ class ClientHandleNamespace(Namespace):
     def on_login(self, data):
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), set())
-        print(ClientHandleNamespace.devices_in_use.get(data.get(
-            'user_id')))
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')].add(request.sid)
-        print(ClientHandleNamespace.devices_in_use.get(data.get(
-            'user_id')))
 
         user = collection.find_one({'user_id': data.get('user_id')})
 
@@ -110,10 +127,6 @@ class ClientHandleNamespace(Namespace):
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
             send_update = list(filter(lambda x: x != request.sid,
                                ClientHandleNamespace.devices_in_use[data.get('user_id')]))
-            print("In new device if of login", flush=True)
-            print("SENDING to: ", send_update, flush=True)
-            print("Data:", self.__get_tab_data(
-                data.get('device_name'), data.get('device_type')), flush=True)
             emit('add_device',
                  {
                      'successful': True,
@@ -152,141 +165,76 @@ class ClientHandleNamespace(Namespace):
 
     def on_add_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-        if user == None:
-            emit("add_tab", {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('add_tab', user, data):
             return
 
-        device = data.get('device_name')
         target_device = data.get('target_device')
-
-
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("add_tab", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit("add_tab", {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
-        device_tabs = tabs_data.get(target_device).get('tabs')
+        device_tabs = tabs_data.get(target_device).get('tabs', {})
         device_tabs.update(new_tabs_data)
-        collection.update_one({'user_id': data.get('user_id')}, {
-                              "$set": {'tabs_data': tabs_data}})
+        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid,
-                           ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         del data['device_token']
+        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         emit('add_tab', {'successful': True, "message": data}, to=send_update)
         sys.stderr.flush()
         sys.stdout.flush()
 
     def on_remove_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-        if user == None:
-            emit('remove_tab', {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('remove_tab', user, data):
             return
 
         target_device = data.get('target_device')
-        device = data.get('device_name')
         tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("remove_tab", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('remove_tab', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
         device_tabs = tabs_data.get(target_device).get('tabs')
-        if str(data.get('id')) in device_tabs:
-            del device_tabs[str(data.get('id'))]
-        collection.update_one({'user_id': data.get('user_id')}, {
-            "$set": {'tabs_data': tabs_data}})
+        tab_id = str(data.get('id', -1))
+        if tab_id in device_tabs:
+            del device_tabs[tab_id]
+        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid,
-                           ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        
         del data['device_token']
-        emit('remove_tab', {'successful': True,
-             "message": data}, to=send_update)
+        
+        emit('remove_tab', {'successful': True, "message": data}, to=send_update)
 
     def on_remove_all_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-        if user == None:
-            emit('remove_all_tabs', {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('remove_all_tabs', user, data):
             return
 
         target_device = data.get('target_device')
-        device = data.get('device_name')
         tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("remove_all_tabs", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('remove_all_tabs', {
-                 'successful': False, "message": 'Error: device token does not match'})
-            return
-
         tabs_data.get(target_device)['tabs'] = {}
-        collection.update_one({'user_id': data.get('user_id')}, {
-                              "$set": {'tabs_data': tabs_data}})
+        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        
         del data['device_token']
-        emit('remove_all_tabs', {'successful': True,
-             "message": data}, to=send_update)
+        
+        emit('remove_all_tabs', {'successful': True, "message": data}, to=send_update)
 
     def on_update_tab(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-        if user == None:
-            emit('update_tab', {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('update_tab', user, data):
             return
 
         target_device = data.get('target_device')
-        device = data.get('device_name')
         new_tabs_data = data.get('tabs_data')
         tabs_data = user.get('tabs_data')
-
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("update_tab", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('update_tab', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
-        device_tabs = tabs_data.get(target_device).get('tabs')
+        device_tabs = tabs_data.get(target_device, {}).get('tabs')
         device_tabs.update(new_tabs_data)
         collection.update_one({'user_id': data.get('user_id')}, {
             "$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid,
-                           ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        
         del data['device_token']
-        emit('update_tab', {'successful': True,
-             "message": data}, to=send_update)
+        
+        emit('update_tab', {'successful': True, "message": data}, to=send_update)
 
     def on_get(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -295,87 +243,35 @@ class ClientHandleNamespace(Namespace):
 
     def on_get_my_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-
-        if user == None:
-            emit("get_my_tabs", {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('get_my_tabs', user, data):
             return
 
         target_device = data.get('target_device')
-        device = data.get('device_name')
         tabs_data = user.get('tabs_data')
-
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("get_my_tabs", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit("get_my_tabs", {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
-        return_data = tabs_data.get(target_device).get('tabs')
+        return_data = tabs_data.get(target_device).get('tabs', {})
         emit('get_my_tabs', {'successful': True, "message": return_data})
 
     def on_all_devices(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
-
-        if user == None:
-            emit('all_devices', {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('all_devices', user, data):
             return
 
-        device = data.get('device_name')
-        tabs_data = user.get('tabs_data')
-
-        device_tabs_data = tabs_data.get(device)
-
-        if data.get('device_token') == None:
-            emit("all_devices", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('all_devices', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
-        emit('all_devices', {'successful': True,
-             "message": self.__get_tabs_data(user)})
+        emit('all_devices', {'successful': True, "message": self.__get_tabs_data(user)})
 
     def on_enroll_feature(self, data):
         user_id = data.get('user_id')
-        device_name = data.get('device_name')
-        device_token = data.get('device_token')
-        feature_name = data.get('feature_name')
-        is_enrolled = bool(data.get('is_enrolled'))
 
         user = collection.find_one({'user_id': user_id})
 
-        if user == None:
-            emit("enroll_feature", {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('enroll_feature', user, data):
             return
 
-        if device_token == None:
-            emit("enroll_feature", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
+        feature_name = data.get('feature_name')
+        is_enrolled = bool(data.get('is_enrolled'))
 
         if feature_name not in ['ultra_search', 'privacy_prevention']:
             emit("enroll_feature", {'successful': False,
                  "message": 'Error: feature_name not valid'})
-            return
-
-        tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device_name)
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('enroll_feature', {'successful': False,
-                 "message": 'Error: device token does not match'})
             return
         
         if (not is_enrolled) and user.get('enrolled_features', {}).get(feature_name, {}).get('enrolled', False):
@@ -390,7 +286,7 @@ class ClientHandleNamespace(Namespace):
             "picture": user.get('picture'),
             "user_id": user.get('user_id'),
             "device_name": data.get('device_name'),
-            'device_type': data.get('device_type'),
+            'device_type': user.get('devices').get(data.get('device_name')),
             'device_token': data.get('device_token'),
             'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
         }
@@ -398,22 +294,13 @@ class ClientHandleNamespace(Namespace):
     
     def on_switch_feature(self, data):
         user_id = data.get('user_id')
-        device_name = data.get('device_name')
-        device_token = data.get('device_token')
-        feature_name = data.get('feature_name')
-        switch = bool(data.get('switch'))
 
         user = collection.find_one({'user_id': user_id})
 
-        if user == None:
-            emit("switch_feature", {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('switch_feature', user, data):
             return
 
-        if device_token == None:
-            emit("switch_feature", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
+        feature_name = data.get('feature_name')
 
         if feature_name not in ['ultra_search', 'privacy_prevention']:
             emit("switch_feature", {'successful': False,
@@ -424,14 +311,8 @@ class ClientHandleNamespace(Namespace):
             emit("ultra_search_query", {'successful': False,
                  "message": f'Error: User not enrolled in {feature_name}'})
             return
-
-        tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device_name)
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('switch_feature', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
+        
+        switch = bool(data.get('switch'))
 
         collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}.switch': switch}})
         emit('switch_feature', {'successful': True})
@@ -440,7 +321,7 @@ class ClientHandleNamespace(Namespace):
             "picture": user.get('picture'),
             "user_id": user.get('user_id'),
             "device_name": data.get('device_name'),
-            'device_type': data.get('device_type'),
+            'device_type': user.get('devices').get(data.get('device_name')),
             'device_token': data.get('device_token'),
             'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
         }
@@ -448,8 +329,6 @@ class ClientHandleNamespace(Namespace):
 
     def on_ultra_search_query(self, data):
         user_id = data.get('user_id')
-        device_name = data.get('device_name')
-        device_token = data.get('device_token')
         prompt = data.get('prompt', '')
 
         if prompt == '':
@@ -459,9 +338,7 @@ class ClientHandleNamespace(Namespace):
 
         user = collection.find_one({'user_id': user_id})
 
-        if user == None:
-            emit("ultra_search_query", {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('ultra_search_query', user, data):
             return
 
         if not user.get('enrolled_features', {}).get('ultra_search').get('enrolled'):
@@ -474,21 +351,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: Ultra search is currently disabled by the user.'})
             return
 
-        if device_token == None:
-            emit("ultra_search_query", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        tabs_data = user.get('tabs_data')
-        device_tabs_data = tabs_data.get(device_name)
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('ultra_search_query', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
         response = ultra_search_query({'prompt': data.get('prompt')})
-
         emit("ultra_search_query", {'successful': True, "message": response})
 
     def on_auto_authenticate(self, data):
@@ -496,11 +359,9 @@ class ClientHandleNamespace(Namespace):
         device_name = data.get('device_name')
         device_token = data.get('device_token')
 
-        data = collection.find(
-            {f'tabs_data.{device_name}':  {'$exists': True}})
+        data = collection.find({f'tabs_data.{device_name}':  {'$exists': True}})
 
         for d in data:
-            print(d, flush=True)
             user_id_from_data = d.get('user_id')
             tabs_data_from_data = d.get('tabs_data')
             device_data_from_data = tabs_data_from_data.get(device_name)
@@ -522,46 +383,26 @@ class ClientHandleNamespace(Namespace):
                      'successful': True, 'message': credentials})
                 emit('all_devices', {'successful': True,
                      'message': self.__get_tabs_data(user)})
-                print(ClientHandleNamespace.devices_in_use.get(user_id))
                 ClientHandleNamespace.devices_in_use[user_id_from_data].add(
                     request.sid)
-                print(ClientHandleNamespace.devices_in_use.get(user_id))
                 return
-        emit('auto_authenticate', {
-             'successful': False, 'message': 'Error: User not found'})
+        emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
 
     def on_logout(self, data):
-        # {user_id: _, device_token: _, device_name: _}
         user_id = data.get('user_id')
         user = collection.find_one({'user_id': user_id})
-
-        if user == None:
-            emit('logout', {'successful': False,
-                 "message": "Error: User not found"})
+        if not self.__authenticate_device('ultra_search_query', user, data):
             return
+
 
         device = data.get('device_name')
         tabs_data = user.get('tabs_data')
-
         device_tabs_data = tabs_data.get(device)
 
-        if data.get('device_token') == None:
-            emit("logout", {'successful': False,
-                 "message": 'Error: device_token is null'})
-            return
-
-        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
-            emit('logout', {'successful': False,
-                 "message": 'Error: device token does not match'})
-            return
-
-        device_tabs_data = user.get('tabs_data').get(device)
         device_tabs_data['device_token'] = None
-        collection.update_one({'user_id': user_id}, {
-                              "$set": {'tabs_data': user.get('tabs_data')}})
-        print(ClientHandleNamespace.devices_in_use.get(user_id))
+        collection.update_one({'user_id': user_id}, {"$set": {'tabs_data': user.get('tabs_data')}})
+        
         ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
-        print(ClientHandleNamespace.devices_in_use.get(user_id))
-
+        
         emit('logout', {"Success": True})
         print("Logged Out Successfully")

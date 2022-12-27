@@ -14,17 +14,14 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 const UltraSearch = ({ navigation, route }) => {
     const colorScheme = useColorScheme();
-    const credentials = route.params.credentials;
-    const socket = route.params.socket;
+    const credentials = route.params?.credentials;
+    const socket = route.params?.socket;
 
     useEffect(() => {
         socket.on("enroll_feature", (data) => {
             if (data?.successful) {
                 credentials.enrolled_features.ultra_search.enrolled = (!credentials?.enrolled_features?.ultra_search?.enrolled);
                 credentials.enrolled_features.ultra_search.switch = (!credentials?.enrolled_features?.ultra_search?.switch);
-                // navigation.setParams({
-                //     credentials
-                // })
                 navigation.navigate('Settings', { credentials, socket });
             }
             else {
