@@ -301,7 +301,6 @@ class ClientHandleNamespace(Namespace):
         switch = bool(data.get('switch'))
 
         collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}.switch': switch}})
-        emit('switch_feature', {'successful': True})
         credentials = {
             "name": user.get('name'),
             "picture": user.get('picture'),
@@ -311,7 +310,7 @@ class ClientHandleNamespace(Namespace):
             'device_token': data.get('device_token'),
             'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
         }
-        emit('auto_authenticate', {'successful': True, 'message': credentials}, to=list(ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        emit('switch_feature', {'successful': True, "message": credentials})
 
     def on_ultra_search_query(self, data):
         user_id = data.get('user_id')

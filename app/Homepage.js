@@ -128,7 +128,7 @@ class Homepage extends Component {
                                             <MaterialIcons name="help-outline" size={32} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => this.navigation.navigate('Settings', { credentials: this?.context?.credentials, socket: this?.context?.socket })}>
+                                        <TouchableOpacity onPress={() => this.navigation.navigate('Settings')}>
                                             <MaterialIcons name="settings" size={32} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
                                         </TouchableOpacity>
 

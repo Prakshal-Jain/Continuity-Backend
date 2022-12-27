@@ -16,7 +16,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { StateContext } from "./state_context";
 
 function Settings({ navigation }) {
-    const { colorScheme, credentials } = useContext(StateContext);
+    const { colorScheme, credentials, socket } = useContext(StateContext);
 
     const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, isSwitchEnabled }) => {
         const tileStyle = StyleSheet.create({
@@ -44,10 +44,8 @@ function Settings({ navigation }) {
             }
         });
 
-        const [isEnabled, setIsEnabled] = useState(isSwitchEnabled);
         const toggleSwitch = () => {
-            onSwitch(!isEnabled);
-            setIsEnabled(!isEnabled);
+            onSwitch(!isSwitchEnabled);
         }
 
         return (
@@ -59,7 +57,8 @@ function Settings({ navigation }) {
                         <Switch
                             trackColor={{ false: "rgba(28, 28, 30, 1)", true: "rgba(40, 205, 65, 1)" }}
                             onValueChange={toggleSwitch}
-                            value={isEnabled}
+                            value={isSwitchEnabled}
+                            disabled={(credentials?.enrolled_features?.ultra_search?.enrolled === false)}
                         />
                     )}
                 </View>
@@ -112,7 +111,7 @@ function Settings({ navigation }) {
                         style={{ marginRight: 15, fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
                     learnMore={"Ultra Search"}
-                    onSwitch={() => { }}
+                    onSwitch={() => {socket.emit('switch_feature', {user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) })}}
                     isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
                 />
             </ScrollView>
