@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation, learnMoreParams }) => {
+const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation, learnMoreParams, isSwitchEnabled }) => {
     const tileStyle = StyleSheet.create({
         container: {
             backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -39,7 +39,7 @@ const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, navigation, lear
         }
     });
 
-    const [isEnabled, setIsEnabled] = useState(false);
+    const [isEnabled, setIsEnabled] = useState(isSwitchEnabled);
     const toggleSwitch = () => {
         onSwitch(!isEnabled);
         setIsEnabled(!isEnabled);
@@ -102,7 +102,18 @@ export default function ({ navigation, route }) {
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
             <ScrollView style={styles.scrollContainer}>
-                <Tiles colorScheme={colorScheme} title="Ultra Search" icon={<MaterialCommunityIcons name="lightning-bolt" style={{ marginRight: 15, fontSize: 25 }} color="rgba(255, 149, 0, 1)" />} navigation={navigation} learnMore={"Ultra Search"} onSwitch={() => { }} learnMoreParams={{credentials, socket}} />
+                <Tiles
+                    colorScheme={colorScheme}
+                    title="Ultra Search"
+                    icon={<MaterialCommunityIcons
+                        name="lightning-bolt"
+                        style={{ marginRight: 15, fontSize: 25 }}
+                        color="rgba(255, 149, 0, 1)" />}
+                    navigation={navigation}
+                    learnMore={"Ultra Search"}
+                    onSwitch={() => { }}
+                    isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
+                />
             </ScrollView>
         </SafeAreaView>
     )

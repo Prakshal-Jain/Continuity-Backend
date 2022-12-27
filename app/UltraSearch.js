@@ -20,10 +20,11 @@ const UltraSearch = ({ navigation, route }) => {
     useEffect(() => {
         socket.on("enroll_feature", (data) => {
             if (data?.successful) {
-                credentials.enrolled_features.ultra_search = (!credentials.enrolled_features.ultra_search);
-                navigation.setParams({
-                    credentials
-                })
+                credentials.enrolled_features.ultra_search.enrolled = (!credentials?.enrolled_features?.ultra_search?.enrolled);
+                credentials.enrolled_features.ultra_search.switch = (!credentials?.enrolled_features?.ultra_search?.switch);
+                // navigation.setParams({
+                //     credentials
+                // })
                 navigation.navigate('Settings', { credentials, socket });
             }
             else {
@@ -112,7 +113,7 @@ const UltraSearch = ({ navigation, route }) => {
                     Upgrade your search game for just $4.99 per month - that's even less than the cost of a cup of coffee! Don't miss out on this opportunity to improve your online search experience with Ultra Search. Try it out today and see the difference for yourself.
                 </Text>
 
-                {(credentials?.enrolled_features?.ultra_search === false) && (
+                {(credentials?.enrolled_features?.ultra_search?.enrolled === false) && (
                     <TouchableOpacity
                         style={styles.upgradeBtn}
                         onPress={upgradeUltraSearch}

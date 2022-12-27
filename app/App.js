@@ -22,6 +22,7 @@ import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import PrivacyPolicy from './PrivacyPolicy';
 import Settings from './Settings';
 import UltraSearch from './UltraSearch';
+import UltraSearchResult from './UltraSearchResult';
 import React, { useState, useEffect } from 'react';
 import storage from "./utilities/storage";
 
@@ -52,6 +53,7 @@ export default function () {
 
 
   socket.on('auto_authenticate', async (data) => {
+    console.log(data)
     // Set the correct states and credentials
     if ((!data?.successful) || credentials !== null) {
       setCredentials(null);
@@ -222,7 +224,7 @@ export default function () {
               ]
             )
               :
-              <DeviceManager setCurrentDeviceName={setCurrentDeviceName} tabs_data={(devices.filter(device => device.device_name === currDeviceName))[0]} credentials={credentials} socket={socket} colorScheme={colorScheme} />
+              <DeviceManager setCurrentDeviceName={setCurrentDeviceName} tabs_data={(devices.filter(device => device.device_name === currDeviceName))[0]} credentials={credentials} socket={socket} colorScheme={colorScheme} navigation={navigation} />
           )
           :
           <Login postCredentials={postCredentials} colorScheme={colorScheme} navigation={navigation} />
@@ -278,6 +280,10 @@ export default function () {
         />
 
         <Stack.Screen name="Settings" component={Settings}
+          initialParams={{
+            socket,
+            credentials
+          }}
           options={{
             headerStyle: {
               backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
@@ -290,6 +296,28 @@ export default function () {
         />
 
         <Stack.Screen name="Ultra Search" component={UltraSearch}
+          initialParams={{
+            colorScheme,
+            socket,
+            credentials
+          }}
+          options={{
+            headerStyle: {
+              backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+            },
+            headerTintColor: (colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+
+        <Stack.Screen name="Ultra Search Results" component={UltraSearchResult}
+          initialParams={{
+            colorScheme,
+            socket,
+            credentials
+          }}
           options={{
             headerStyle: {
               backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',

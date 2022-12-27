@@ -13,7 +13,7 @@ import {
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { URL, URLSearchParams } from 'react-native-url-polyfill';
+import { URL } from 'react-native-url-polyfill';
 
 // keeps the reference to the browser
 let browserRef = null;
@@ -62,7 +62,7 @@ class Browser extends Component {
         url: this.props.url,
         displayBrowserBar: true,
         isScrollDown: false,
-        ultra_search_response: null
+        ultra_search_prompt: null
     };
 
 
@@ -178,11 +178,10 @@ class Browser extends Component {
         if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
             // Extract the searched string from the q query parameter
             const prompt = parsedUrl.searchParams.get('q');
-            if (prompt !== undefined && prompt !== null && this.state.ultra_search_response?.prompt !== prompt) {
+            if (prompt !== undefined && prompt !== null && this.state.ultra_search_prompt !== prompt) {
                 // A new prompt from user
-                this.setState({ ultra_search_response: { "prompt": parsedUrl.searchParams.get('q'), "response": null } });
+                this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
             }
-            // this.props.socket.emit('ultra_search_query', { query: parsedUrl.searchParams.get('q'), ...this.props.update_tab_data })
         }
         return true;
     };
@@ -320,8 +319,8 @@ class Browser extends Component {
                         <View style={styles.layers}>
                             <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
                             <Icon name="export-variant" size={25} onPress={this.onShare} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            {(this.props?.credentials?.enrolled_features?.ultra_search === true && this.state.ultra_search_response !== null && (this.state.ultra_search_response?.prompt !== null && this.state.ultra_search_response?.prompt !== undefined)) && (
-                                <Icon name="lightning-bolt" size={30} onPress={() => { }} color="rgba(255, 149, 0, 1)" />
+                            {(this.props?.credentials?.enrolled_features?.ultra_search?.enrolled === true && this.props?.credentials?.enrolled_features?.ultra_search?.switch === true && this.state.ultra_search_prompt !== null) && (
+                                <Icon name="lightning-bolt" size={30} onPress={() => { this.props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": this.state.ultra_search_prompt }) }} color="rgba(255, 149, 0, 1)" />
                             )}
                             <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this.props.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this.props.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
@@ -395,4 +394,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Browser;
+export default React.memo(Browser);
