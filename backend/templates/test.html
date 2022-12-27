@@ -63,31 +63,37 @@
     socket.on('get', function(data) {
       console.log("get");
       console.log(data);
-      console.lo;("========================")
+      console.log("========================")
     });
 
     socket.on('remove_all_tabs', function(data) {
       console.log("remove_all_tabs");
       console.log(data);
-      console.lo;("========================")
+      console.log("========================")
     });
 
     socket.on('auto_authenticate', function(data) {
       console.log("auto_authenticate");
       console.log(data);
-      console.lo;("========================")
+      console.log("========================")
     });
     
     socket.on('enroll_feature', function(data) {
       console.log("enroll_feature");
       console.log(data);
-      console.lo;("========================")
+      console.log("========================")
+    });
+
+    socket.on('switch_feature', function(data) {
+      console.log("switch_feature");
+      console.log(data);
+      console.log("========================")
     });
 
     socket.on('ultra_search_query', function(data) {
       console.log("ultra_search_query");
       console.log(data);
-      console.lo;("========================")
+      console.log("========================")
     });
 
     function get(){
@@ -127,12 +133,16 @@
     }
 
     function enroll(){
-      socket.emit("enroll_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search_query'});
+      socket.emit("enroll_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'feature_name': 'ultra_search'});
     }
 
     function ultra(){
       var input_data = document.getElementById('input');
       socket.emit("ultra_search_query", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'prompt': input_data.value});
+    }
+
+    function switch_feature(){
+      socket.emit("switch_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'switch': true, 'feature_name': 'ultra_search'});
     }
 
   </script>
@@ -149,6 +159,7 @@
     <button onclick="get_my_tabs();">get_my_tabs</button>
     <button onclick="auto_authenticate();">auto_authenticate</button>
     <button onclick="enroll();">Enroll</button>
+    <button onclick="switch_feature();">switch_feature</button>
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>

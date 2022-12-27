@@ -91,8 +91,12 @@ class ClientHandleNamespace(Namespace):
                 'picture': data.get('picture'),
                 'devices': {data.get('device_name'): data.get('device_type')},
                 'tabs_data': self.__create_tab(data.get('device_name'), data.get('device_type'), device_token),
-                'enrolled_features': {'ultra_search': False, 'privacy_prevention': False}
-            }
+                'enrolled_features': {'ultra_search': 
+                                        {'enrolled': False, 'switch': False},
+                                    'privacy_prevention':
+                                        {'enrolled': False, 'switch': False}
+                                    }
+                    }
             collection.insert_one(user)
         elif user.get('devices').get(data.get('device_name')) == None:
             device_token = self.__check_for_same_token(
@@ -347,6 +351,7 @@ class ClientHandleNamespace(Namespace):
         device_name = data.get('device_name')
         device_token = data.get('device_token')
         feature_name = data.get('feature_name')
+        is_enrolled = bool(data.get('is_enrolled'))
 
         user = collection.find_one({'user_id': user_id})
 
@@ -372,9 +377,13 @@ class ClientHandleNamespace(Namespace):
             emit('enroll_feature', {'successful': False,
                  "message": 'Error: device token does not match'})
             return
+        
+        if (not is_enrolled) and user.get('enrolled_features', {}).get(feature_name, {}).get('enrolled', False):
+            emit('enroll_feature', {'successful': False,
+                 "message": 'Error: User is already enrolled'})
+            return
 
-        collection.update_one({'user_id': user_id}, {
-                              "$set": {f'enrolled_features.{feature_name}': True}})
+        collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}': {'enrolled': not is_enrolled, 'switch': not is_enrolled}}})
         emit('enroll_feature', {'successful': True})
         credentials = {
             "name": user.get('name'),
@@ -385,8 +394,57 @@ class ClientHandleNamespace(Namespace):
             'device_token': data.get('device_token'),
             'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
         }
-        print(credentials, flush=True)
-        emit('auto_authenticate', {'successful': True, 'message': credentials})
+        emit('auto_authenticate', {'successful': True, 'message': credentials}, to=list(ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+    
+    def on_switch_feature(self, data):
+        user_id = data.get('user_id')
+        device_name = data.get('device_name')
+        device_token = data.get('device_token')
+        feature_name = data.get('feature_name')
+        switch = bool(data.get('switch'))
+
+        user = collection.find_one({'user_id': user_id})
+
+        if user == None:
+            emit("switch_feature", {'successful': False,
+                 "message": "Error: User not found"})
+            return
+
+        if device_token == None:
+            emit("switch_feature", {'successful': False,
+                 "message": 'Error: device_token is null'})
+            return
+
+        if feature_name not in ['ultra_search', 'privacy_prevention']:
+            emit("switch_feature", {'successful': False,
+                 "message": 'Error: feature_name not valid'})
+            return
+        
+        if not user.get('enrolled_features', {}).get(feature_name, {}).get('enrolled', False):
+            emit("ultra_search_query", {'successful': False,
+                 "message": f'Error: User not enrolled in {feature_name}'})
+            return
+
+        tabs_data = user.get('tabs_data')
+        device_tabs_data = tabs_data.get(device_name)
+
+        if not checkpw(data.get('device_token').encode(), device_tabs_data.get('device_token')):
+            emit('switch_feature', {'successful': False,
+                 "message": 'Error: device token does not match'})
+            return
+
+        collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}.switch': switch}})
+        emit('switch_feature', {'successful': True})
+        credentials = {
+            "name": user.get('name'),
+            "picture": user.get('picture'),
+            "user_id": user.get('user_id'),
+            "device_name": data.get('device_name'),
+            'device_type': data.get('device_type'),
+            'device_token': data.get('device_token'),
+            'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
+        }
+        emit('auto_authenticate', {'successful': True, 'message': credentials}, to=list(ClientHandleNamespace.devices_in_use[data.get('user_id')]))
 
     def on_ultra_search_query(self, data):
         user_id = data.get('user_id')
@@ -406,9 +464,14 @@ class ClientHandleNamespace(Namespace):
                  "message": "Error: User not found"})
             return
 
-        if not user.get('enrolled_features', {}).get('ultra_search'):
+        if not user.get('enrolled_features', {}).get('ultra_search').get('enrolled'):
             emit("ultra_search_query", {'successful': False,
                  "message": 'Error: User not enrolled in ultra search'})
+            return
+
+        if not user.get('enrolled_features', {}).get('ultra_search').get('switch'):
+            emit("ultra_search_query", {'successful': False,
+                 "message": 'Error: Ultra search is currently disabled by the user.'})
             return
 
         if device_token == None:
