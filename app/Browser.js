@@ -69,6 +69,11 @@ class Browser extends Component {
     };
 
 
+    shouldComponentUpdate = () => {
+        return true
+    }
+
+
     // get the configuration, this allows us to change
     // configurations for incognito mode
     get config() {
@@ -115,25 +120,40 @@ class Browser extends Component {
 
 
     // go to the next page
-    goForward = lodash.throttle(() => {
-        if (browserRef && this.state.canGoForward) {
-            browserRef.goForward();
+    goForward = () => {
+        try {
+            if (browserRef && this.state.canGoForward) {
+                browserRef.goForward();
+            }
         }
-    }, 500);
+        catch (err) {
+            console.log(err);
+        }
+    };
 
     // go back to the last page
-    goBack = lodash.throttle(() => {
-        if (browserRef && this.state.canGoBack) {
-            browserRef.goBack();
+    goBack = () => {
+        try {
+            if (browserRef && this.state.canGoBack) {
+                browserRef.goBack();
+            }
         }
-    }, 500);
+        catch (err) {
+            console.log(err);
+        }
+    };
 
     // reload the page
-    reload = lodash.throttle(() => {
-        if (browserRef) {
-            browserRef.reload();
+    reload = () => {
+        try {
+            if (browserRef) {
+                browserRef.reload();
+            }
         }
-    }, 500);
+        catch (err) {
+            console.log(err);
+        }
+    };
 
     // set the reference for the browser
     setBrowserRef = (browser) => {
@@ -297,7 +317,7 @@ class Browser extends Component {
                         onLoadEnd={() => { this.setState({ refreshing: false }) }}
                         onError={this.onBrowserError}
                         onNavigationStateChange={this.onNavigationStateChange}
-                        renderLoading={() => <ActivityIndicator size="small" color="#ffffff" />}
+                        // renderLoading={() => <ActivityIndicator size="small" color="#ffffff" />}
                         onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest}
                         onMessage={this.onBrowserMessage}
                         dataDetectorTypes={config.detectorTypes}
@@ -414,4 +434,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(Browser);
+export default Browser;

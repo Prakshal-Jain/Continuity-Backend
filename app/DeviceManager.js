@@ -215,7 +215,7 @@ class DeviceManager extends React.Component {
     }
 }
 
-export default React.memo(DeviceManager);
+export default DeviceManager;
 
 const styles = StyleSheet.create({
     browser: {
