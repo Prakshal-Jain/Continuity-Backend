@@ -341,6 +341,10 @@ class ClientHandleNamespace(Namespace):
         response = ultra_search_query({'prompt': data.get('prompt')})
         emit("ultra_search_query", {'successful': True, "message": response})
 
+    def on_privacy_report(self, data):
+        # Add timestamp here to keep track of the time when user is tracked ==> Show on privacy report
+        print(data, flush=True)
+
     def on_auto_authenticate(self, data):
         user_id = data.get('user_id')
         device_name = data.get('device_name')

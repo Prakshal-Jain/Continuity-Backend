@@ -172,12 +172,8 @@ class Browser extends Component {
             canGoBack,
             url
         })
-    };
 
-    // can prevent requests from fulfilling, good to log requests
-    // or filter ads and adult content.
-    onShouldStartLoadWithRequest = (request) => {
-        const parsedUrl = new URL(request.url);
+        const parsedUrl = new URL(url);
         if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
             // Extract the searched string from the q query parameter
             const prompt = parsedUrl.searchParams.get('q');
@@ -186,12 +182,26 @@ class Browser extends Component {
                 this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
             }
         }
+    };
 
+    // can prevent requests from fulfilling, good to log requests
+    // or filter ads and adult content.
+    onShouldStartLoadWithRequest = (request) => {
+        const parsedUrl = new URL(request.url);
         // Get all the trackers and send to backend
-        const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
-        if(!parsedUrl.hostname.includes(websiteURL)){
+        const websiteHost = (new URL(this.state.url))?.hostname;
+        const trackerHost = parsedUrl?.hostname;
+        // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
+        if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost))) {
             // todo: EMIT to the privacy report here
-            console.log(parsedUrl.hostname);
+            this?.context?.socket?.emit('privacy_report', {
+                'user_id': this?.context?.credentials?.user_id,
+                'device_name': this?.context?.credentials?.device_name,
+                "device_token": this?.context?.credentials?.device_token,
+                "target_device": this.props?.target_device,
+                "website_host": websiteHost,
+                "tracker": trackerHost
+            })
         }
         return true;
     };
