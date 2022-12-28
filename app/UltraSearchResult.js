@@ -7,10 +7,12 @@ import {
     ScrollView,
     StatusBar,
     ActivityIndicator,
-    TextInput
+    TextInput,
+    TouchableOpacity
 } from "react-native";
 import { StateContext } from "./state_context";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class UltraSearchResult extends Component {
@@ -21,11 +23,22 @@ class UltraSearchResult extends Component {
 
         this.state = {
             ultra_search_prompt: this.props?.route?.params?.ultra_search_prompt,
-            ultra_search_response: null
+            ultra_search_response: null,
+            clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} />
         }
     }
 
-    componentDidMount = () => {
+    copyToClipboard = async () => {
+        await Clipboard.setStringAsync(this.state.ultra_search_response);
+        this.setState({ clipboard_icon: <Icon name="clipboard-check-outline" size={30} color="rgba(40, 205, 65, 1)" /> }, () => {
+            setTimeout(() => {
+                this.setState({ clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} /> })
+            }, 1500)
+        })
+    };
+
+    emitPrompt = () => {
+        this.setState({ ultra_search_response: null })
         const query_creds = {
             'user_id': this?.context?.credentials?.user_id,
             'device_name': this?.context?.credentials?.device_name,
@@ -33,6 +46,11 @@ class UltraSearchResult extends Component {
             'prompt': this.state.ultra_search_prompt
         }
         this?.context?.socket.emit('ultra_search_query', query_creds)
+    }
+
+
+    componentDidMount = () => {
+        this.emitPrompt();
 
         this?.context?.socket.on('ultra_search_query', (data) => {
             console.log(data);
@@ -55,17 +73,19 @@ class UltraSearchResult extends Component {
                 />
                 <ScrollView style={styles.scrollContainer}>
                     <View style={[styles.prompt_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#000' : '#fff' }]}>
-                        <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
                         <TextInput
                             onChangeText={(text) => { this.setState({ ultra_search_prompt: text }) }}
                             value={this.state.ultra_search_prompt}
-                            style={{ flex: 1, fontWeight: "bold", color: (this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)', paddingTop: 0 }}
+                            style={{ flex: 1, fontWeight: "bold", color: (this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)', paddingTop: 12, paddingBottom: 12, paddingLeft: 12 }}
                             returnKeyType="search"
                             onSubmitEditing={() => { }}
                             placeholder="Search here"
-                            placeholderTextColor={(this?.context?.colorScheme === 'dark') ? 'rgba(142, 142, 147, 1)' : 'rgba(28, 28, 30, 1)'}
+                            placeholderTextColor="rgba(142, 142, 147, 1)"
                             multiline={true}
                         />
+                        <TouchableOpacity style={styles.ultraSearchBtn} onPress={this.emitPrompt}>
+                            <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
+                        </TouchableOpacity>
                     </View>
 
                     <View>
@@ -75,7 +95,15 @@ class UltraSearchResult extends Component {
                                 ?
                                 (
                                     <View style={[styles.response_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#rgba(44, 44, 46, 1)' : 'rgba(229, 229, 234, 1)' }]}>
-                                        <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]}>
+                                        <View style={{
+                                            borderBottomWidth: 1,
+                                            paddingBottom: 10,
+                                            marginBottom: 5,
+                                            borderBottomColor: (this?.context?.colorScheme === 'dark') ? '#rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)'
+                                        }}>
+                                            {this.state.clipboard_icon}
+                                        </View>
+                                        <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]} selectable={true}>
                                             {this.state.ultra_search_response}
                                         </Text>
                                     </View>
@@ -118,10 +146,10 @@ const styles = StyleSheet.create({
     },
 
     prompt_container: {
-        padding: 15,
         borderRadius: 10,
-        marginBottom: 20,
-        flexDirection: "row"
+        flex: 1,
+        flexDirection: "row",
+        marginBottom: 20
     },
 
     response_container: {
@@ -147,7 +175,18 @@ const styles = StyleSheet.create({
 
     activity_indicator: {
         marginVertical: 20
-    }
+    },
+
+    ultraSearchBtn: {
+        borderTopRightRadius: 10,
+        borderBottomRightRadius: 10,
+        padding: 12,
+        backgroundColor: 'rgba(255, 149, 0, 1)',
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        marginLeft: 10,
+    },
 })
 
 

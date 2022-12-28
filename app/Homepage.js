@@ -80,7 +80,7 @@ class Homepage extends Component {
     }
 
     autoAuthenticate = async () => {
-        await storage.clearAll();
+        // await storage.clearAll();
         const user_id = await storage.get("user_id");
         const device_name = await storage.get("device_name");
         const device_token = await storage.get("device_token");

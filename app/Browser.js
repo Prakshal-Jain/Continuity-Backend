@@ -13,6 +13,7 @@ import {
 import { WebView } from "react-native-webview";
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { URL } from 'react-native-url-polyfill';
 import { StateContext } from "./state_context";
 
@@ -185,6 +186,13 @@ class Browser extends Component {
                 this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
             }
         }
+
+        // Get all the trackers and send to backend
+        const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
+        if(!parsedUrl.hostname.includes(websiteURL)){
+            // todo: EMIT to the privacy report here
+            console.log(parsedUrl.hostname);
+        }
         return true;
     };
 
@@ -324,7 +332,7 @@ class Browser extends Component {
                             {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === true && this?.context?.credentials?.enrolled_features?.ultra_search?.switch === true && this.state.ultra_search_prompt !== null) && (
                                 <Icon name="lightning-bolt" size={30} onPress={() => { this.props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": this.state.ultra_search_prompt }) }} color="rgba(255, 149, 0, 1)" />
                             )}
-                            <Icon name="checkbox-multiple-blank-outline" size={25} onPress={this.showTabs} style={{ transform: [{ rotateX: '180deg' }] }} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            <Ionicons name="ios-copy-outline" size={25} onPress={this.showTabs} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this?.context?.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
                     </LinearGradient>
