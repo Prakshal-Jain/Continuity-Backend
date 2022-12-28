@@ -7,8 +7,11 @@ import {
     ScrollView,
     StatusBar,
     ActivityIndicator,
+    TextInput
 } from "react-native";
 import { StateContext } from "./state_context";
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class UltraSearchResult extends Component {
     static contextType = StateContext;
@@ -35,7 +38,7 @@ class UltraSearchResult extends Component {
             console.log(data);
             if (data?.successful === true) {
                 if (data?.message?.prompt === this.state.ultra_search_prompt) {
-                    this.setState({ ultra_search_response: data?.message?.response })
+                    this.setState({ ultra_search_response: data?.message?.response?.trim() })
                 }
             }
             else {
@@ -51,10 +54,18 @@ class UltraSearchResult extends Component {
                     barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <ScrollView style={styles.scrollContainer}>
-                    <View style={[styles.prompt_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#rgba(44, 44, 46, 1)' : 'rgba(229, 229, 234, 1)' }]}>
-                        <Text style={[styles.prompt_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
-                            {this.state.ultra_search_prompt}
-                        </Text>
+                    <View style={[styles.prompt_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#000' : '#fff' }]}>
+                        <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
+                        <TextInput
+                            onChangeText={(text) => { this.setState({ ultra_search_prompt: text }) }}
+                            value={this.state.ultra_search_prompt}
+                            style={{ flex: 1, fontWeight: "bold", color: (this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)', paddingTop: 0 }}
+                            returnKeyType="search"
+                            onSubmitEditing={() => { }}
+                            placeholder="Search here"
+                            placeholderTextColor={(this?.context?.colorScheme === 'dark') ? 'rgba(142, 142, 147, 1)' : 'rgba(28, 28, 30, 1)'}
+                            multiline={true}
+                        />
                     </View>
 
                     <View>
@@ -63,9 +74,11 @@ class UltraSearchResult extends Component {
                             (this.state.ultra_search_response !== null && this.state.ultra_search_response !== undefined)
                                 ?
                                 (
-                                    <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }]}>
-                                        {this.state.ultra_search_response}
-                                    </Text>
+                                    <View style={[styles.response_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#rgba(44, 44, 46, 1)' : 'rgba(229, 229, 234, 1)' }]}>
+                                        <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]}>
+                                            {this.state.ultra_search_response}
+                                        </Text>
+                                    </View>
                                 )
                                 :
                                 (
@@ -107,6 +120,14 @@ const styles = StyleSheet.create({
     prompt_container: {
         padding: 15,
         borderRadius: 10,
+        marginBottom: 20,
+        flexDirection: "row"
+    },
+
+    response_container: {
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
