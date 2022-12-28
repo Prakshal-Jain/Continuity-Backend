@@ -123,7 +123,7 @@ class UltraSearchResult extends Component {
                                             alignItems: "end",
                                         }}>
                                             {this.state.clipboard_icon}
-                                            <Icon name="export-variant" size={27} color="rgba(255, 149, 0, 1)" onPress={this.onShare} style={{marginLeft: 15}} />
+                                            <Icon name="export-variant" size={27} color="rgba(255, 149, 0, 1)" onPress={this.onShare} style={{ marginLeft: 15 }} />
                                         </View>
                                         <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]} selectable={true}>
                                             {this.state.ultra_search_response}
@@ -146,6 +146,11 @@ class UltraSearchResult extends Component {
                         }
                     </View>
                 </ScrollView>
+                <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => this.props.navigation.navigate('Ultra Search | Terms of Use and Disclaimer')}>
+                    <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 10 }}>
+                        Terms of Use and Disclaimer
+                    </Text>
+                </TouchableOpacity>
             </SafeAreaView>
         )
     }

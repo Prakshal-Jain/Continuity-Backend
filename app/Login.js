@@ -146,7 +146,6 @@ export default function Login(props) {
                 }
 
             </ScrollView>
-            {/* <PullUpMenu /> */}
             <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => props.navigation.navigate('Privacy Policy')}>
                 <Text style={styles.privacy}>
                     Privacy Policy
