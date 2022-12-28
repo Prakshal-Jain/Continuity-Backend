@@ -143,7 +143,6 @@ class DeviceManager extends React.Component {
             ])
         }, () => {
             const d = { "user_id": this?.context?.credentials.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
-            console.log(d)
             this?.context?.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })

@@ -8,7 +8,8 @@ import {
     StatusBar,
     ActivityIndicator,
     TextInput,
-    TouchableOpacity
+    TouchableOpacity,
+    Share
 } from "react-native";
 import { StateContext } from "./state_context";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -19,7 +20,6 @@ class UltraSearchResult extends Component {
     static contextType = StateContext;
     constructor(props) {
         super(props);
-
 
         this.state = {
             ultra_search_prompt: this.props?.route?.params?.ultra_search_prompt,
@@ -48,12 +48,31 @@ class UltraSearchResult extends Component {
         this?.context?.socket.emit('ultra_search_query', query_creds)
     }
 
+    onShare = async () => {
+        try {
+            const result = await Share.share({
+                message: `Prompt: ${this.state.ultra_search_prompt}\n\nResponse: ${this.state.ultra_search_response}`
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
 
     componentDidMount = () => {
         this.emitPrompt();
 
         this?.context?.socket.on('ultra_search_query', (data) => {
-            console.log(data);
             if (data?.successful === true) {
                 if (data?.message?.prompt === this.state.ultra_search_prompt) {
                     this.setState({ ultra_search_response: data?.message?.response?.trim() })
@@ -99,9 +118,12 @@ class UltraSearchResult extends Component {
                                             borderBottomWidth: 1,
                                             paddingBottom: 10,
                                             marginBottom: 5,
-                                            borderBottomColor: (this?.context?.colorScheme === 'dark') ? '#rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)'
+                                            borderBottomColor: (this?.context?.colorScheme === 'dark') ? '#rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)',
+                                            flexDirection: 'row',
+                                            alignItems: "end",
                                         }}>
                                             {this.state.clipboard_icon}
+                                            <Icon name="export-variant" size={27} color="rgba(255, 149, 0, 1)" onPress={this.onShare} style={{marginLeft: 15}} />
                                         </View>
                                         <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]} selectable={true}>
                                             {this.state.ultra_search_response}
