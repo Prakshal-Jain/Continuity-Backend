@@ -142,14 +142,15 @@ class DeviceManager extends React.Component {
                 [uniqueID, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />]
             ])
         }, () => {
-            const d = { "user_id": this?.context?.credentials.user_id, "device_name": this.state.tabs_data.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
+            const d = { "user_id": this?.context?.credentials.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
+            console.log(d)
             this?.context?.socket.emit("add_tab", d);
             this.switchCurrOpenWindow(uniqueID);
         })
     }
 
     deleteAllTabs = () => {
-        this?.context?.socket.emit("remove_all_tabs", { 'user_id': this?.context?.credentials.user_id, 'device_name': this.state.tabs_data.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, 'tabs_data': { 0: 'link_1_updated' } });
+        this?.context?.socket.emit("remove_all_tabs", { 'user_id': this?.context?.credentials.user_id, 'device_name': tthis?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, 'tabs_data': { 0: 'link_1_updated' } });
         this.setState({
             currOpenTab: -1,
             tabs: new Map(),
@@ -199,7 +200,7 @@ class DeviceManager extends React.Component {
             const newMap = this.state.metadata;
             newMap.delete(id);
             this.setState({ metadata: newMap });
-            this?.context?.socket.emit("remove_tab", { "user_id": this?.context?.credentials.user_id, "device_name": this.state.tabs_data.device_name, 'id': id, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name });
+            this?.context?.socket.emit("remove_tab", { "user_id": this?.context?.credentials.user_id, "device_name": this?.context?.credentials?.device_name, 'id': id, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name });
         }
     }
 

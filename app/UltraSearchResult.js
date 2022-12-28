@@ -8,8 +8,10 @@ import {
     StatusBar,
     ActivityIndicator,
 } from "react-native";
+import { StateContext } from "./state_context";
 
 class UltraSearchResult extends Component {
+    static contextType = StateContext;
     constructor(props) {
         super(props);
 
@@ -18,26 +20,20 @@ class UltraSearchResult extends Component {
             ultra_search_prompt: this.props?.route?.params?.ultra_search_prompt,
             ultra_search_response: null
         }
-
-
-        this.socket = this.props?.route?.params?.socket;
-        this.colorScheme = this.props?.route?.params?.colorScheme;
-        this.credentials = this.props?.route?.params?.credentials;
-
-        this.query_creds = {
-            'user_id': this.credentials?.user_id,
-            'device_name': this.credentials?.device_name,
-            'device_token': this.credentials?.device_token,
-            'prompt': this.state.ultra_search_prompt
-        }
     }
 
     componentDidMount = () => {
-        this.socket.emit('ultra_search_query', this.query_creds)
+        const query_creds = {
+            'user_id': this?.context?.credentials?.user_id,
+            'device_name': this?.context?.credentials?.device_name,
+            'device_token': this?.context?.credentials?.device_token,
+            'prompt': this.state.ultra_search_prompt
+        }
+        this?.context?.socket.emit('ultra_search_query', query_creds)
 
-        this.socket.on('ultra_search_query', (data) => {
+        this?.context?.socket.on('ultra_search_query', (data) => {
+            console.log(data);
             if (data?.successful === true) {
-                console.log(this.state.ultra_search_response)
                 if (data?.message?.prompt === this.state.ultra_search_prompt) {
                     this.setState({ ultra_search_response: data?.message?.response })
                 }
@@ -50,13 +46,13 @@ class UltraSearchResult extends Component {
 
     render() {
         return (
-            <SafeAreaView style={[styles.root, { backgroundColor: (this.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+            <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
                 <StatusBar animated={true}
-                    barStyle={this.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
+                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
                 />
                 <ScrollView style={styles.scrollContainer}>
-                    <View style={[styles.prompt_container, { backgroundColor: (this.colorScheme === 'dark') ? '#rgba(44, 44, 46, 1)' : 'rgba(229, 229, 234, 1)' }]}>
-                        <Text style={[styles.prompt_style, { color: this.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
+                    <View style={[styles.prompt_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#rgba(44, 44, 46, 1)' : 'rgba(229, 229, 234, 1)' }]}>
+                        <Text style={[styles.prompt_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
                             {this.state.ultra_search_prompt}
                         </Text>
                     </View>
@@ -67,7 +63,7 @@ class UltraSearchResult extends Component {
                             (this.state.ultra_search_response !== null && this.state.ultra_search_response !== undefined)
                                 ?
                                 (
-                                    <Text style={[styles.response_style, { color: this.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }]}>
+                                    <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }]}>
                                         {this.state.ultra_search_response}
                                     </Text>
                                 )
@@ -78,7 +74,7 @@ class UltraSearchResult extends Component {
                                             <ActivityIndicator />
                                         </View>
                                         <View>
-                                            <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
+                                            <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
                                                 Searching for the best results for you...
                                             </Text>
                                         </View>

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect } from "react";
 import {
     StyleSheet,
     Text,
@@ -16,7 +16,18 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { StateContext } from "./state_context";
 
 function Settings({ navigation }) {
-    const { colorScheme, credentials, socket } = useContext(StateContext);
+    const { colorScheme, credentials, socket, setCredentials } = useContext(StateContext);
+
+    useEffect(() => {
+        socket.on("switch_feature", (data) => {
+            if (data?.successful) {
+                setCredentials(data?.message);
+            }
+            else {
+                console.log(data?.message);
+            }
+        })
+    }, [])
 
     const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, isSwitchEnabled }) => {
         const tileStyle = StyleSheet.create({
@@ -97,6 +108,7 @@ function Settings({ navigation }) {
         }
     })
 
+
     return (
         <SafeAreaView style={styles.root}>
             <StatusBar animated={true}
@@ -111,7 +123,7 @@ function Settings({ navigation }) {
                         style={{ marginRight: 15, fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
                     learnMore={"Ultra Search"}
-                    onSwitch={() => {socket.emit('switch_feature', {user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) })}}
+                    onSwitch={() => { socket.emit('switch_feature', { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) }) }}
                     isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
                 />
             </ScrollView>
