@@ -83,6 +83,7 @@ class ClientHandleNamespace(Namespace):
         return device_token
 
     def on_login(self, data):
+        # print(data['Error']) # <-------------------------------- ERROR
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), set())
         ClientHandleNamespace.devices_in_use[data.get(
@@ -150,6 +151,7 @@ class ClientHandleNamespace(Namespace):
         sys.stdout.flush()
 
     def on_add_tab(self, data):
+        # raise RuntimeError()
         user = collection.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('add_tab', user, data):
             return
@@ -390,3 +392,7 @@ class ClientHandleNamespace(Namespace):
         
         emit('logout', {"successful": True})
         print("Logged Out Successfully")
+    
+    def on_error_default(self, e):
+        print("OVER HERE =================================", flush=True)
+        print(e, flush=True)

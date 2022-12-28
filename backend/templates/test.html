@@ -13,7 +13,9 @@
     socket.on('login', function(data) {
       console.log("login")  
       console.log(data)
-      device_token = data.message.device_token;
+      if(data.successful){
+        device_token = data.message.device_token;
+      }
       console.log("========================")
     });
 
