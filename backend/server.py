@@ -13,5 +13,5 @@ def index():
 
 if __name__ == '__main__':
     socketio.on_namespace(ClientHandleNamespace('/'))
-    socketio.run(app, host='0.0.0.0', port='80')
+    socketio.run(app, host='0.0.0.0', port='8000')
 
