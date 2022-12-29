@@ -147,6 +147,14 @@
       socket.emit("switch_feature", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'switch': true, 'feature_name': 'ultra_search'});
     }
 
+    function report_privacy_trackers(){
+      socket.emit("report_privacy_trackers", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'website_host': 'host_1', 'tracker': 'tracker_1'});
+    }
+
+    function privacy_report(){
+      socket.emit("privacy_report", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -162,6 +170,8 @@
     <button onclick="auto_authenticate();">auto_authenticate</button>
     <button onclick="enroll();">Enroll</button>
     <button onclick="switch_feature();">switch_feature</button>
+    <button onclick="report_privacy_trackers();">report_privacy_trackers</button>
+    <button onclick="privacy_report();">privacy_report</button>
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>

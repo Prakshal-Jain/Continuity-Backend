@@ -5,10 +5,17 @@ from pymongo import MongoClient
 from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
 from features.ultra_search import ultra_search_query
+from datetime import datetime, timedelta
 
 client = MongoClient('mongo')
 db = client['user-data']
 collection = db['records']
+privacy_report = db['privacy_report_data']
+ultra_search = db['ultra_search']
+
+privacy_report.create_index('expireAt', expireAfterSeconds=0)
+
+
 
 '''
 TODO:
@@ -226,8 +233,13 @@ class ClientHandleNamespace(Namespace):
 
     def on_get(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
+        privacy = list(privacy_report.find({'user_id': data.get('user_id')}))
+        for p in privacy:
+            print('privacy_record: ', p, flush=True)
+            del p['_id']
+            del p['expireAt']
         del user['_id']
-        emit('get', {'successful': True, "message": user})
+        emit('get', {'successful': True, "message": [user, privacy]})
 
     def on_get_my_tabs(self, data):
         user = collection.find_one({'user_id': data.get('user_id')})
@@ -341,10 +353,64 @@ class ClientHandleNamespace(Namespace):
         response = ultra_search_query({'prompt': data.get('prompt')})
         emit("ultra_search_query", {'successful': True, "message": response})
 
-    def on_privacy_report(self, data):
-        # Add timestamp here to keep track of the time when user is tracked ==> Show on privacy report
-        print(data, flush=True)
+    def on_report_privacy_trackers(self, data):
+        user_id = data.get('user_id')
 
+        user = collection.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('report_privacy_trackers', user, data):
+            return
+    
+        target_device = data.get('target_device')
+        website_host = data.get('website_host')
+        tracker = data.get('tracker')
+        
+        privacy_report.insert_one({
+            'user_id': user_id,
+            'device': target_device,
+            'website_host': website_host,
+            'tracker': tracker,
+            # 'expireAt': datetime.utcnow() + timedelta(days=30)
+            'expireAt': datetime.utcnow()
+
+        })
+
+        emit('report_privacy_trackers', {'successful': True})
+    
+    def on_privacy_report(self, data):
+        user_id = data.get('user_id')
+
+        user = collection.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('privacy_report', user, data):
+            return
+        
+        target_device = data.get('target_device')
+        
+        data = privacy_report.aggregate( 
+            [
+                {'$match': {'user_id': user_id, 'device': target_device}},
+                {'$group': {"_id": {'website_host': "$website_host", 'tracker': "$tracker"}}}
+            ]
+        )
+
+        restructured_data = {}
+
+        for record in data:
+            record_wh = record.get('_id').get('website_host')
+            record_t = record.get('_id').get('tracker')
+
+            restructured_data[record_wh] = restructured_data.get(record_wh, []) 
+            restructured_data[record_wh].append(record_t)
+        
+        send_data = []
+
+        for (key, value) in restructured_data.items():
+            send_data.append({'value': value, 'label': key, 'count': len(value)})
+        
+
+        emit('privacy_report', {'successful': True, "message": send_data})
+        
     def on_auto_authenticate(self, data):
         user_id = data.get('user_id')
         device_name = data.get('device_name')
