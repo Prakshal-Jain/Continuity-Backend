@@ -14,9 +14,12 @@ import {
 import React from "react";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StateContext } from "./state_context";
+import AlertMessage from "./components/AlertMessage";
 
-function Settings({ navigation }) {
+function Settings({ navigation, route }) {
     const { colorScheme, credentials, socket, setCredentials } = useContext(StateContext);
+
+    const { action_message, feature_name, icon_type } = route?.params ?? { action_message: undefined, feature_name: undefined };
 
     useEffect(() => {
         socket.on("switch_feature", (data) => {
@@ -36,6 +39,8 @@ function Settings({ navigation }) {
                 width: '100%',
                 borderRadius: 10,
                 padding: 15,
+                borderWidth: (feature_name === title) ? 2 : undefined,
+                borderColor: (feature_name === title) ? ((colorScheme === 'dark') ? 'rgba(255, 214, 10, 1)' : 'rgba(255, 149, 0, 1)') : undefined,
             },
 
             tileContainer: {
@@ -47,7 +52,7 @@ function Settings({ navigation }) {
                 color: (colorScheme === 'dark') ? '#fff' : '#000',
                 fontSize: 18,
                 flex: 1,
-                fontWeight: "bold"
+                fontWeight: "bold",
             },
 
             link: {
@@ -115,6 +120,11 @@ function Settings({ navigation }) {
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
             <ScrollView style={styles.scrollContainer}>
+                {(action_message !== undefined && action_message !== null) && (
+                    <View style={{marginBottom: 15}}>
+                        <AlertMessage type={icon_type} message={action_message} />
+                    </View>
+                )}
                 <Tiles
                     colorScheme={colorScheme}
                     title="Ultra Search"

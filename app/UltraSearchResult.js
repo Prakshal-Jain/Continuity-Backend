@@ -15,6 +15,7 @@ import { StateContext } from "./state_context";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AlertMessage from "./components/AlertMessage";
 
 class UltraSearchResult extends Component {
     static contextType = StateContext;
@@ -38,6 +39,10 @@ class UltraSearchResult extends Component {
     };
 
     emitPrompt = () => {
+        if (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0) {
+            return;
+        }
+        
         this.setState({ ultra_search_response: null })
         const query_creds = {
             'user_id': this?.context?.credentials?.user_id,
@@ -132,16 +137,24 @@ class UltraSearchResult extends Component {
                                 )
                                 :
                                 (
-                                    <View style={styles.activity_indicator}>
-                                        <View>
-                                            <ActivityIndicator />
-                                        </View>
-                                        <View>
-                                            <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
-                                                Searching for the best results for you...
-                                            </Text>
-                                        </View>
-                                    </View>
+                                    (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0)
+                                        ?
+                                        (
+                                            <AlertMessage type="error" message="The search query cannot be blank. Please enter a search query and press the search button to view the results." />
+                                        )
+                                        :
+                                        (
+                                            <View style={styles.activity_indicator}>
+                                                <View>
+                                                    <ActivityIndicator />
+                                                </View>
+                                                <View>
+                                                    <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
+                                                        Searching for the best results for you...
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        )
                                 )
                         }
                     </View>

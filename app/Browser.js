@@ -296,6 +296,21 @@ class Browser extends Component {
         this.browserBarRef.current = currentYPosition
     }
 
+    ultraSearchFunc = () => {
+        if (this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === false) {
+            return () => { this.props?.navigation?.navigate('Ultra Search') }
+        }
+        else {
+            // Check if switch is turned on
+            if (this?.context?.credentials?.enrolled_features?.ultra_search?.switch === false) {
+                return () => { this.props?.navigation?.navigate('Settings', { "action_message": "To begin using Ultra Search, please turn on the switch.", "feature_name": 'Ultra Search', "icon_type": "warning" }) }
+            }
+            else {
+                return () => { this.props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": this.state.ultra_search_prompt }) };
+            }
+        }
+    }
+
     render() {
         const { config, state } = this;
         const { url, canGoForward, canGoBack, incognito } = state;
@@ -359,9 +374,7 @@ class Browser extends Component {
                         <View style={styles.layers}>
                             <Icon name="chevron-left" size={30} onPress={this.goBack} style={{ color: canGoBack ? ((this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this?.context?.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
                             <Icon name="export-variant" size={25} onPress={this.onShare} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === true && this?.context?.credentials?.enrolled_features?.ultra_search?.switch === true && this.state.ultra_search_prompt !== null) && (
-                                <Icon name="lightning-bolt" size={30} onPress={() => { this.props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": this.state.ultra_search_prompt }) }} color="rgba(255, 149, 0, 1)" />
-                            )}
+                            <Icon name="lightning-bolt" size={30} onPress={this.ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
                             <Ionicons name="ios-copy-outline" size={25} onPress={this.showTabs} color={(this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={this.goForward} style={{ color: canGoForward ? ((this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((this?.context?.colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
