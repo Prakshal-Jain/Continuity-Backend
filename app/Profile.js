@@ -196,7 +196,7 @@ export default function ({ navigation, ...props }) {
                 <View style={[styles.websiteColorCode, { backgroundColor: colors[i] }]}></View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.websiteName}>{x}</Text>
-                    <Text style={styles.trackerCountStyle}><Text style={{ fontWeight: "bold" }}>{trackerCounts[i]}</Text> trackers contacted:</Text>
+                    <Text style={styles.trackerCountStyle}><Text style={{ fontWeight: "bold" }}>{trackerCounts[i]}</Text> Trackers Contacted</Text>
                 </View>
                 <FontAwesome name="angle-right" size={25} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginLeft: 10 }} />
             </TouchableOpacity>
