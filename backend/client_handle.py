@@ -2,18 +2,23 @@ from flask_socketio import Namespace, emit
 from flask import request
 import sys
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
 from features.ultra_search import ultra_search_query
 from datetime import datetime, timedelta
 
 client = MongoClient('mongo')
-db = client['user-data']
-collection = db['records']
+db = client['user_data']
+users = db['users']
 privacy_report = db['privacy_report_data']
 ultra_search = db['ultra_search']
+history = db['history']
+
 
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
+history.create_index('expireAt', expireAfterSeconds=0)
+
 
 
 
@@ -88,6 +93,15 @@ class ClientHandleNamespace(Namespace):
             token = next(current_iter, b'')
 
         return device_token
+    
+    # Helper function to sort three arrays optimally based on one of the arrays
+    def __sort_arrays(self, arr1, arr2, arr3):
+        if(len(arr3) == 0):
+            return arr1, arr2, arr3
+        paired = list(zip(arr1, arr2, arr3))
+        paired.sort(key=lambda x: x[2], reverse=True)
+        arr1, arr2, arr3 = zip(*paired)
+        return list(arr1), list(arr2), list(arr3)
 
     def on_login(self, data):
         # print(data['Error']) # <-------------------------------- ERROR
@@ -96,7 +110,7 @@ class ClientHandleNamespace(Namespace):
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')].add(request.sid)
 
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
 
         device_token = token_urlsafe(27).encode()
 
@@ -113,7 +127,7 @@ class ClientHandleNamespace(Namespace):
                                         {'enrolled': False, 'switch': False}
                                     }
                     }
-            collection.insert_one(user)
+            users.insert_one(user)
 
         elif user.get('devices').get(data.get('device_name')) == None:
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
@@ -121,7 +135,7 @@ class ClientHandleNamespace(Namespace):
             devices[data.get('device_name')] = data.get('device_type')
             new_device = self.__create_tab(data.get('device_name'), data.get('device_type'), device_token)
             user.get('tabs_data').update(new_device)
-            collection.update_one({'user_id': data.get('user_id')}, {
+            users.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
             send_update = list(filter(lambda x: x != request.sid,
                                ClientHandleNamespace.devices_in_use[data.get('user_id')]))
@@ -141,7 +155,7 @@ class ClientHandleNamespace(Namespace):
             
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
             device_tabs_data['device_token'] = hashpw(device_token, gensalt())
-            collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
+            users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': user.get('tabs_data')}})
             
         credentials = {
             "name": data.get('name'),
@@ -159,7 +173,7 @@ class ClientHandleNamespace(Namespace):
 
     def on_add_tab(self, data):
         # raise RuntimeError()
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('add_tab', user, data):
             return
 
@@ -168,7 +182,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs = tabs_data.get(target_device).get('tabs', {})
         device_tabs.update(new_tabs_data)
-        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
+        users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         del data['device_token']
         send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
@@ -177,7 +191,7 @@ class ClientHandleNamespace(Namespace):
         sys.stdout.flush()
 
     def on_remove_tab(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('remove_tab', user, data):
             return
 
@@ -187,7 +201,7 @@ class ClientHandleNamespace(Namespace):
         tab_id = str(data.get('id', -1))
         if tab_id in device_tabs:
             del device_tabs[tab_id]
-        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
+        users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
         
@@ -196,14 +210,14 @@ class ClientHandleNamespace(Namespace):
         emit('remove_tab', {'successful': True, "message": data}, to=send_update)
 
     def on_remove_all_tabs(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('remove_all_tabs', user, data):
             return
 
         target_device = data.get('target_device')
         tabs_data = user.get('tabs_data')
         tabs_data.get(target_device)['tabs'] = {}
-        collection.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
+        users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         send_update = list(filter(lambda x: x != request.sid,
                            ClientHandleNamespace.devices_in_use[data.get('user_id')]))
@@ -213,7 +227,7 @@ class ClientHandleNamespace(Namespace):
         emit('remove_all_tabs', {'successful': True, "message": data}, to=send_update)
 
     def on_update_tab(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('update_tab', user, data):
             return
 
@@ -222,7 +236,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data = user.get('tabs_data')
         device_tabs = tabs_data.get(target_device, {}).get('tabs')
         device_tabs.update(new_tabs_data)
-        collection.update_one({'user_id': data.get('user_id')}, {
+        users.update_one({'user_id': data.get('user_id')}, {
             "$set": {'tabs_data': tabs_data}})
 
         send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
@@ -232,7 +246,7 @@ class ClientHandleNamespace(Namespace):
         emit('update_tab', {'successful': True, "message": data}, to=send_update)
 
     def on_get(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         privacy = list(privacy_report.find({'user_id': data.get('user_id')}))
         for p in privacy:
             print('privacy_record: ', p, flush=True)
@@ -242,7 +256,7 @@ class ClientHandleNamespace(Namespace):
         emit('get', {'successful': True, "message": [user, privacy]})
 
     def on_get_my_tabs(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('get_my_tabs', user, data):
             return
 
@@ -252,7 +266,7 @@ class ClientHandleNamespace(Namespace):
         emit('get_my_tabs', {'successful': True, "message": return_data})
 
     def on_all_devices(self, data):
-        user = collection.find_one({'user_id': data.get('user_id')})
+        user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('all_devices', user, data):
             return
 
@@ -261,7 +275,7 @@ class ClientHandleNamespace(Namespace):
     def on_enroll_feature(self, data):
         user_id = data.get('user_id')
 
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('enroll_feature', user, data):
             return
@@ -279,7 +293,7 @@ class ClientHandleNamespace(Namespace):
                  "message": 'Error: User is already enrolled'})
             return
 
-        collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}': {'enrolled': not is_enrolled, 'switch': not is_enrolled}}})
+        users.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}': {'enrolled': not is_enrolled, 'switch': not is_enrolled}}})
         credentials = {
             "name": user.get('name'),
             "picture": user.get('picture'),
@@ -287,7 +301,7 @@ class ClientHandleNamespace(Namespace):
             "device_name": data.get('device_name'),
             'device_type': user.get('devices').get(data.get('device_name')),
             'device_token': data.get('device_token'),
-            'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
+            'enrolled_features': (users.find_one({'user_id': user_id})).get('enrolled_features')
         }
         emit('enroll_feature', {'successful': True, 'message': credentials})
     
@@ -295,7 +309,7 @@ class ClientHandleNamespace(Namespace):
     def on_switch_feature(self, data):
         user_id = data.get('user_id')
 
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('switch_feature', user, data):
             return
@@ -314,7 +328,7 @@ class ClientHandleNamespace(Namespace):
         
         switch = bool(data.get('switch'))
 
-        collection.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}.switch': switch}})
+        users.update_one({'user_id': user_id}, {"$set": {f'enrolled_features.{feature_name}.switch': switch}})
         credentials = {
             "name": user.get('name'),
             "picture": user.get('picture'),
@@ -322,7 +336,7 @@ class ClientHandleNamespace(Namespace):
             "device_name": data.get('device_name'),
             'device_type': user.get('devices').get(data.get('device_name')),
             'device_token': data.get('device_token'),
-            'enrolled_features': (collection.find_one({'user_id': user_id})).get('enrolled_features')
+            'enrolled_features': (users.find_one({'user_id': user_id})).get('enrolled_features')
         }
         emit('switch_feature', {'successful': True, "message": credentials})
 
@@ -335,7 +349,7 @@ class ClientHandleNamespace(Namespace):
                  'successful': False, 'message': 'Error: Query is empty'})
             return
 
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('ultra_search_query', user, data):
             return
@@ -356,7 +370,7 @@ class ClientHandleNamespace(Namespace):
     def on_report_privacy_trackers(self, data):
         user_id = data.get('user_id')
 
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('report_privacy_trackers', user, data):
             return
@@ -376,20 +390,10 @@ class ClientHandleNamespace(Namespace):
 
         emit('report_privacy_trackers', {'successful': True})
 
-
-    # Helper function to sort three arrays optimally based on one of the arrays
-    def __sort_arrays(self, arr1, arr2, arr3):
-        if(len(arr3) == 0):
-            return arr1, arr2, arr3
-        paired = list(zip(arr1, arr2, arr3))
-        paired.sort(key=lambda x: x[2], reverse=True)
-        arr1, arr2, arr3 = zip(*paired)
-        return list(arr1), list(arr2), list(arr3)
-    
     def on_privacy_report(self, data):
         user_id = data.get('user_id')
 
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('privacy_report', user, data):
             return
@@ -424,12 +428,88 @@ class ClientHandleNamespace(Namespace):
         websites, trackers, tracker_counts = self.__sort_arrays(websites, trackers, tracker_counts)
         emit('privacy_report', {'successful': True, "message": {"tracker_counts": tracker_counts, "websites": websites, "trackers": trackers}})
         
-    def on_auto_authenticate(self, data):
+    def on_set_history(self, data):
         user_id = data.get('user_id')
+
+        user = users.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('set_history', user, data):
+            return
+        
+        target_device = data.get('target_device')
+        url = data.get('url')
+        
+        history.insert_one({
+            'user_id': user_id,
+            'device': target_device,
+            'url': url,    
+            'expireAt': datetime.utcnow() + timedelta(days=30)
+        })
+
+        emit('set_history', {'successful': True})
+
+
+    def on_get_history(self, data):
+        user_id = data.get('user_id')
+
+        user = users.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('get_history', user, data):
+            return
+
+        target_device = data.get('target_device')
+        page = int(data.get('page'))
+        page_count = (page - 1)*50
+        data = history.find({'user_id': user_id, 'device': target_device}).sort("_id", -1).skip(page_count).limit(51)
+
+        user_history = []
+
+        count = 0
+        running_date = ''
+        
+        for p in data:
+            count+=1
+            if count == 51:
+                break
+            date = p.get('_id').generation_time
+            str_date = date.strftime('%b %-d, %Y')
+            if running_date != str_date:
+                user_history.append({'date': str_date, 'date_history': []})
+                running_date = str_date
+            user_history[-1]['date_history'].append({'url': p.get('url'), 'id': str(p.get('_id'))})
+
+        if count == 0:
+            emit('get_history', {'successful': False, "message": f'Error: History at page {page} is empty'})
+        
+        emit('get_history', {'successful': True, "message": {'next': count == 51, 'history': user_history}})
+
+    def on_delete_history(self, data):
+        user_id = data.get('user_id')
+
+        user = users.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('get_history', user, data):
+            return
+        
+        target_device = data.get('target_device')
+        id = data.get('id')
+        is_delete_all = data.get('is_delete_all', False)
+
+        if id == None and is_delete_all:
+            history.delete_many({'user_id': user_id, 'device': target_device})
+        elif id != None:
+            history.delete_one({'_id': ObjectId(id)})
+        else:
+            emit('delete_history', {'successful': False, 'message': 'Error: Incorrect query'})
+            return
+        
+        emit('delete_history', {'successful': True})
+
+    def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
         device_token = data.get('device_token')
 
-        data = collection.find({f'tabs_data.{device_name}':  {'$exists': True}})
+        data = users.find({f'tabs_data.{device_name}':  {'$exists': True}})
 
         for d in data:
             user_id_from_data = d.get('user_id')
@@ -446,7 +526,7 @@ class ClientHandleNamespace(Namespace):
                     'device_type': device_data_from_data.get('device_type'),
                     'device_token': device_token,
                 }
-                user = collection.find_one({'user_id': user_id_from_data})
+                user = users.find_one({'user_id': user_id_from_data})
                 credentials['enrolled_features'] = user.get(
                     'enrolled_features')
                 emit('auto_authenticate', {
@@ -460,7 +540,7 @@ class ClientHandleNamespace(Namespace):
 
     def on_logout(self, data):
         user_id = data.get('user_id')
-        user = collection.find_one({'user_id': user_id})
+        user = users.find_one({'user_id': user_id})
         if not self.__authenticate_device('logout', user, data):
             return
 
@@ -469,7 +549,7 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data = tabs_data.get(device)
 
         device_tabs_data['device_token'] = None
-        collection.update_one({'user_id': user_id}, {"$set": {'tabs_data': user.get('tabs_data')}})
+        users.update_one({'user_id': user_id}, {"$set": {'tabs_data': user.get('tabs_data')}})
         
         ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
         

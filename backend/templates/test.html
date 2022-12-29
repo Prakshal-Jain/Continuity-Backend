@@ -98,6 +98,36 @@
       console.log("========================")
     });
 
+    socket.on('report_privacy_trackers', function(data) {
+      console.log("report_privacy_trackers");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('privacy_report', function(data) {
+      console.log("privacy_report");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('set_history', function(data) {
+      console.log("set_history");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('get_history', function(data) {
+      console.log("get_history");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('delete_history', function(data) {
+      console.log("delete_history");
+      console.log(data);
+      console.log("========================")
+    });
+
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
     }
@@ -155,6 +185,19 @@
       socket.emit("privacy_report", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
     }
 
+    function set_history(){
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_1'});
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_2'});
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_1'});
+    }
+
+    function get_history(){
+      socket.emit("get_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'page': 1});
+    }
+
+    function delete_history(){
+      socket.emit("delete_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
+    }
   </script>
   <title>SocketIO</title>
 </head>
@@ -172,6 +215,9 @@
     <button onclick="switch_feature();">switch_feature</button>
     <button onclick="report_privacy_trackers();">report_privacy_trackers</button>
     <button onclick="privacy_report();">privacy_report</button>
+    <button onclick="set_history();">set_history</button>
+    <button onclick="get_history();">get_history</button>
+
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>
