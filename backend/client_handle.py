@@ -378,17 +378,13 @@ class ClientHandleNamespace(Namespace):
 
 
     # Helper function to sort three arrays optimally based on one of the arrays
-    def __sort_arrays(self, arr1, arr2, key_array):
-        # Zip the arrays together
-        zipped_arrays = zip(arr1, arr2, key_array)
-        
-        # Sort the zipped arrays using the key array as the sort key
-        sorted_zipped_arrays = sorted(zipped_arrays, key=lambda x: x[2])
-        
-        # Unpack the sorted arrays
-        arr1, arr2, arr3 = zip(*sorted_zipped_arrays)
-        
-        return arr1, arr2, arr3
+    def __sort_arrays(self, arr1, arr2, arr3):
+        if(len(arr3) == 0):
+            return arr1, arr2, arr3
+        paired = list(zip(arr1, arr2, arr3))
+        paired.sort(key=lambda x: x[2], reverse=True)
+        arr1, arr2, arr3 = zip(*paired)
+        return list(arr1), list(arr2), list(arr3)
     
     def on_privacy_report(self, data):
         user_id = data.get('user_id')
