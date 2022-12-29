@@ -214,7 +214,7 @@ class Browser extends Component {
         // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
         if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost))) {
             // todo: EMIT to the privacy report here
-            this?.context?.socket?.emit('privacy_report', {
+            this?.context?.socket?.emit('report_privacy_trackers', {
                 'user_id': this?.context?.credentials?.user_id,
                 'device_name': this?.context?.credentials?.device_name,
                 "device_token": this?.context?.credentials?.device_token,

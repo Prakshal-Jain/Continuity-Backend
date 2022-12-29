@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -6,16 +6,23 @@ import {
     SafeAreaView,
     ScrollView,
     StatusBar,
-    useColorScheme,
     Image,
     TouchableOpacity,
+    ActivityIndicator,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
+import PieChart from "./components/PieChart";
+import randomColor from "randomcolor";
+import CheckBoxList from "./components/CheckBoxList";
 
 export default function ({ navigation, ...props }) {
-    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials } = useContext(StateContext);
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices } = useContext(StateContext);
+    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [trackerCounts, setTrackerCounts] = useState(null);
+    const [trackers, setTrackers] = useState(null);
+    const [websites, setWebsites] = useState(null);
 
     const deleteAllData = async () => {
         await storage.clearAll();
@@ -26,6 +33,18 @@ export default function ({ navigation, ...props }) {
 
 
     useEffect(() => {
+        socket.on("privacy_report", (data) => {
+            if (data?.successful === true) {
+                setTrackerCounts(data?.message?.tracker_counts);
+                setTrackers(data?.message?.trackers);
+                setWebsites(data?.message?.websites);
+            }
+            else {
+                console.log(data?.message);
+            }
+        })
+
+
         socket.on("logout", (data) => {
             if (data?.successful === true) {
                 navigation.navigate('Homepage');
@@ -35,7 +54,17 @@ export default function ({ navigation, ...props }) {
                 console.log(data?.message);
             }
         })
+
+        getDevicePrivacyReport(credentials?.device_name);
     }, [])
+
+    const getDevicePrivacyReport = (id) => {
+        setTrackerCounts(null);
+        setTrackers(null);
+        setWebsites(null);
+        setSelectedDevice(id);
+        socket.emit("privacy_report", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, target_device: id });
+    }
 
     const styles = StyleSheet.create({
         root: {
@@ -92,14 +121,104 @@ export default function ({ navigation, ...props }) {
             textAlign: 'center',
             paddingLeft: 10,
             paddingRight: 10,
+        },
+
+        privacyReportContainer: {
+            marginVertical: 20,
+            backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
+            borderRadius: 10,
+            padding: 15,
+            width: '100%'
+        },
+
+        heading: {
+            fontWeight: 'bold',
+            fontSize: 25,
+            color: colorScheme === 'dark' ? '#fff' : '#000',
+            flex: 1,
+            textAlign: "center"
+        },
+
+        piechartContainer: {
+            padding: 20,
+        },
+
+        websitesHeading: {
             fontSize: 20,
-            fontWeight: 'bold'
+            textAlign: "center",
+            fontWeight: "bold",
+            marginTop: 25,
+            marginBottom: 8,
+            color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'
+        },
+
+        smallText: {
+            color: colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
+            marginBottom: 10,
+            textAlign: "center"
+        },
+
+        websiteContainer: {
+            borderWidth: 1,
+            padding: 15,
+            marginVertical: 15,
+            borderRadius: 10,
+            backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+            flexDirection: "row",
+            alignItems: 'center',
+            justifyContent: "center"
+        },
+
+        websiteName: {
+            color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            marginBottom: 10
+        },
+
+        trackerCountStyle: {
+            color: colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
+        },
+
+        websiteColorCode: {
+            height: 20,
+            width: 20,
+            borderRadius: 10,
+            marginRight: 15,
         }
     })
 
     const onLogout = () => {
         socket.emit("logout", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token });
     }
+
+    const TrackerList = () => (
+        websites?.map((x, i) => (
+            <TouchableOpacity style={[styles.websiteContainer, { borderColor: colors[i] }]} key={`website_${i}`} onPress={() => navigation.navigate('Trackers Contacted', { website: x, tracker: trackers[i], count: trackerCounts[i], color: colors[i] })}>
+                <View style={[styles.websiteColorCode, { backgroundColor: colors[i] }]}></View>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.websiteName}>{x}</Text>
+                    <Text style={styles.trackerCountStyle}><Text style={{ fontWeight: "bold" }}>{trackerCounts[i]}</Text> trackers contacted:</Text>
+                </View>
+                <FontAwesome name="angle-right" size={25} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginLeft: 10 }} />
+            </TouchableOpacity>
+        ))
+    )
+
+    const all_devices = devices.map(({ device_name }) => ({ id: device_name, label: device_name }));
+
+    const colorOptions = { luminosity: colorScheme === "light" ? "dark" : "light" }
+
+    const colors = Array((trackerCounts?.length) ?? 0).fill(0).map(_ => randomColor(colorOptions));
+
+    const pieData = trackerCounts
+        ?.map((value, index) => ({
+            value,
+            svg: {
+                fill: colors[index],
+                onPress: () => navigation.navigate('Trackers Contacted', { website: websites[index], tracker: trackers[index], count: value, color: colors[index] })
+            },
+            key: `pie-${index}`,
+        }))
+
 
     return (
         <SafeAreaView style={styles.root}>
@@ -140,6 +259,63 @@ export default function ({ navigation, ...props }) {
                         borderBottomWidth: StyleSheet.hairlineWidth,
                     }}
                 />
+
+                <View style={styles.privacyReportContainer}>
+                    <Text style={styles.heading}>Intelligent Privacy Report</Text>
+                    <View style={styles.piechartContainer}>
+                        <CheckBoxList check_list={all_devices} onSelect={getDevicePrivacyReport} selected={selectedDevice} colorScheme={colorScheme} />
+                    </View>
+
+                    <View
+                        style={{
+                            borderBottomColor: '#a9a9a9',
+                            borderBottomWidth: StyleSheet.hairlineWidth,
+                            marginVertical: 20,
+                        }}
+                    />
+
+                    {(trackerCounts !== null)
+                        ?
+                        (
+                            <View style={styles.piechartContainer}>
+                                {(trackerCounts.length > 0)
+                                    ?
+                                    (
+                                        <React.Fragment>
+                                            <PieChart style={{ height: 160 }} data={pieData} />
+                                            <Text style={styles.websitesHeading}>
+                                                Websites that contacted Trackers
+                                            </Text>
+                                            <Text style={styles.smallText}>
+                                                Select the websites listed below to view the trackers that were contacted.
+                                            </Text>
+                                            <TrackerList />
+                                        </React.Fragment>
+                                    )
+                                    :
+                                    (
+                                        <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                            No data found for this device.
+                                        </Text>
+                                    )
+                                }
+                            </View>
+                        )
+                        :
+                        (
+                            <View style={styles.piechartContainer}>
+                                <View>
+                                    <ActivityIndicator />
+                                </View>
+                                <View>
+                                    <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                        Collecting your privacy reports for review...
+                                    </Text>
+                                </View>
+                            </View>
+                        )
+                    }
+                </View>
 
             </ScrollView>
 

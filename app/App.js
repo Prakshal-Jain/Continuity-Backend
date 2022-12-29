@@ -14,6 +14,7 @@ import Homepage from './Homepage';
 import { StateContext } from "./state_context";
 import { io } from "socket.io-client";
 import TermsDisclaimerUltraSearch from "./TermsDisclaimerUltraSearch";
+import TrackersContacted from "./TrackersContacted";
 
 const Stack = createNativeStackNavigator();
 const socket = io("http://10.3.12.22");
@@ -106,6 +107,18 @@ export default function () {
           />
 
           <Stack.Screen name="Ultra Search | Terms of Use and Disclaimer" component={TermsDisclaimerUltraSearch}
+            options={{
+              headerStyle: {
+                backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',
+              },
+              headerTintColor: (colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}
+          />
+
+          <Stack.Screen name="Trackers Contacted" component={TrackersContacted}
             options={{
               headerStyle: {
                 backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)',

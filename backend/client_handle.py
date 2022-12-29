@@ -375,6 +375,20 @@ class ClientHandleNamespace(Namespace):
         })
 
         emit('report_privacy_trackers', {'successful': True})
+
+
+    # Helper function to sort three arrays optimally based on one of the arrays
+    def __sort_arrays(self, arr1, arr2, key_array):
+        # Zip the arrays together
+        zipped_arrays = zip(arr1, arr2, key_array)
+        
+        # Sort the zipped arrays using the key array as the sort key
+        sorted_zipped_arrays = sorted(zipped_arrays, key=lambda x: x[2])
+        
+        # Unpack the sorted arrays
+        arr1, arr2, arr3 = zip(*sorted_zipped_arrays)
+        
+        return arr1, arr2, arr3
     
     def on_privacy_report(self, data):
         user_id = data.get('user_id')
@@ -402,13 +416,17 @@ class ClientHandleNamespace(Namespace):
             restructured_data[record_wh] = restructured_data.get(record_wh, []) 
             restructured_data[record_wh].append(record_t)
         
-        send_data = []
+        tracker_counts = []
+        websites = []
+        trackers = []
 
         for (key, value) in restructured_data.items():
-            send_data.append({'value': value, 'label': key, 'count': len(value)})
+            tracker_counts.append(len(value))
+            websites.append(key)
+            trackers.append(value)
         
-
-        emit('privacy_report', {'successful': True, "message": send_data})
+        websites, trackers, tracker_counts = self.__sort_arrays(websites, trackers, tracker_counts)
+        emit('privacy_report', {'successful': True, "message": {"tracker_counts": tracker_counts, "websites": websites, "trackers": trackers}})
         
     def on_auto_authenticate(self, data):
         user_id = data.get('user_id')

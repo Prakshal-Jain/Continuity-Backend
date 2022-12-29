@@ -32,7 +32,6 @@ class Homepage extends Component {
                 return
             }
             else {
-                console.log(data?.message);
                 this?.context?.setCredentials(data?.message);
             }
         })

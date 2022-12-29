@@ -5,6 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ScaleXView from "./components/ScaleXView";
 import { StateContext } from "./state_context";
+import webIcon from "./assets/web_icon.png"
 
 class Tabs extends Component {
     static contextType = StateContext;
@@ -48,7 +49,7 @@ class Tabs extends Component {
                             style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
                             source={{ uri: img_url }}
                             onError={() => {
-                                img_url = 'https://www.nicepng.com/png/full/170-1709508_web-solutions-web-icon-white-png.png'
+                                img_url = webIcon
                             }}
                         />
                     </TouchableOpacity>
