@@ -370,8 +370,7 @@ class ClientHandleNamespace(Namespace):
             'device': target_device,
             'website_host': website_host,
             'tracker': tracker,
-            # 'expireAt': datetime.utcnow() + timedelta(days=30)
-            'expireAt': datetime.utcnow()
+            'expireAt': datetime.utcnow() + timedelta(days=30)
 
         })
 
