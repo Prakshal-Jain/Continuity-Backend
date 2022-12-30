@@ -7,6 +7,7 @@ from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
 from features.ultra_search import ultra_search_query
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 client = MongoClient('mongo')
 db = client['user_data']
@@ -100,7 +101,6 @@ class ClientHandleNamespace(Namespace):
         return list(arr1), list(arr2), list(arr3)
 
     def on_login(self, data):
-        # print(data['Error']) # <-------------------------------- ERROR
         ClientHandleNamespace.devices_in_use[data.get(
             'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), set())
         ClientHandleNamespace.devices_in_use[data.get(
@@ -168,7 +168,6 @@ class ClientHandleNamespace(Namespace):
         sys.stdout.flush()
 
     def on_add_tab(self, data):
-        # raise RuntimeError()
         user = users.find_one({'user_id': data.get('user_id')})
         if not self.__authenticate_device('add_tab', user, data):
             return
@@ -434,11 +433,13 @@ class ClientHandleNamespace(Namespace):
         
         target_device = data.get('target_device')
         url = data.get('url')
+        title = data.get('title')
         
         history.insert_one({
             'user_id': user_id,
             'device': target_device,
-            'url': url,    
+            'url': url,
+            'title': title,
             'expireAt': datetime.utcnow() + timedelta(days=30)
         })
 
@@ -455,6 +456,7 @@ class ClientHandleNamespace(Namespace):
 
         target_device = data.get('target_device')
         page = int(data.get('page'))
+        timezone = ZoneInfo(data.get('timezone'))
         page_count = (page - 1)*50
         data = history.find({'user_id': user_id, 'device': target_device}).sort("_id", -1).skip(page_count).limit(51)
 
@@ -467,12 +469,12 @@ class ClientHandleNamespace(Namespace):
             count+=1
             if count == 51:
                 break
-            date = p.get('_id').generation_time
+            date = p.get('_id').generation_time.astimezone(timezone)
             str_date = date.strftime('%b %-d, %Y')
             if running_date != str_date:
                 user_history.append({'date': str_date, 'date_history': []})
                 running_date = str_date
-            user_history[-1]['date_history'].append({'url': p.get('url'), 'id': str(p.get('_id'))})
+            user_history[-1]['date_history'].append({'url': p.get('url'), 'id': str(p.get('_id')), 'title': p.get('title')})
 
         if count == 0:
             emit('get_history', {'successful': False, "message": f'Error: History at page {page} is empty'})

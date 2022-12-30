@@ -1,4 +1,4 @@
-FROM python:3.8.2
+FROM python:latest
 
 ENV HOME /root
 WORKDIR /root

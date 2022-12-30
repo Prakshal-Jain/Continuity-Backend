@@ -128,6 +128,10 @@
       console.log("========================")
     });
 
+    socket.on('error_occured', function(data) {
+      console.log(data);
+    });
+
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
     }
@@ -186,13 +190,13 @@
     }
 
     function set_history(){
-      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_1'});
-      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_2'});
-      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_1'});
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_1', 'title': 'title_1'});
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_2', 'title': 'title_2'});
+      socket.emit("set_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'url': 'url_3', 'title': 'title_3'});
     }
 
     function get_history(){
-      socket.emit("get_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'page': 1});
+      socket.emit("get_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token, 'page': 1, 'timezone': 'Indian Standard Time'});
     }
 
     function delete_history(){
@@ -221,6 +225,8 @@
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>
-
+    <br>
+    <br>
+<div id="Error"></div>
 </body>
 </html>
