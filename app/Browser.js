@@ -187,13 +187,34 @@ class Browser extends Component {
     // called when the navigation state changes (page load)
     onNavigationStateChange = (navState) => {
         const { canGoForward, canGoBack, url } = navState;
-        this.setState({
-            canGoForward,
-            canGoBack,
-            url
-        })
 
         const parsedUrl = new URL(url);
+        if ((this.state.url === url) || (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search')) {
+            return
+        }
+        else {
+
+            this.setState({
+                canGoForward,
+                canGoBack,
+                url
+            })
+
+            this?.context?.socket?.emit('set_history', {
+                'user_id': this?.context?.credentials?.user_id,
+                'device_name': this?.context?.credentials?.device_name,
+                "device_token": this?.context?.credentials?.device_token,
+                "target_device": this.props?.target_device,
+                url
+            })
+        }
+    };
+
+    // can prevent requests from fulfilling, good to log requests
+    // or filter ads and adult content.
+    onShouldStartLoadWithRequest = (request) => {
+        const parsedUrl = new URL(request.url);
+
         if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
             // Extract the searched string from the q query parameter
             const prompt = parsedUrl.searchParams.get('q');
@@ -202,26 +223,22 @@ class Browser extends Component {
                 this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
             }
         }
-    };
-
-    // can prevent requests from fulfilling, good to log requests
-    // or filter ads and adult content.
-    onShouldStartLoadWithRequest = (request) => {
-        const parsedUrl = new URL(request.url);
-        // Get all the trackers and send to backend
-        const websiteHost = (new URL(this.state.url))?.hostname;
-        const trackerHost = parsedUrl?.hostname;
-        // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
-        if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost))) {
-            // todo: EMIT to the privacy report here
-            this?.context?.socket?.emit('report_privacy_trackers', {
-                'user_id': this?.context?.credentials?.user_id,
-                'device_name': this?.context?.credentials?.device_name,
-                "device_token": this?.context?.credentials?.device_token,
-                "target_device": this.props?.target_device,
-                "website_host": websiteHost,
-                "tracker": trackerHost
-            })
+        else {
+            // Get all the trackers and send to backend
+            const websiteHost = (new URL(this.state.url))?.hostname;
+            const trackerHost = parsedUrl?.hostname;
+            // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
+            if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost))) {
+                // todo: EMIT to the privacy report here
+                this?.context?.socket?.emit('report_privacy_trackers', {
+                    'user_id': this?.context?.credentials?.user_id,
+                    'device_name': this?.context?.credentials?.device_name,
+                    "device_token": this?.context?.credentials?.device_token,
+                    "target_device": this.props?.target_device,
+                    "website_host": websiteHost,
+                    "tracker": trackerHost
+                })
+            }
         }
         return true;
     };

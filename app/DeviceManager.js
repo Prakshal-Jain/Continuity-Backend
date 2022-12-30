@@ -208,7 +208,7 @@ class DeviceManager extends React.Component {
             (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
                 <View>
                     {this.renderTabs()}
-                    {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} /> : null}
+                    {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} navigation={this.props?.navigation} /> : null}
                 </View>
             )
         );
