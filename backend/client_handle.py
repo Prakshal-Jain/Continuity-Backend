@@ -15,12 +15,8 @@ privacy_report = db['privacy_report_data']
 ultra_search = db['ultra_search']
 history = db['history']
 
-
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
 history.create_index('expireAt', expireAfterSeconds=0)
-
-
-
 
 '''
 TODO:
@@ -480,6 +476,7 @@ class ClientHandleNamespace(Namespace):
 
         if count == 0:
             emit('get_history', {'successful': False, "message": f'Error: History at page {page} is empty'})
+            return
         
         emit('get_history', {'successful': True, "message": {'next': count == 51, 'history': user_history}})
 

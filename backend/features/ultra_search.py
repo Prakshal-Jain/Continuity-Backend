@@ -13,6 +13,7 @@ def ultra_search_query(data):
         if completion == None or completion.get('choices', []) == [] or completion.get('choices')[0].get('text', '') == '':
             return {}
         
+        
         return {'response': completion.get('choices')[0].get('text', ''), 'prompt': prompt}
     except:
         return {}
