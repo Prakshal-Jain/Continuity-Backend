@@ -456,7 +456,7 @@ class ClientHandleNamespace(Namespace):
 
         target_device = data.get('target_device')
         page = int(data.get('page'))
-        timezone = ZoneInfo(data.get('timezone'))
+        timezone = ZoneInfo(data.get('timezone', 'UTC'))
         page_count = (page - 1)*50
         data = history.find({'user_id': user_id, 'device': target_device}).sort("_id", -1).skip(page_count).limit(51)
 
