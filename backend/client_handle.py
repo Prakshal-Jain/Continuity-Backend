@@ -489,7 +489,7 @@ class ClientHandleNamespace(Namespace):
             emit('delete_history', {'successful': False, 'message': 'Error: Incorrect query'})
             return
         
-        emit('delete_history', {'successful': True, 'is_delete_all': is_delete_all, 'id': id})
+        emit('delete_history', {'successful': True, 'message': {'is_delete_all': is_delete_all, 'id': id}})
 
     def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
