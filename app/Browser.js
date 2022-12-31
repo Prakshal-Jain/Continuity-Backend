@@ -171,43 +171,43 @@ class Browser extends Component {
     // called when the webview is loaded
     onBrowserLoad = (syntheticEvent) => {
         const { canGoForward, canGoBack, url, title } = syntheticEvent.nativeEvent;
-        this.setState({
-            canGoForward,
-            canGoBack,
-            url
-        })
 
         const tab_metadata = { "title": title, "url": url };
         if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
             this?.context?.socket?.emit("update_tab", { 'user_id': this?.context?.credentials?.user_id, 'device_name': this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
         }
         this.props.metadata.set(this.props.id, tab_metadata);
-    };
-
-    // called when the navigation state changes (page load)
-    onNavigationStateChange = (navState) => {
-        const { canGoForward, canGoBack, url } = navState;
 
         const parsedUrl = new URL(url);
-        if ((this.state.url === url) || (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search')) {
-            return
-        }
-        else {
 
-            this.setState({
-                canGoForward,
-                canGoBack,
-                url
-            })
+        if (this.state.url !== url) {
+            if (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search')) {
+                this?.context?.socket?.emit('set_history', {
+                    'user_id': this?.context?.credentials?.user_id,
+                    'device_name': this?.context?.credentials?.device_name,
+                    "device_token": this?.context?.credentials?.device_token,
+                    "target_device": this.props?.target_device,
+                    title,
+                    url,
+                })
+            }
 
-            this?.context?.socket?.emit('set_history', {
-                'user_id': this?.context?.credentials?.user_id,
-                'device_name': this?.context?.credentials?.device_name,
-                "device_token": this?.context?.credentials?.device_token,
-                "target_device": this.props?.target_device,
-                url
-            })
+            if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
+                // Extract the searched string from the q query parameter
+                const prompt = parsedUrl.searchParams.get('q');
+                if (prompt !== undefined && prompt !== null && this.state.ultra_search_prompt !== prompt) {
+                    // A new prompt from user
+                    this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
+                }
+            }
         }
+
+
+        this.setState({
+            canGoForward,
+            canGoBack,
+            url
+        })
     };
 
     // can prevent requests from fulfilling, good to log requests
@@ -215,21 +215,13 @@ class Browser extends Component {
     onShouldStartLoadWithRequest = (request) => {
         const parsedUrl = new URL(request.url);
 
-        if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
-            // Extract the searched string from the q query parameter
-            const prompt = parsedUrl.searchParams.get('q');
-            if (prompt !== undefined && prompt !== null && this.state.ultra_search_prompt !== prompt) {
-                // A new prompt from user
-                this.setState({ ultra_search_prompt: parsedUrl.searchParams.get('q') });
-            }
-        }
-        else {
+        if (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search')) {
             // Get all the trackers and send to backend
             const websiteHost = (new URL(this.state.url))?.hostname;
             const trackerHost = parsedUrl?.hostname;
             // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
-            if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost))) {
-                // todo: EMIT to the privacy report here
+            if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' ) {
+                // console.log(websiteHost, trackerHost);
                 this?.context?.socket?.emit('report_privacy_trackers', {
                     'user_id': this?.context?.credentials?.user_id,
                     'device_name': this?.context?.credentials?.device_name,
@@ -348,7 +340,7 @@ class Browser extends Component {
                         onLoadStart={() => { this.setState({ refreshing: true }) }}
                         onLoadEnd={() => { this.setState({ refreshing: false }) }}
                         onError={this.onBrowserError}
-                        onNavigationStateChange={this.onNavigationStateChange}
+                        // onNavigationStateChange={this.onNavigationStateChange}
                         // renderLoading={() => <ActivityIndicator size="small" color="#ffffff" />}
                         onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest}
                         onMessage={this.onBrowserMessage}

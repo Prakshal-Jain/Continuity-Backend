@@ -6,11 +6,14 @@ import {
     SafeAreaView,
     StatusBar,
     View,
-    FlatList
+    FlatList,
+    Image,
+    TouchableOpacity
 } from "react-native";
 import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import webIcon from "./assets/web_icon.png"
 
 class DeviceBrowserHistory extends Component {
     static contextType = StateContext;
@@ -59,6 +62,32 @@ class DeviceBrowserHistory extends Component {
                 console.log(data?.message)
             }
         })
+
+
+        this?.context?.socket.on('delete_history', (data) => {
+            if (data?.successful === true) {
+                if (data?.message?.is_delete_all === true) {
+                    this.setState({ isNext: false, page: 1, history: [] });
+                }
+                else {
+                    const newHist = this.state.history;
+                    newHist?.forEach((item, index) => {
+                        if (data?.message?.id !== null && data?.message?.id !== undefined) {
+                            const idx = item?.date_history?.findIndex(obj => (obj?.id === data?.message?.id));
+                            item?.date_history?.splice(idx, 1);
+                            if(item?.date_history?.length === 0){
+                                newHist?.splice(idx, 1);
+                            }
+                        }
+                    })
+
+                    this.setState({ history: newHist });
+                }
+            }
+            else {
+                console.log(data?.message)
+            }
+        })
     }
 
     getHistory = () => {
@@ -68,9 +97,33 @@ class DeviceBrowserHistory extends Component {
                 'device_name': this?.context?.credentials?.device_name,
                 'device_token': this?.context?.credentials?.device_token,
                 'target_device': this.state.target_device,
-                'page': this.state.page
+                'page': this.state.page,
+                'timezone': Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone
             });
         }
+    }
+
+
+    deleteAllHistory = () => {
+        this?.context?.socket.emit('delete_history', {
+            'user_id': this?.context?.credentials?.user_id,
+            'device_name': this?.context?.credentials?.device_name,
+            'device_token': this?.context?.credentials?.device_token,
+            'target_device': this.state.target_device,
+            id: null,
+            is_delete_all: true,
+        })
+    }
+
+    deleteOneHistory = (id, array_index, item_index) => {
+        this?.context?.socket.emit('delete_history', {
+            'user_id': this?.context?.credentials?.user_id,
+            'device_name': this?.context?.credentials?.device_name,
+            'device_token': this?.context?.credentials?.device_token,
+            'target_device': this.state.target_device,
+            id,
+            is_delete_all: false,
+        })
     }
 
 
@@ -94,11 +147,29 @@ class DeviceBrowserHistory extends Component {
                                         borderBottomWidth: StyleSheet.hairlineWidth,
                                     }}
                                 />
-                                {item?.date_history?.map((hist, i) => (
-                                    <View style={[this.styles.history_url, { borderBottomColor: this?.context?.colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)' }]} key={hist?.id}>
-                                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }} numberOfLines={1}>{hist?.url}</Text>
-                                    </View>
-                                ))}
+                                {item?.date_history?.map((hist, i) => {
+                                    let img_url = { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${hist?.url}&sz=64` }
+                                    return (
+                                        <View style={[this.styles.history_url, { borderBottomColor: this?.context?.colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)' }]} key={hist?.id}>
+                                            <View style={{ flexDirection: 'row', justifyContent: "center", alignItems: "center" }}>
+                                                <Image
+                                                    style={{ width: 30, height: 30, resizeMode: "contain", marginRight: 10, borderRadius: 15, }}
+                                                    source={img_url}
+                                                    onError={() => {
+                                                        img_url = webIcon
+                                                    }}
+                                                />
+                                                <View style={{ flex: 1, justifyContent: "center" }}>
+                                                    {(hist?.title !== undefined && hist?.title !== null) && (
+                                                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 17 }} numberOfLines={1}>{hist?.title}</Text>
+                                                    )}
+                                                    <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)' }} numberOfLines={1}>{hist?.url}</Text>
+                                                </View>
+                                                <FontAwesome name="close" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ marginLeft: 10 }} onPress={() => this.deleteOneHistory(hist?.id, index, i)} />
+                                            </View>
+                                        </View>
+                                    )
+                                })}
                             </View>
                         )}
                         onEndReached={this.getHistory}
@@ -116,10 +187,10 @@ class DeviceBrowserHistory extends Component {
                 </View>
 
                 <View style={this.styles.footer_options}>
-                    <View style={[this.styles.deleteAllButtonContainer, { borderColor: this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)' }]}>
-                        <Icon style={{ marginRight: 10 }} name="delete" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={() => { }} />
+                    <TouchableOpacity style={[this.styles.deleteAllButtonContainer, { borderColor: this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)' }]} onPress={this.deleteAllHistory}>
+                        <Icon style={{ marginRight: 10 }} name="delete" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} />
                         <Text style={[this.styles.deleteAllText, { color: this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)' }]}>Clear Browsing History</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </SafeAreaView>
         );

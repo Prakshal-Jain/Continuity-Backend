@@ -18,7 +18,7 @@ import TrackersContacted from "./TrackersContacted";
 import DeviceBrowserHistory from "./DeviceBrowserHistory";
 
 const Stack = createNativeStackNavigator();
-const socket = io("http://10.3.12.22");
+const socket = io("http://10.4.3.41");
 
 export default function () {
   const colorScheme = useColorScheme();
