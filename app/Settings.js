@@ -71,7 +71,6 @@ function Settings({ navigation, route }) {
                     <Text style={tileStyle.title}>{title}</Text>
                     {onSwitch && (
                         <Switch
-                            trackColor={{ false: "rgba(28, 28, 30, 1)", true: "rgba(40, 205, 65, 1)" }}
                             onValueChange={toggleSwitch}
                             value={isSwitchEnabled}
                             disabled={(credentials?.enrolled_features?.ultra_search?.enrolled === false)}

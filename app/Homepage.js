@@ -124,15 +124,15 @@ class Homepage extends Component {
                                 (this?.context?.credentials !== null && this?.context?.credentials !== undefined) ? (
                                     <View style={styles.footer_options} key="footer">
                                         <TouchableOpacity onPress={() => this.navigation.navigate('Help')}>
-                                            <MaterialIcons name="help-outline" size={32} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
+                                            <MaterialIcons name="help-outline" size={35} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => this.navigation.navigate('Settings')}>
-                                            <MaterialIcons name="settings" size={32} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
+                                            <MaterialIcons name="settings" size={35} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => this.navigation.navigate('Profile')}>
-                                            <Image source={{ uri: this?.context?.credentials?.picture }} style={{ width: 32, height: 32, borderRadius: (32 / 2) }} />
+                                            <Image source={{ uri: this?.context?.credentials?.picture }} style={{ width: 35, height: 35, borderRadius: (35 / 2) }} />
                                         </TouchableOpacity>
                                     </View>
                                 )
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
 
     your_devices: {
         fontSize: 30,
-        marginBottom: 10,
+        marginVertical: 10,
     },
 
     footer_options: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         width: '100%',
         paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingVertical: 15,
         borderTopWidth: 0.5,
         borderTopColor: '#a9a9a9',
     },
