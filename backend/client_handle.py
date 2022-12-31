@@ -19,18 +19,6 @@ history = db['history']
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
 history.create_index('expireAt', expireAfterSeconds=0)
 
-'''
-TODO:
-1.  Create a new field in user for "enrolled_features"
-    Sample: {"ultraBrowsing": True, ...}
-2. Fix the current authentication functionality and bugs
-3. Introduce "Intelligent Tracking" --> Free
-4. Introduce "Tracking Prevention" --> Paid (Later V2.0)
-'''
-
-# device_name -> device with which the user is logged in
-# target_device -> device in which the user is make the changes
-
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
 
@@ -91,7 +79,6 @@ class ClientHandleNamespace(Namespace):
 
         return device_token
     
-    # Helper function to sort three arrays optimally based on one of the arrays
     def __sort_arrays(self, arr1, arr2, arr3):
         if(len(arr3) == 0):
             return arr1, arr2, arr3
@@ -502,7 +489,7 @@ class ClientHandleNamespace(Namespace):
             emit('delete_history', {'successful': False, 'message': 'Error: Incorrect query'})
             return
         
-        emit('delete_history', {'successful': True})
+        emit('delete_history', {'successful': True, 'is_delete_all': is_delete_all})
 
     def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
@@ -555,6 +542,3 @@ class ClientHandleNamespace(Namespace):
         emit('logout', {"successful": True})
         print("Logged Out Successfully")
     
-    def on_error_default(self, e):
-        print("OVER HERE =================================", flush=True)
-        print(e, flush=True)
