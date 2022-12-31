@@ -18,7 +18,7 @@ import TrackersContacted from "./TrackersContacted";
 import DeviceBrowserHistory from "./DeviceBrowserHistory";
 
 const Stack = createNativeStackNavigator();
-const socket = io("http://10.4.3.41");
+const socket = io("http://10.3.12.22");
 
 export default function () {
   const colorScheme = useColorScheme();
@@ -44,7 +44,7 @@ export default function () {
             name="Homepage"
             component={Homepage}
             options={{
-              headerShown: false
+              headerShown: false,
             }}
           />
           <Stack.Screen name="Profile" component={Profile}
@@ -66,7 +66,7 @@ export default function () {
           />
 
           <Stack.Screen name="Ultra Search Results" component={UltraSearchResult}
-            options={headerOptions}
+            options={{ ...headerOptions, presentation: 'modal' }}
           />
 
           <Stack.Screen name="Ultra Search | Terms of Use and Disclaimer" component={TermsDisclaimerUltraSearch}

@@ -11,9 +11,9 @@ def ultra_search_query(data):
         completion = completion_instance.create(model=model, prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.5)
 
         if completion == None or completion.get('choices', []) == [] or completion.get('choices')[0].get('text', '') == '':
-            return {}
+            return None
         
         response = completion.get('choices')[0].get('text', '').strip()
         return {'response': response, 'prompt': prompt}
     except:
-        return {}
+        return None

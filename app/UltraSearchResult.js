@@ -52,7 +52,7 @@ class UltraSearchResult extends Component {
             'prompt': this.state.ultra_search_prompt
         }
         this?.context?.socket.emit('ultra_search_query', query_creds)
-        this.setState({loading: true});
+        this.setState({ loading: true });
     }
 
     onShare = async () => {
@@ -88,7 +88,7 @@ class UltraSearchResult extends Component {
             else {
                 console.log(data?.message)
             }
-            this.setState({loading: false});
+            this.setState({ loading: false });
         })
     }
 
@@ -104,8 +104,7 @@ class UltraSearchResult extends Component {
                             onChangeText={(text) => { this.setState({ ultra_search_prompt: text }) }}
                             value={this.state.ultra_search_prompt}
                             style={{ flex: 1, fontWeight: "bold", color: (this?.context?.colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)', paddingTop: 12, paddingBottom: 12, paddingLeft: 12 }}
-                            returnKeyType="search"
-                            onSubmitEditing={() => { }}
+                            returnKeyType="return"
                             placeholder="Search here"
                             placeholderTextColor="rgba(142, 142, 147, 1)"
                             multiline={true}

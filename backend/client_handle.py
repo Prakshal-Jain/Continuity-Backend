@@ -347,7 +347,11 @@ class ClientHandleNamespace(Namespace):
             return
 
         response = ultra_search_query({'prompt': data.get('prompt')})
-        emit("ultra_search_query", {'successful': True, "message": response})
+        if(response == None):
+            emit("ultra_search_query", {'successful': False,
+                 "message": "Oops, something went wrong. Don't worry, we're on it! Trying to fix the issue in a jiffy."})
+        else:
+            emit("ultra_search_query", {'successful': True, "message": response})
 
     def on_report_privacy_trackers(self, data):
         user_id = data.get('user_id')

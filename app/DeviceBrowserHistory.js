@@ -14,7 +14,9 @@ import {
 import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import webIcon from "./assets/web_icon.png"
+import webIcon from "./assets/web_icon.png";
+import 'intl';
+import 'intl/locale-data/jsonp/en';
 
 class DeviceBrowserHistory extends Component {
     static contextType = StateContext;
@@ -24,7 +26,7 @@ class DeviceBrowserHistory extends Component {
         this.state = {
             page: 1,
             isNext: true,
-            history: null,
+            history: [],
             target_device: null,
             device_type: null,
         }
