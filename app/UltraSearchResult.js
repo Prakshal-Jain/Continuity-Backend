@@ -25,7 +25,8 @@ class UltraSearchResult extends Component {
         this.state = {
             ultra_search_prompt: this.props?.route?.params?.ultra_search_prompt,
             ultra_search_response: null,
-            clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} />
+            clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} />,
+            loading: false
         }
     }
 
@@ -42,7 +43,7 @@ class UltraSearchResult extends Component {
         if (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0) {
             return;
         }
-        
+
         this.setState({ ultra_search_response: null })
         const query_creds = {
             'user_id': this?.context?.credentials?.user_id,
@@ -51,6 +52,7 @@ class UltraSearchResult extends Component {
             'prompt': this.state.ultra_search_prompt
         }
         this?.context?.socket.emit('ultra_search_query', query_creds)
+        this.setState({loading: true});
     }
 
     onShare = async () => {
@@ -86,6 +88,7 @@ class UltraSearchResult extends Component {
             else {
                 console.log(data?.message)
             }
+            this.setState({loading: false});
         })
     }
 
@@ -113,7 +116,6 @@ class UltraSearchResult extends Component {
                     </View>
 
                     <View>
-
                         {
                             (this.state.ultra_search_response !== null && this.state.ultra_search_response !== undefined)
                                 ?
@@ -140,17 +142,18 @@ class UltraSearchResult extends Component {
                                     (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0)
                                         ?
                                         (
-                                            <AlertMessage type="error" message="The search query cannot be blank. Please enter a search query and press the search button to view the results." />
+                                            <AlertMessage type="warning" message="The search query cannot be blank. Please enter a search query and press the search button to view the results." />
                                         )
                                         :
                                         (
+                                            (this.state.loading) &&
                                             <View style={styles.activity_indicator}>
                                                 <View>
                                                     <ActivityIndicator />
                                                 </View>
                                                 <View>
                                                     <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
-                                                        Searching for the best results for you...
+                                                        Hunting for the ultimate solutions for you!
                                                     </Text>
                                                 </View>
                                             </View>

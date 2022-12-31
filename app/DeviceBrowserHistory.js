@@ -8,7 +8,8 @@ import {
     View,
     FlatList,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator
 } from "react-native";
 import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -25,7 +26,7 @@ class DeviceBrowserHistory extends Component {
             isNext: true,
             history: null,
             target_device: null,
-            device_type: null
+            device_type: null,
         }
     }
 
@@ -75,7 +76,7 @@ class DeviceBrowserHistory extends Component {
                         if (data?.message?.id !== null && data?.message?.id !== undefined) {
                             const idx = item?.date_history?.findIndex(obj => (obj?.id === data?.message?.id));
                             item?.date_history?.splice(idx, 1);
-                            if(item?.date_history?.length === 0){
+                            if (item?.date_history?.length === 0) {
                                 newHist?.splice(idx, 1);
                             }
                         }
@@ -183,6 +184,30 @@ class DeviceBrowserHistory extends Component {
                                     <Text style={[this.styles.subheading, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>{this.state.target_device}</Text>
                                 </View>
                             </View>}
+                        ListFooterComponent={
+                            this.state.isNext === true ? (
+                                <View style={{ padding: 20 }}>
+                                    <View>
+                                        <ActivityIndicator />
+                                    </View>
+                                    <View>
+                                        <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                            Tracing your fascinating journey...
+                                        </Text>
+                                    </View>
+                                </View>
+                            )
+                                :
+                                ((this.state.history?.length === 0) &&
+                                    (
+                                        <View style={{ padding: 20, flex: 1 }}>
+                                            <Text style={{ textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
+                                                No history found
+                                            </Text>
+                                        </View>
+                                    )
+                                )
+                        }
                     />
                 </View>
 
