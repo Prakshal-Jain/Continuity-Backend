@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react";
-import { View, TextInput, SafeAreaView, StatusBar, StyleSheet, KeyboardAvoidingView, Animated, Keyboard, ActivityIndicator, Share } from "react-native";
+import { View, TextInput, SafeAreaView, StatusBar, StyleSheet, KeyboardAvoidingView, Animated, Keyboard, ActivityIndicator, Share, ScrollView, Text } from "react-native";
 import { WebView } from "react-native-webview";
 import { StateContext } from "./state_context";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +12,6 @@ import { URL } from 'react-native-url-polyfill';
 /*
     Params: url, incognito, target_device, injectedJavaScript
 */
-
 
 
 const isValidUrl = urlString => {
@@ -30,8 +29,8 @@ const defaultURL = 'https://www.google.com/';
 
 export default function ({ navigation, route }) {
     const { socket, colorScheme, credentials } = useContext(StateContext);
-    const source = route?.params?.url ?? defaultURL;
     const incognito = route?.params?.incognito ?? false;
+    const source = route?.params?.url ?? (incognito ? null : defaultURL);
     const target_device = route?.params?.target_device;
 
     let injectedJavaScript = route?.params?.injectedJavaScript ?? `
@@ -113,7 +112,60 @@ export default function ({ navigation, route }) {
             marginRight: 8,
             color: (colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'
         },
+
+        incognitoContainer: {
+            flex: 1,
+            padding: 20,
+        },
+
+        heading: {
+            fontWeight: 'bold',
+            fontSize: 25,
+            color: colorScheme === 'dark' ? '#fff' : '#000',
+            flex: 1,
+            textAlign: "center",
+        },
+
+        incognitoDescriptionContainer: {
+            backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
+            marginVertical: 20,
+            padding: 15,
+            width: '100%',
+            borderRadius: 10,
+        },
+
+        smallText: {
+            color: colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
+            marginBottom: 10,
+            textAlign: "center",
+            fontStyle: "italic"
+        },
+
+        incognitoDescriptionText: {
+            color: (colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)',
+            textAlign: "center",
+            marginVertical: 10
+        }
     });
+
+    const IncognitoDescription = () => (
+        <ScrollView style={styles.incognitoContainer} contentContainerStyle={{ alignItems: "center" }}>
+            <View style={{ marginVertical: 20 }}>
+                <Icon name="incognito-circle" color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} style={{ fontSize: 60 }} />
+            </View>
+            <Text style={styles.heading}>Incognito Mode</Text>
+            <View style={styles.incognitoDescriptionContainer}>
+                <Text style={styles.incognitoDescriptionText}>
+                    Incognito mode in Continuity ensures that your browsing history for all tabs in this window remains private.
+                </Text>
+                <Text style={styles.incognitoDescriptionText}>
+                When you close this tab, Continuity will not remember the websites you visited, your search history, cookies and site data, or any AutoFill information.
+                </Text>
+            </View>
+            <Text style={styles.smallText}>Because your internet history deserves a little mystery.</Text>
+        </ScrollView>
+    )
+
 
     const onBrowserLoad = (syntheticEvent) => {
         const { canGoForward, canGoBack, title } = syntheticEvent.nativeEvent;
@@ -129,7 +181,7 @@ export default function ({ navigation, route }) {
         const parsedUrl = new URL(curr_url);
 
         if (url !== curr_url) {
-            if ((!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search'))) {
+            if ((!incognito) && (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search'))) {
                 socket?.emit('set_history', {
                     'user_id': credentials?.user_id,
                     'device_name': credentials?.device_name,
@@ -162,20 +214,22 @@ export default function ({ navigation, route }) {
 
     const onShouldStartLoadWithRequest = (request) => {
         if (!isFirstRequest) {
-            const parsedUrl = new URL(request.url);
-            if (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search')) {
-                const websiteHost = (new URL(url))?.hostname;
-                const trackerHost = parsedUrl?.hostname;
-                if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' && trackerHost !== 'www.google.com') {
-                    console.log(websiteHost, trackerHost);
-                    socket?.emit('report_privacy_trackers', {
-                        'user_id': credentials?.user_id,
-                        'device_name': credentials?.device_name,
-                        "device_token": credentials?.device_token,
-                        target_device,
-                        "website_host": websiteHost,
-                        "tracker": trackerHost
-                    })
+            if (!incognito) {
+                const parsedUrl = new URL(request.url);
+                if (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search')) {
+                    const websiteHost = (new URL(url))?.hostname;
+                    const trackerHost = parsedUrl?.hostname;
+                    if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' && trackerHost !== 'www.google.com') {
+                        console.log(websiteHost, trackerHost);
+                        socket?.emit('report_privacy_trackers', {
+                            'user_id': credentials?.user_id,
+                            'device_name': credentials?.device_name,
+                            "device_token": credentials?.device_token,
+                            target_device,
+                            "website_host": websiteHost,
+                            "tracker": trackerHost
+                        })
+                    }
                 }
             }
         }
@@ -308,29 +362,38 @@ export default function ({ navigation, route }) {
                     ...styles.root,
                 }}
             >
-                <WebView
-                    ref={browserRef}
-                    originWhitelist={['*']}
-                    source={{ uri: url }}
-                    onLoad={onBrowserLoad}
-                    onLoadStart={() => setRefreshing(true)}
-                    onLoadEnd={() => setRefreshing(false)}
-                    onError={onBrowserError}
-                    onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-                    onNavigationStateChange={onNavigationStateChange}
-                    onMessage={onBrowserMessage}
-                    dataDetectorTypes={config.detectorTypes}
-                    thirdPartyCookiesEnabled={config.allowCookies}
-                    domStorageEnabled={config.allowStorage}     // Allow webview to use localStorage and sessionStorage APIs.
-                    javaScriptEnabled={config.allowJavascript}
-                    geolocationEnabled={config.allowLocation}
-                    cacheEnabled={config.allowCaching}
-                    injectedJavaScript={injectedJavaScript}
-                    pullToRefreshEnabled={true}
-                    allowsBackForwardNavigationGestures={true}
-                    mediaPlaybackRequiresUserAction={true}
-                    onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
-                />
+                {(incognito && (url === null))
+                    ?
+                    (
+                        <IncognitoDescription />
+                    )
+                    :
+                    (
+                        <WebView
+                            ref={browserRef}
+                            originWhitelist={['*']}
+                            source={{ uri: url }}
+                            onLoad={onBrowserLoad}
+                            onLoadStart={() => setRefreshing(true)}
+                            onLoadEnd={() => setRefreshing(false)}
+                            onError={onBrowserError}
+                            onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+                            onNavigationStateChange={onNavigationStateChange}
+                            onMessage={onBrowserMessage}
+                            dataDetectorTypes={config.detectorTypes}
+                            thirdPartyCookiesEnabled={config.allowCookies}
+                            domStorageEnabled={config.allowStorage}     // Allow webview to use localStorage and sessionStorage APIs.
+                            javaScriptEnabled={config.allowJavascript}
+                            geolocationEnabled={config.allowLocation}
+                            cacheEnabled={config.allowCaching}
+                            injectedJavaScript={injectedJavaScript}
+                            pullToRefreshEnabled={true}
+                            allowsBackForwardNavigationGestures={true}
+                            mediaPlaybackRequiresUserAction={true}
+                            onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
+                        />
+                    )
+                }
 
                 <Animated.View>
                     <LinearGradient
@@ -348,6 +411,7 @@ export default function ({ navigation, route }) {
                                     autoCapitalize='none'
                                     onSubmitEditing={loadURL}
                                     editable={true}
+                                    placeholder="Search or enter a website"
                                     placeholderTextColor={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'}
                                 />
                                 {refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
