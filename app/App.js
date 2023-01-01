@@ -21,9 +21,6 @@ import BrowserWindow from "./BrowserWindow";
 const Stack = createNativeStackNavigator();
 const socket = io("http://10.3.12.22");
 
-const componentWrapper = ({ navigation, route }) => {
-
-}
 
 export default function () {
   const colorScheme = useColorScheme();
@@ -87,7 +84,7 @@ export default function () {
           />
 
           <Stack.Screen name="Browser" component={BrowserWindow}
-            options={headerOptions}
+            options={{ presentation: 'containedModal', headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>

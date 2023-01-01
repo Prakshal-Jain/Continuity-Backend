@@ -20,8 +20,6 @@ import { StateContext } from "./state_context";
 // keeps the reference to the browser
 let browserRef = null;
 
-const lodash = require('lodash');
-
 // upgrade the url to make it easier for the user:
 function upgradeURL(uri, searchEngine = 'google') {
     const isURL = uri.split(' ').length === 1 && uri.includes('.');
@@ -355,6 +353,7 @@ class Browser extends Component {
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
                         mediaPlaybackRequiresUserAction={true}
+                        onContentProcessDidTerminate={() => {}}
                         style={{ backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', }}
                     // onScroll={this.handleScroll}
                     />
