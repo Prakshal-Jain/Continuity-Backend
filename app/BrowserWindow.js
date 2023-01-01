@@ -8,6 +8,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { URL } from 'react-native-url-polyfill';
 
+
+/*
+    Params: url, incognito, target_device, injectedJavaScript
+*/
+
+
+
 const isValidUrl = urlString => {
     var urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
