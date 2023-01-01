@@ -8,7 +8,6 @@ import {
     StatusBar,
     Image,
     TouchableOpacity,
-    ActivityIndicator,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import storage from "./utilities/storage";
@@ -16,6 +15,7 @@ import { StateContext } from "./state_context";
 import PieChart from "./components/PieChart";
 import randomColor from "randomcolor";
 import CheckBoxList from "./components/CheckBoxList";
+import Loader from "./components/Loader";
 
 export default function ({ navigation, ...props }) {
     const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices } = useContext(StateContext);
@@ -29,6 +29,7 @@ export default function ({ navigation, ...props }) {
         setDevices([]);
         setCurrentDeviceName(null);
         setCredentials(null);
+        navigation.navigate('Login');
     }
 
 
@@ -47,7 +48,6 @@ export default function ({ navigation, ...props }) {
 
         socket.on("logout", (data) => {
             if (data?.successful === true) {
-                navigation.navigate('Homepage');
                 deleteAllData();
             }
             else {
@@ -303,16 +303,7 @@ export default function ({ navigation, ...props }) {
                         )
                         :
                         (
-                            <View style={styles.piechartContainer}>
-                                <View>
-                                    <ActivityIndicator />
-                                </View>
-                                <View>
-                                    <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
-                                        Collecting your privacy reports for review...
-                                    </Text>
-                                </View>
-                            </View>
+                            <Loader message="Collecting your privacy reports for review..." />
                         )
                     }
                 </View>

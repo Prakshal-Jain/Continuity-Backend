@@ -16,6 +16,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AlertMessage from "./components/AlertMessage";
+import Loader from "./components/Loader";
 
 class UltraSearchResult extends Component {
     static contextType = StateContext;
@@ -146,16 +147,9 @@ class UltraSearchResult extends Component {
                                         :
                                         (
                                             (this.state.loading) &&
-                                            <View style={styles.activity_indicator}>
-                                                <View>
-                                                    <ActivityIndicator />
-                                                </View>
-                                                <View>
-                                                    <Text style={[styles.response_style, { textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>
-                                                        Hunting for the ultimate solutions for you!
-                                                    </Text>
-                                                </View>
-                                            </View>
+                                            (
+                                                <Loader message="Hunting for the ultimate solutions for you..." />
+                                            )
                                         )
                                 )
                         }
@@ -213,10 +207,6 @@ const styles = StyleSheet.create({
 
     response_style: {
         marginVertical: 10,
-    },
-
-    activity_indicator: {
-        marginVertical: 20
     },
 
     ultraSearchBtn: {

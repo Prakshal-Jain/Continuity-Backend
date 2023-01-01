@@ -10,13 +10,15 @@ import Settings from './Settings';
 import UltraSearch from './UltraSearch';
 import UltraSearchResult from './UltraSearchResult';
 import React, { useState, useEffect } from 'react';
-import Homepage from './Homepage';
+import YourDevices from './YourDevices';
 import { StateContext } from "./state_context";
 import { io } from "socket.io-client";
 import TermsDisclaimerUltraSearch from "./TermsDisclaimerUltraSearch";
 import TrackersContacted from "./TrackersContacted";
 import DeviceBrowserHistory from "./DeviceBrowserHistory";
 import BrowserWindow from "./BrowserWindow";
+import Login from './Login';
+import TabsManager from './TabsManager';
 
 const Stack = createNativeStackNavigator();
 const socket = io("http://10.3.12.22");
@@ -43,12 +45,20 @@ export default function () {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Homepage"
-            component={Homepage}
+            name="Your Devices"
+            component={YourDevices}
+            options={headerOptions}
+          />
+
+          <Stack.Screen
+            name="Login"
+            component={Login}
             options={{
               headerShown: false,
+              animation: 'none'
             }}
           />
+
           <Stack.Screen name="Profile" component={Profile}
             options={headerOptions}
           />
@@ -85,6 +95,10 @@ export default function () {
 
           <Stack.Screen name="Browser" component={BrowserWindow}
             options={{ presentation: 'containedModal', headerShown: false }}
+          />
+
+          <Stack.Screen name="Tabs" component={TabsManager}
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>

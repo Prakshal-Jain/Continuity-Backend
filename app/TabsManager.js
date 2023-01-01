@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Animated } from 'react-native';
+import { StyleSheet, View, Animated, SafeAreaView, StatusBar } from 'react-native';
 import Browser from './Browser';
 import Tabs from './Tabs';
 import { StateContext } from "./state_context";
 
-class DeviceManager extends React.Component {
+class TabsManager extends React.Component {
     static contextType = StateContext;
     constructor(props) {
         super(props);
@@ -160,7 +160,7 @@ class DeviceManager extends React.Component {
 
     renderTabs = () => {
         const tabs = [];
-        const currOpenTab = this.state.currOpenTab
+        const currOpenTab = this.state.currOpenTab;
         const anim = new Animated.Value(currOpenTab === -1 ? 1 : 0)
         for (const [key, tab] of this.state.tabs) {
             const display_obj = {}
@@ -205,19 +205,29 @@ class DeviceManager extends React.Component {
 
     render() {
         return (
-            (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
-                <View>
-                    {this.renderTabs()}
-                    {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} navigation={this.props?.navigation} /> : null}
-                </View>
-            )
+            <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+                <StatusBar animated={true}
+                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
+                />
+                {
+                    (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
+                        <View style={{ flex: 1 }}>
+                            {this.renderTabs()}
+                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} navigation={this.props?.navigation} /> : null}
+                        </View>
+                    )}
+            </SafeAreaView>
         );
     }
 }
 
-export default DeviceManager;
-
 const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        justifyContent: 'center',
+        display: 'flex',
+        padding: 10,
+    },
     browser: {
         flex: 1,
         flexDirection: 'row',
@@ -229,3 +239,6 @@ const styles = StyleSheet.create({
         display: 'hide',
     }
 });
+
+
+export default TabsManager;

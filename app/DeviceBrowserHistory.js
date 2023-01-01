@@ -1,6 +1,5 @@
 import { Component } from "react";
 import {
-    ScrollView,
     Text,
     StyleSheet,
     SafeAreaView,
@@ -9,7 +8,6 @@ import {
     FlatList,
     Image,
     TouchableOpacity,
-    ActivityIndicator
 } from "react-native";
 import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,6 +15,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import webIcon from "./assets/web_icon.png";
 import 'intl';
 import 'intl/locale-data/jsonp/en';
+import Loader from "./components/Loader";
 
 class DeviceBrowserHistory extends Component {
     static contextType = StateContext;
@@ -188,16 +187,7 @@ class DeviceBrowserHistory extends Component {
                             </View>}
                         ListFooterComponent={
                             this.state.isNext === true ? (
-                                <View style={{ padding: 20 }}>
-                                    <View>
-                                        <ActivityIndicator />
-                                    </View>
-                                    <View>
-                                        <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
-                                            Tracing your fascinating journey...
-                                        </Text>
-                                    </View>
-                                </View>
+                                <Loader message="Tracing your fascinating journey..." />
                             )
                                 :
                                 ((this.state.history?.length === 0) &&

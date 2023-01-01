@@ -306,7 +306,7 @@ class Browser extends Component {
     ultraSearchFunc = () => {
         if (this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === false) {
             // Change Homepage below to "Browser" --> when browser becomes a navigation screen
-            return () => { this.props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Homepage' }) }
+            return () => { this.props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Your Devices' }) }
         }
         else {
             // Check if switch is turned on

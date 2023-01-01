@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, TextInput, Image, Button, Appearance, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Image, SafeAreaView, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from "react";
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -10,7 +10,7 @@ import { StateContext } from "./state_context";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function Login(props) {
+export default function Login({ navigation }) {
     const { socket, colorScheme } = useContext(StateContext);
     const [deviceName, setDeviceName] = React.useState(null);
     const [selected, setSelected] = React.useState('mobile-phone');
@@ -55,6 +55,12 @@ export default function Login(props) {
 
 
     const styles = StyleSheet.create({
+        root: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            display: 'flex',
+        },
         horizontal_flex: {
             flexDirection: 'row',
             width: '100%',
@@ -113,7 +119,10 @@ export default function Login(props) {
 
 
     return (
-        <View style={{ flex: 1, width: '100%' }}>
+        <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+            <StatusBar animated={true}
+                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
+            />
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ? (
@@ -146,11 +155,11 @@ export default function Login(props) {
                 }
 
             </ScrollView>
-            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => props.navigation.navigate('Privacy Policy')}>
+            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
                 <Text style={styles.privacy}>
                     Privacy Policy
                 </Text>
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 }
