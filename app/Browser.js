@@ -220,7 +220,7 @@ class Browser extends Component {
             const websiteHost = (new URL(this.state.url))?.hostname;
             const trackerHost = parsedUrl?.hostname;
             // const websiteURL = (new URL(this.state.url))?.hostname?.replace(/^(?:.*\.)?([^.]*\.[^.]*)$/, '$1');
-            if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' ) {
+            if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com') {
                 // console.log(websiteHost, trackerHost);
                 this?.context?.socket?.emit('report_privacy_trackers', {
                     'user_id': this?.context?.credentials?.user_id,
@@ -307,7 +307,8 @@ class Browser extends Component {
 
     ultraSearchFunc = () => {
         if (this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === false) {
-            return () => { this.props?.navigation?.navigate('Ultra Search') }
+            // Change Homepage below to "Browser" --> when browser becomes a navigation screen
+            return () => { this.props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Homepage' }) }
         }
         else {
             // Check if switch is turned on

@@ -16,9 +16,14 @@ import { io } from "socket.io-client";
 import TermsDisclaimerUltraSearch from "./TermsDisclaimerUltraSearch";
 import TrackersContacted from "./TrackersContacted";
 import DeviceBrowserHistory from "./DeviceBrowserHistory";
+import BrowserWindow from "./BrowserWindow";
 
 const Stack = createNativeStackNavigator();
 const socket = io("http://10.3.12.22");
+
+const componentWrapper = ({ navigation, route }) => {
+
+}
 
 export default function () {
   const colorScheme = useColorScheme();
@@ -62,7 +67,7 @@ export default function () {
           />
 
           <Stack.Screen name="Ultra Search" component={UltraSearch}
-            options={headerOptions}
+            options={{ ...headerOptions, presentation: 'modal' }}
           />
 
           <Stack.Screen name="Ultra Search Results" component={UltraSearchResult}
@@ -74,10 +79,14 @@ export default function () {
           />
 
           <Stack.Screen name="Trackers Contacted" component={TrackersContacted}
-            options={headerOptions}
+            options={{ ...headerOptions, presentation: 'modal' }}
           />
 
           <Stack.Screen name="Search History" component={DeviceBrowserHistory}
+            options={headerOptions}
+          />
+
+          <Stack.Screen name="Browser" component={BrowserWindow}
             options={headerOptions}
           />
         </Stack.Navigator>

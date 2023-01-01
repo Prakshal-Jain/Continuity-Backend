@@ -32,7 +32,7 @@ function Settings({ navigation, route }) {
         })
     }, [])
 
-    const Tiles = ({ icon, title, onSwitch, learnMore, colorScheme, isSwitchEnabled }) => {
+    const Tiles = ({ icon, title, onSwitch, learnMore, learnMoreParams, isSwitchEnabled }) => {
         const tileStyle = StyleSheet.create({
             container: {
                 backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -86,7 +86,7 @@ function Settings({ navigation, route }) {
                                 marginVertical: 10
                             }}
                         />
-                        <Text onPress={() => navigation.navigate(learnMore)} style={tileStyle.link}>Learn more...</Text>
+                        <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more...</Text>
                     </View>
                 )}
             </View>
@@ -120,18 +120,18 @@ function Settings({ navigation, route }) {
             />
             <ScrollView style={styles.scrollContainer}>
                 {(action_message !== undefined && action_message !== null) && (
-                    <View style={{marginBottom: 15}}>
+                    <View style={{ marginBottom: 15 }}>
                         <AlertMessage type={icon_type} message={action_message} />
                     </View>
                 )}
                 <Tiles
-                    colorScheme={colorScheme}
                     title="Ultra Search"
                     icon={<MaterialCommunityIcons
                         name="lightning-bolt"
                         style={{ marginRight: 15, fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
                     learnMore={"Ultra Search"}
+                    learnMoreParams={{ redirectScreen: 'Settings' }}
                     onSwitch={() => { socket.emit('switch_feature', { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) }) }}
                     isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
                 />
