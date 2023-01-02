@@ -15,6 +15,7 @@ users = db['users']
 privacy_report = db['privacy_report_data']
 ultra_search = db['ultra_search']
 history = db['history']
+notification = db['notification']
 
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
 history.create_index('expireAt', expireAfterSeconds=0)
@@ -67,8 +68,7 @@ class ClientHandleNamespace(Namespace):
         return True
 
     def __check_for_same_token(self, device_token, tabs_data):
-        tokens_in_use = [device_tab_data.get(
-            "device_token") for device_tab_data in tabs_data.values()]
+        tokens_in_use = [device_tab_data.get("device_token") for device_tab_data in tabs_data.values()]
         current_iter = iter(tokens_in_use)
         token = next(current_iter, b'')
         while token != b'':
@@ -82,11 +82,6 @@ class ClientHandleNamespace(Namespace):
     def __sort_arrays(self, websites, trackers, tracker_counts):
         if(len(tracker_counts) == 0):
             return websites, trackers, tracker_counts
-        # paired = list(zip(arr1, arr2, arr3))
-        # paired.sort(key=lambda x: x[2], reverse=True)
-        # arr1, arr2, arr3 = zip(*paired)
-        # return list(arr1), list(arr2), list(arr3)
-
         sorted_websites = []
         sorted_trackers = []
         sorted_tracker_counts = []
@@ -101,7 +96,7 @@ class ClientHandleNamespace(Namespace):
                 if j in visited:
                     continue
 
-                if max_count > tracker_counts[j]:
+                if max_count < tracker_counts[j]:
                     max_count = tracker_counts[j]
                     max_index = j
             
@@ -115,15 +110,22 @@ class ClientHandleNamespace(Namespace):
             visited.add(max_index)
         
         return sorted_websites, sorted_trackers, sorted_tracker_counts
+    
+    def __send_update(self, user_id):
+        request_sid_list = []
+        user_sids = ClientHandleNamespace.devices_in_use.get(user_id)
+        for (device_name, sid) in user_sids.items():
+            if sid == request.sid:
+                continue
 
-
-
+            request_sid_list.append(sid)
+        
+        print("request_sid_list: ", request_sid_list, flush=True)
+        return request_sid_list
 
     def on_login(self, data):
-        ClientHandleNamespace.devices_in_use[data.get(
-            'user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), set())
-        ClientHandleNamespace.devices_in_use[data.get(
-            'user_id')].add(request.sid)
+        ClientHandleNamespace.devices_in_use[data.get('user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), {})
+        ClientHandleNamespace.devices_in_use[data.get('user_id')][data.get('device_name')] = request.sid
 
         user = users.find_one({'user_id': data.get('user_id')})
 
@@ -136,10 +138,8 @@ class ClientHandleNamespace(Namespace):
                 'picture': data.get('picture'),
                 'devices': {data.get('device_name'): data.get('device_type')},
                 'tabs_data': self.__create_tab(data.get('device_name'), data.get('device_type'), device_token),
-                'enrolled_features': {'ultra_search': 
-                                        {'enrolled': False, 'switch': False},
-                                    'privacy_prevention':
-                                        {'enrolled': False, 'switch': False}
+                'enrolled_features': {'ultra_search':{'enrolled': False, 'switch': False},
+                                    'privacy_prevention':{'enrolled': False, 'switch': False}
                                     }
                     }
             users.insert_one(user)
@@ -152,14 +152,13 @@ class ClientHandleNamespace(Namespace):
             user.get('tabs_data').update(new_device)
             users.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
-            send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
             emit('add_device',
                  {
                      'successful': True,
                      'message': self.__get_tab_data(
                          data.get('device_name'), data.get('device_type'))
                  },
-                 to=send_update)
+                 to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
         else:
             device_tabs_data = user.get('tabs_data').get(data.get('device_name'))
             
@@ -198,8 +197,7 @@ class ClientHandleNamespace(Namespace):
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         del data['device_token']
-        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
-        emit('add_tab', {'successful': True, "message": data}, to=send_update)
+        emit('add_tab', {'successful': True, "message": data}, to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -216,11 +214,9 @@ class ClientHandleNamespace(Namespace):
             del device_tabs[tab_id]
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
-        
         del data['device_token']
         
-        emit('remove_tab', {'successful': True, "message": data}, to=send_update)
+        emit('remove_tab', {'successful': True, "message": data}, to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
 
     def on_remove_all_tabs(self, data):
         user = users.find_one({'user_id': data.get('user_id')})
@@ -232,11 +228,9 @@ class ClientHandleNamespace(Namespace):
         tabs_data.get(target_device)['tabs'] = {}
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
-        
         del data['device_token']
         
-        emit('remove_all_tabs', {'successful': True, "message": data}, to=send_update)
+        emit('remove_all_tabs', {'successful': True, "message": data}, to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
 
     def on_update_tab(self, data):
         user = users.find_one({'user_id': data.get('user_id')})
@@ -251,11 +245,9 @@ class ClientHandleNamespace(Namespace):
         users.update_one({'user_id': data.get('user_id')}, {
             "$set": {'tabs_data': tabs_data}})
 
-        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
-        
         del data['device_token']
         
-        emit('update_tab', {'successful': True, "message": data}, to=send_update)
+        emit('update_tab', {'successful': True, "message": data}, to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
 
     def on_get(self, data):
         user = users.find_one({'user_id': data.get('user_id')})
@@ -525,6 +517,22 @@ class ClientHandleNamespace(Namespace):
         
         emit('delete_history', {'successful': True, 'message': {'is_delete_all': is_delete_all, 'id': id}})
 
+    # def on_send_notification(self, data):
+    #     send_to = data.get('send_to')
+    #     ttl = data.get('ttl')
+    #     message = data.get('message')
+
+    #     if send_to == None:
+    #         send_to = users.get({}, {'user_id': 1})
+
+        
+    #     for user in send_to:
+    #         current_devices = users.find({'user_id': user})
+    #         user_obj = ClientHandleNamespace.devices_in_use.get(user)
+
+
+            
+
     def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
         device_token = data.get('device_token')
@@ -553,8 +561,7 @@ class ClientHandleNamespace(Namespace):
                      'successful': True, 'message': credentials})
                 emit('all_devices', {'successful': True,
                      'message': self.__get_tabs_data(user)})
-                ClientHandleNamespace.devices_in_use[user_id_from_data].add(
-                    request.sid)
+                ClientHandleNamespace.devices_in_use[user_id_from_data][device_name] = request.sid
                 return
         emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
 
@@ -571,7 +578,7 @@ class ClientHandleNamespace(Namespace):
         device_tabs_data['device_token'] = None
         users.update_one({'user_id': user_id}, {"$set": {'tabs_data': user.get('tabs_data')}})
         
-        ClientHandleNamespace.devices_in_use.get(user_id).remove(request.sid)
+        del ClientHandleNamespace.devices_in_use.get(user_id)[device]
         
         emit('logout', {"successful": True})
         print("Logged Out Successfully")
