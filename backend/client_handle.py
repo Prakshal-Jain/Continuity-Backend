@@ -79,13 +79,45 @@ class ClientHandleNamespace(Namespace):
 
         return device_token
     
-    def __sort_arrays(self, arr1, arr2, arr3):
-        if(len(arr3) == 0):
-            return arr1, arr2, arr3
-        paired = list(zip(arr1, arr2, arr3))
-        paired.sort(key=lambda x: x[2], reverse=True)
-        arr1, arr2, arr3 = zip(*paired)
-        return list(arr1), list(arr2), list(arr3)
+    def __sort_arrays(self, websites, trackers, tracker_counts):
+        if(len(tracker_counts) == 0):
+            return websites, trackers, tracker_counts
+        # paired = list(zip(arr1, arr2, arr3))
+        # paired.sort(key=lambda x: x[2], reverse=True)
+        # arr1, arr2, arr3 = zip(*paired)
+        # return list(arr1), list(arr2), list(arr3)
+
+        sorted_websites = []
+        sorted_trackers = []
+        sorted_tracker_counts = []
+        visited = set()
+        len_ = len(websites)
+
+        for i in range(10):
+            max_index = -1
+            max_count = -1
+            
+            for j in range(len_):
+                if j in visited:
+                    continue
+
+                if max_count > tracker_counts[j]:
+                    max_count = tracker_counts[j]
+                    max_index = j
+            
+            if max_index == -1 or max_count == -1:
+                continue
+
+            sorted_websites.append(websites[max_index])
+            sorted_trackers.append(trackers[max_index])
+            sorted_tracker_counts.append(tracker_counts[max_index])
+
+            visited.add(max_index)
+        
+        return sorted_websites, sorted_trackers, sorted_tracker_counts
+
+
+
 
     def on_login(self, data):
         ClientHandleNamespace.devices_in_use[data.get(
@@ -120,8 +152,7 @@ class ClientHandleNamespace(Namespace):
             user.get('tabs_data').update(new_device)
             users.update_one({'user_id': data.get('user_id')}, {
                                   "$set": {'devices': devices, 'tabs_data': user.get('tabs_data')}})
-            send_update = list(filter(lambda x: x != request.sid,
-                               ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+            send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
             emit('add_device',
                  {
                      'successful': True,
@@ -167,7 +198,7 @@ class ClientHandleNamespace(Namespace):
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         del data['device_token']
-        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
         emit('add_tab', {'successful': True, "message": data}, to=send_update)
         sys.stderr.flush()
         sys.stdout.flush()
@@ -185,7 +216,7 @@ class ClientHandleNamespace(Namespace):
             del device_tabs[tab_id]
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
         
         del data['device_token']
         
@@ -201,8 +232,7 @@ class ClientHandleNamespace(Namespace):
         tabs_data.get(target_device)['tabs'] = {}
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid,
-                           ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
         
         del data['device_token']
         
@@ -221,7 +251,7 @@ class ClientHandleNamespace(Namespace):
         users.update_one({'user_id': data.get('user_id')}, {
             "$set": {'tabs_data': tabs_data}})
 
-        send_update = list(filter(lambda x: x != request.sid, ClientHandleNamespace.devices_in_use[data.get('user_id')]))
+        send_update = list(ClientHandleNamespace.devices_in_use[data.get('user_id')])
         
         del data['device_token']
         
