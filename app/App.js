@@ -43,7 +43,7 @@ export default function () {
   return (
     <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme }}>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Your Devices">
           <Stack.Screen
             name="Your Devices"
             component={YourDevices}
