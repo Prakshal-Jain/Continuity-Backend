@@ -47,7 +47,7 @@ export default function () {
           <Stack.Screen
             name="Your Devices"
             component={YourDevices}
-            options={headerOptions}
+            options={{ ...headerOptions, headerShown: (credentials !== null && credentials !== undefined) }}
           />
 
           <Stack.Screen

@@ -14,7 +14,7 @@ import {
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
-import Loader from './components/Loader';
+import PreloadingScreen from './components/PreloadingScreen';
 
 class YourDevices extends Component {
     static contextType = StateContext;
@@ -143,7 +143,7 @@ class YourDevices extends Component {
                         </>
                     )
                     :
-                    <Loader message="Fetching your devices like a good doggy..." />
+                    <PreloadingScreen />
                 }
             </SafeAreaView>
         )

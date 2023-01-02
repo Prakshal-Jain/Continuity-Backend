@@ -27,13 +27,13 @@ const isValidUrl = urlString => {
 
 const defaultURL = 'https://www.google.com/';
 
-export default function ({ navigation, route }) {
+export default function (props) {
     const { socket, colorScheme, credentials } = useContext(StateContext);
-    const incognito = route?.params?.incognito ?? false;
-    const source = route?.params?.url ?? (incognito ? null : defaultURL);
-    const target_device = route?.params?.target_device;
+    const incognito = props?.incognito ?? false;
+    const source = props?.url ?? (incognito ? null : defaultURL);
+    const target_device = props?.target_device;
 
-    let injectedJavaScript = route?.params?.injectedJavaScript ?? `
+    let injectedJavaScript = props?.injectedJavaScript ?? `
         window.ReactNativeWebView.postMessage('injected javascript works!');
         true; // note: this is required, or you'll sometimes get silent failures   
     `;
@@ -172,11 +172,10 @@ export default function ({ navigation, route }) {
         const curr_url = syntheticEvent.nativeEvent?.url;
         setIsFirstRequest(true);
 
-        // const tab_metadata = { "title": title, "url": url };
-        // if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
-        //     socket?.emit("update_tab", { 'user_id': credentials?.user_id, 'device_name': credentials?.device_name, "device_token": credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
-        // }
-        // this.props.metadata.set(this.props.id, tab_metadata);
+        const tab_metadata = { "title": title, "url": url };
+        if (props.metadata?.has(props?.id) && (props.metadata?.get(props?.id)).url !== url) {
+            socket?.emit("update_tab", { 'user_id': credentials?.user_id, 'device_name': credentials?.device_name, "device_token": credentials?.device_token, "target_device": props?.target_device, "tabs_data": { [props.id]: tab_metadata } })
+        }
 
         const parsedUrl = new URL(curr_url);
 
@@ -220,7 +219,6 @@ export default function ({ navigation, route }) {
                     const websiteHost = (new URL(url))?.hostname;
                     const trackerHost = parsedUrl?.hostname;
                     if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' && trackerHost !== 'www.google.com') {
-                        console.log(websiteHost, trackerHost);
                         socket?.emit('report_privacy_trackers', {
                             'user_id': credentials?.user_id,
                             'device_name': credentials?.device_name,
@@ -337,15 +335,15 @@ export default function ({ navigation, route }) {
     const ultraSearchFunc = () => {
         if (credentials?.enrolled_features?.ultra_search?.enrolled === false) {
             // Change Homepage below to "Browser" --> when browser becomes a navigation screen
-            return () => { navigation?.navigate('Ultra Search', { redirectScreen: 'Your Devices' }) }
+            return () => { props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Your Devices' }) }
         }
         else {
             // Check if switch is turned on
             if (credentials?.enrolled_features?.ultra_search?.switch === false) {
-                return () => { navigation?.navigate('Settings', { "action_message": "To begin using Ultra Search, please turn on the switch.", "feature_name": 'Ultra Search', "icon_type": "warning" }) }
+                return () => { props?.navigation?.navigate('Settings', { "action_message": "To begin using Ultra Search, please turn on the switch.", "feature_name": 'Ultra Search', "icon_type": "warning" }) }
             }
             else {
-                return () => { navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": ultraSearchPrompt }) };
+                return () => { props?.navigation?.navigate('Ultra Search Results', { "ultra_search_prompt": ultraSearchPrompt }) };
             }
         }
     }
@@ -422,7 +420,7 @@ export default function ({ navigation, route }) {
                             <Icon name="chevron-left" size={30} onPress={goBack} style={{ color: canGoBack ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
                             <Icon name="export-variant" size={25} onPress={onShare} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="lightning-bolt" size={30} onPress={ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
-                            <Ionicons name="ios-copy-outline" size={25} onPress={() => navigation.goBack()} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                            <Ionicons name="ios-copy-outline" size={25} onPress={() => props?.switchCurrOpenWindow(-1)} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={goForward} style={{ color: canGoForward ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>
                     </LinearGradient>

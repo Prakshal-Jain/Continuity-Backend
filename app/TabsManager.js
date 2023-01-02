@@ -3,6 +3,7 @@ import { StyleSheet, View, Animated, SafeAreaView, StatusBar } from 'react-nativ
 import Browser from './Browser';
 import Tabs from './Tabs';
 import { StateContext } from "./state_context";
+import BrowserWindow from './BrowserWindow';
 
 class TabsManager extends React.Component {
     static contextType = StateContext;
@@ -38,12 +39,24 @@ class TabsManager extends React.Component {
                     return
                 }
                 const metadata_list = Object.entries(data?.message?.tabs_data).map(([key, value]) => [Number(key), value]);
-                const idx = metadata_list[0][0]
-                const metadata = this.state.metadata;
+                const idx = metadata_list[0][0];
+                const metadata = new Map(this.state.metadata);
                 const to_add = data?.message?.tabs_data[String(idx)];
                 const id = metadata_list.length === 0 ? 0 : (Number(metadata_list.reduce((a, b) => a[1] > b[1] ? a : b, 0)[0]) + 1);
                 metadata.set(idx, to_add);
-                this.setState({ metadata: metadata, id: id })
+                this.setState({
+                    metadata: metadata,
+                    id: id,
+                }, () => {
+                    this.setState({
+                        tabs: new Map([
+                            ...this.state.tabs,
+                            [idx, <BrowserWindow url={to_add?.url} incognito={to_add?.is_incognito} switchCurrOpenWindow={this.switchCurrOpenWindow} id={idx} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />]
+                        ])
+                    }, () => {
+                        this.switchCurrOpenWindow(idx);
+                    })
+                })
             }
             else {
                 console.log(data?.message);
@@ -127,25 +140,16 @@ class TabsManager extends React.Component {
     switchCurrOpenWindow = (tabIdx) => {
         if ((!this.state.tabs.has(tabIdx)) && tabIdx !== -1) {
             const tabs = this.state.tabs;
-            tabs.set(tabIdx, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} setMetaData={(value) => this.setState({ metadata: value })} url={(this.state.metadata.get(tabIdx)).url} id={tabIdx} key={tabIdx} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />)
+            tabs.set(tabIdx, <BrowserWindow url={((this.state.metadata)?.get(tabIdx))?.url} incognito={((this.state.metadata)?.get(tabIdx))?.is_incognito} switchCurrOpenWindow={this.switchCurrOpenWindow} id={tabIdx} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />)
             this.setState({ tabs: tabs });
         }
         this.setState({ currOpenTab: tabIdx });
     }
 
-    addNewTab = (url) => {
+    addNewTab = (url, isIncognito) => {
         const uniqueID = this.state.id;
-        this.setState({
-            id: Number(uniqueID) + 1,
-            tabs: new Map([
-                ...this.state.tabs,
-                [uniqueID, <Browser switchCurrOpenWindow={this.switchCurrOpenWindow} setMetaData={(value) => this.setState({ metadata: value })} url={url} id={uniqueID} key={uniqueID} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />]
-            ])
-        }, () => {
-            const d = { "user_id": this?.context?.credentials.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": `https://www.google.com/` } } };
-            this?.context?.socket.emit("add_tab", d);
-            this.switchCurrOpenWindow(uniqueID);
-        })
+        const d = { "user_id": this?.context?.credentials.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name, "tabs_data": { [uniqueID]: { "title": "Google", "url": url, "is_incognito": isIncognito } } };
+        this?.context?.socket.emit("add_tab", d);
     }
 
     deleteAllTabs = () => {
@@ -160,32 +164,12 @@ class TabsManager extends React.Component {
 
     renderTabs = () => {
         const tabs = [];
-        const currOpenTab = this.state.currOpenTab;
-        const anim = new Animated.Value(currOpenTab === -1 ? 1 : 0)
         for (const [key, tab] of this.state.tabs) {
-            const display_obj = {}
-            if (this.state.currOpenTab !== key) {
-                display_obj['display'] = 'none';
-            }
-            else {
-                display_obj["transform"] = [{ scale: anim }]
-            }
-
             tabs.push(
-                <Animated.View style={{ ...styles.browser, ...display_obj }} key={key}>
+                <View style={{ ...styles.browser, display: (this.state.currOpenTab !== key) ? 'none' : undefined }} key={key}>
                     {tab}
-                </Animated.View>)
+                </View>)
         }
-
-        Animated.timing(
-            anim,
-            {
-                toValue: (currOpenTab === -1 ? 0 : 1),
-                duration: 300,
-                useNativeDriver: true
-            }
-        ).start();
-
         return tabs
     }
 
