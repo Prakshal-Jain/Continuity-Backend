@@ -219,12 +219,11 @@ class DeviceBrowserHistory extends Component {
             flex: 1,
             justifyContent: 'center',
             display: 'flex',
-            padding: 10,
         },
 
         scrollContainer: {
             flex: 1,
-            padding: 10,
+            paddingHorizontal: 10,
         },
 
         heading: {

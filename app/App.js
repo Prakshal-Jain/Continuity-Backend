@@ -1,5 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import Profile from "./Profile";
 import Help from "./Help";
 import {
@@ -20,8 +21,8 @@ import BrowserWindow from "./BrowserWindow";
 import Login from './Login';
 import TabsManager from './TabsManager';
 
-const Stack = createNativeStackNavigator();
-const socket = io("http://10.4.3.41");
+const Stack = createStackNavigator();
+const socket = io("http://10.3.12.22");
 
 
 export default function () {

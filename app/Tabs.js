@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, TextInput, Image, TouchableOpacity, Animated } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -29,7 +29,6 @@ class Tabs extends Component {
 
         for (const [key, tab] of filtered) {
             let img_url = { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` };
-            console.log(tab?.is_incognito);
             if (tab?.is_incognito) {
                 img_url = incognitoIcon
             }
@@ -46,18 +45,20 @@ class Tabs extends Component {
             }
 
             tabs.push(
-                <ScaleXView key={key} style={styles.tabTitle} deleteScaleRef={deleteScaleRef}>
-                    <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)}>
-                        <Image
-                            style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
-                            source={img_url}
-                            onError={() => {
-                                img_url = webIcon
-                            }}
-                        />
-                    </TouchableOpacity>
-                    <Text style={{ color: 'white', paddingVertical: 15, paddingLeft: 15, flex: 1, marginRight: 5, fontSize: 17 }} onPress={() => this.props.switchCurrOpenWindow(key)} numberOfLines={2}>{tab.title}</Text>
-                    <FontAwesome name="close" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ padding: 15 }} onPress={onDelete} />
+                <ScaleXView key={key} deleteScaleRef={deleteScaleRef}>
+                    <View style={styles.tabTitle}>
+                        <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+                            <Image
+                                style={{ width: 40, height: 40, resizeMode: "contain", borderRadius: 10, }}
+                                source={img_url}
+                                onError={() => {
+                                    img_url = webIcon
+                                }}
+                            />
+                            <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15 }} numberOfLines={2}>{tab.title}</Text>
+                        </TouchableOpacity>
+                        <FontAwesome name="close" size={25} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={onDelete} />
+                    </View>
                 </ScaleXView>
             )
         }
@@ -107,17 +108,20 @@ class Tabs extends Component {
                         <View>
                             <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
                             <View style={styles.searchBar}>
-                                <FontAwesome name="search" style={{ marginRight: 12, fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
-                                <TextInput
-                                    onChangeText={this.onSearch}
-                                    style={styles.searchBox}
-                                    placeholder="Search Tabs"
-                                    value={this.state.searchQuery}
-                                    placeholderTextColor="#000"
-                                />
-                                {this.state.searchQuery.length > 0 && (
-                                    <Icon name="close-circle-outline" style={{ marginRight: 12, fontSize: 18 }} color="#000" onPress={() => { this.setState({ searchQuery: "" }) }} />
-                                )}
+                                <View style={{ flexDirection: 'row', justifyContent: "space-between", }}>
+                                    <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
+                                    <TextInput
+                                        onChangeText={this.onSearch}
+                                        style={styles.searchBox}
+                                        placeholder="Search Tabs"
+                                        value={this.state.searchQuery}
+                                        placeholderTextColor="rgba(72, 72, 74, 1)"
+                                        selectTextOnFocus={true}
+                                    />
+                                    {this.state.searchQuery.length > 0 && (
+                                        <Icon name="close-circle-outline" size={20} color="#000" onPress={() => { this.setState({ searchQuery: "" }) }} />
+                                    )}
+                                </View>
                             </View>
                         </View>
                     )}
@@ -151,7 +155,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     tabsContainer: {
-        width: Dimensions.get('window').width,
+        width: '100%',
     },
     browserBar: {
         padding: 10,
@@ -184,13 +188,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 20,
         flexDirection: "row",
-        paddingVertical: 7,
+        paddingVertical: 20,
+        paddingHorizontal: 15
     },
     footer_options: {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: "space-between",
-        width: Dimensions.get('window').width,
+        width: '100%',
         paddingHorizontal: 15,
         paddingVertical: 7,
         borderTopWidth: 0.5,
@@ -204,8 +209,6 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         borderRadius: 10,
         flex: 1,
-        flexDirection: 'row',
-        justifyContent: "space-between",
         padding: 12,
         margin: 20,
         borderWidth: 0.1,
@@ -214,7 +217,7 @@ const styles = StyleSheet.create({
     },
     searchBox: {
         flex: 1,
-        marginRight: 8,
+        marginHorizontal: 10,
         color: '#000'
     },
 });

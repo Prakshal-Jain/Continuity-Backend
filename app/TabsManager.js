@@ -171,14 +171,10 @@ class TabsManager extends React.Component {
     renderTabs = () => {
         const tabs = [];
         const currOpenTab = this.state.currOpenTab;
-        const anim = new Animated.Value(currOpenTab === -1 ? 1 : 0)
         for (const [key, tab] of this.state.tabs) {
             const display_obj = {}
             if (this.state.currOpenTab !== key) {
                 display_obj['display'] = 'none';
-            }
-            else {
-                display_obj["transform"] = [{ scale: anim }]
             }
 
             tabs.push(
@@ -186,15 +182,6 @@ class TabsManager extends React.Component {
                     {tab}
                 </Animated.View>)
         }
-
-        Animated.timing(
-            anim,
-            {
-                toValue: (currOpenTab === -1 ? 0 : 1),
-                duration: 300,
-                useNativeDriver: true
-            }
-        ).start();
 
         return tabs
     }

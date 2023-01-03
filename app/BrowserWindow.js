@@ -39,7 +39,7 @@ export default function (props) {
                 nativeEvent: {
                     canGoBack: false,
                     canGoForward: false,
-                    url: null,
+                    url: source,
                     title: "Incognito"
                 }
             })
@@ -63,6 +63,8 @@ export default function (props) {
     const [canGoForward, setCanGoForward] = useState(false);
     const [ultraSearchPrompt, setUltraSearchPrompt] = useState(null);
     const [isFirstRequest, setIsFirstRequest] = useState(true);
+    const [isInputFocused, setIsInputFocused] = useState(false);
+
 
     const setURL = (u) => {
         setURLHelper(u);
@@ -442,8 +444,18 @@ export default function (props) {
                                     editable={true}
                                     placeholder="Search or enter a website"
                                     placeholderTextColor="rgba(142, 142, 147, 1)"
+                                    selectTextOnFocus={true}
+                                    onFocus={() => setIsInputFocused(true)}
+                                    onBlur={() => setIsInputFocused(false)}
                                 />
-                                {refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
+                                {isInputFocused ?
+                                    (
+                                        <Icon name="close-circle-outline" size={20} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} onPress={() => setIntermediateURL(null)} />
+                                    )
+                                    :
+                                    (
+                                        refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />
+                                    )}
                             </Animated.View>
                         </View>
 
