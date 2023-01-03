@@ -16,6 +16,7 @@ import PieChart from "./components/PieChart";
 import randomColor from "randomcolor";
 import CheckBoxList from "./components/CheckBoxList";
 import Loader from "./components/Loader";
+import userIcon from "./assets/user.png";
 
 export default function ({ navigation, ...props }) {
     const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices } = useContext(StateContext);
@@ -231,6 +232,7 @@ export default function ({ navigation, ...props }) {
                     <Image
                         style={styles.picture}
                         source={{ uri: credentials?.picture }}
+                        defaultSource={userIcon}
                     />
                     <View style={styles.infoContainer}>
                         <Text style={styles.name}>{credentials?.name}</Text>

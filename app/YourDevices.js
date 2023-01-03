@@ -15,6 +15,7 @@ import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
 import PreloadingScreen from './components/PreloadingScreen';
+import userIcon from "./assets/user.png";
 
 class YourDevices extends Component {
     static contextType = StateContext;
@@ -137,7 +138,7 @@ class YourDevices extends Component {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => this.navigation.navigate('Profile')}>
-                                    <Image source={{ uri: this?.context?.credentials?.picture }} style={{ width: 35, height: 35, borderRadius: (35 / 2) }} />
+                                    <Image source={{ uri: this?.context?.credentials?.picture }} style={{ width: 35, height: 35, borderRadius: (35 / 2) }} defaultSource={userIcon} />
                                 </TouchableOpacity>
                             </View>
                         </>

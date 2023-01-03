@@ -135,43 +135,36 @@ class DeviceBrowserHistory extends Component {
                 <StatusBar animated={true}
                     barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
                 />
-                <View style={this.styles.scrollContainer}>
+                <View style={{ flex: 1 }}>
                     <FlatList
                         style={{ width: '100%' }}
                         keyExtractor={(item, index) => (this.state.history ?? []).length + index}
                         data={this.state.history}
                         renderItem={({ item, index }) => (
-                            <View style={[this.styles.date_container, { backgroundColor: this?.context?.colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)' }]}>
+                            <View style={{ paddingVertical: 10 }}>
                                 <Text style={[this.styles.date_text, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000' }]}>{item?.date}</Text>
-                                <View
-                                    style={{
-                                        borderBottomColor: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
-                                        borderBottomWidth: StyleSheet.hairlineWidth,
-                                    }}
-                                />
-                                {item?.date_history?.map((hist, i) => {
-                                    let img_url = { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${hist?.url}&sz=64` }
-                                    return (
-                                        <View style={[this.styles.history_url, { borderBottomColor: this?.context?.colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)' }]} key={hist?.id}>
-                                            <View style={{ flexDirection: 'row', justifyContent: "center", alignItems: "center" }}>
-                                                <Image
-                                                    style={{ width: 30, height: 30, resizeMode: "contain", marginRight: 10, borderRadius: 15, }}
-                                                    source={img_url}
-                                                    onError={() => {
-                                                        img_url = webIcon
-                                                    }}
-                                                />
-                                                <View style={{ flex: 1, justifyContent: "center" }}>
-                                                    {(hist?.title !== undefined && hist?.title !== null) && (
-                                                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 17 }} numberOfLines={1}>{hist?.title}</Text>
-                                                    )}
-                                                    <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)' }} numberOfLines={1}>{hist?.url}</Text>
+                                <View style={[this.styles.hist_list_container, { backgroundColor: this?.context?.colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)' }]}>
+                                    {item?.date_history?.map((hist, i) => {
+                                        return (
+                                            <View style={[this.styles.history_url, { borderBottomColor: this?.context?.colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)' }]} key={hist?.id}>
+                                                <View style={{ flexDirection: 'row', justifyContent: "center", alignItems: "center" }}>
+                                                    <Image
+                                                        style={{ width: 30, height: 30, resizeMode: "contain", marginRight: 10, borderRadius: 15, }}
+                                                        source={{ uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${hist?.url}&sz=64` }}
+                                                        defaultSource={webIcon}
+                                                    />
+                                                    <View style={{ flex: 1, justifyContent: "center" }}>
+                                                        {(hist?.title !== undefined && hist?.title !== null) && (
+                                                            <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 17 }} numberOfLines={1}>{hist?.title}</Text>
+                                                        )}
+                                                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)' }} numberOfLines={1}>{hist?.url}</Text>
+                                                    </View>
+                                                    <FontAwesome name="close" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ marginLeft: 10 }} onPress={() => this.deleteOneHistory(hist?.id, index, i)} />
                                                 </View>
-                                                <FontAwesome name="close" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ marginLeft: 10 }} onPress={() => this.deleteOneHistory(hist?.id, index, i)} />
                                             </View>
-                                        </View>
-                                    )
-                                })}
+                                        )
+                                    })}
+                                </View>
                             </View>
                         )}
                         onEndReached={this.getHistory}
@@ -221,11 +214,6 @@ class DeviceBrowserHistory extends Component {
             display: 'flex',
         },
 
-        scrollContainer: {
-            flex: 1,
-            paddingHorizontal: 10,
-        },
-
         heading: {
             textAlign: "center",
             fontWeight: 'bold',
@@ -267,17 +255,17 @@ class DeviceBrowserHistory extends Component {
             textAlign: 'center',
         },
 
-        date_container: {
-            marginVertical: 20,
+        hist_list_container: {
+            marginVertical: 15,
             marginHorizontal: 10,
             borderRadius: 10,
-            padding: 15,
+            paddingHorizontal: 15,
         },
 
         date_text: {
-            paddingBottom: 15,
-            fontSize: 15,
-            fontWeight: "bold"
+            fontSize: 20,
+            fontWeight: "bold",
+            paddingHorizontal: 15,
         },
 
         history_url: {

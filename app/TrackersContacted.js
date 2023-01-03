@@ -96,16 +96,14 @@ const TrackersContacted = ({ route }) => {
                 <Image
                     style={[styles.websiteLogo, { borderColor: color }]}
                     source={{ uri: img_url }}
-                    onError={() => {
-                        img_url = webIcon
-                    }}
+                    defaultSource={webIcon}
                 />
 
                 <Text style={styles.trackerCount}>Number of trackers: <Text style={{ fontWeight: 'bold' }}>{count}</Text></Text>
 
                 <View style={styles.trackerListContainer}>
                     {tracker?.map((x, i) => (
-                        <View style={[(i < (tracker?.length-1)) && styles.trackerTile, {padding: 20}]} key={`tracker_id_${i}`}>
+                        <View style={[(i < (tracker?.length - 1)) && styles.trackerTile, { padding: 20 }]} key={`tracker_id_${i}`}>
                             <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>{x}</Text>
                         </View>
                     ))}

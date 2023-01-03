@@ -28,11 +28,6 @@ class Tabs extends Component {
         const filtered = Array.from(this.props.metadata).filter(x => (x[1].title.toLowerCase().includes(this.state.searchQuery.toLowerCase())) || (x[1].url.toLowerCase().includes(this.state.searchQuery.toLowerCase())))
 
         for (const [key, tab] of filtered) {
-            let img_url = { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` };
-            if (tab?.is_incognito === true) {
-                img_url = incognitoIcon
-            }
-
             const deleteScaleRef = new Animated.Value(1);
             const onDelete = () => {
                 Animated.timing(deleteScaleRef, {
@@ -53,10 +48,8 @@ class Tabs extends Component {
                         <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
                             <Image
                                 style={{ width: 40, height: 40, resizeMode: "contain", borderRadius: 10, }}
-                                source={img_url}
-                                onError={() => {
-                                    img_url = webIcon
-                                }}
+                                source={(tab?.is_incognito === true && tab?.url === null) ? incognitoIcon : { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` }}
+                                defaultSource={(tab?.is_incognito === true) ? incognitoIcon : webIcon}
                             />
                             <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
                         </TouchableOpacity>
