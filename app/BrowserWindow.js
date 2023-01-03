@@ -446,7 +446,12 @@ export default function (props) {
                                     placeholderTextColor="rgba(142, 142, 147, 1)"
                                     selectTextOnFocus={true}
                                     onFocus={() => setIsInputFocused(true)}
-                                    onBlur={() => setIsInputFocused(false)}
+                                    onBlur={() => {
+                                        if(url !== intermediateURL){
+                                            setURL(url);
+                                        }
+                                        setIsInputFocused(false);
+                                    }}
                                 />
                                 {isInputFocused ?
                                     (
