@@ -132,6 +132,25 @@
       console.log(data);
     });
 
+    socket.on('send_notification', function(data) {
+      console.log("send_notification");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('notification', function(data) {
+      console.log("notification");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('notification_ack', function(data) {
+      console.log("notification_ack");
+      console.log(data);
+      console.log("========================")
+    });
+
+
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
     }
@@ -202,6 +221,10 @@
     function delete_history(){
       socket.emit("delete_history", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
     }
+
+    function set_notification(){
+      socket.emit("send_notification", {'message': 'hello'});
+    }
   </script>
   <title>SocketIO</title>
 </head>
@@ -221,7 +244,7 @@
     <button onclick="privacy_report();">privacy_report</button>
     <button onclick="set_history();">set_history</button>
     <button onclick="get_history();">get_history</button>
-
+    <button onclick="set_notification();">get_history</button>
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>

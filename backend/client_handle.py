@@ -19,6 +19,8 @@ notification = db['notification']
 
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
 history.create_index('expireAt', expireAfterSeconds=0)
+notification.create_index('ttl', expireAfterSeconds=0)
+
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
@@ -120,8 +122,26 @@ class ClientHandleNamespace(Namespace):
 
             request_sid_list.append(sid)
         
-        print("request_sid_list: ", request_sid_list, flush=True)
         return request_sid_list
+    
+    def __send_notification(self, user_id, new_user=False):
+        all_notifications = notification.find({'user_record': True, 'user_id': user_id, 'ack': False})
+
+        all_notifications = list(all_notifications)
+        
+        if new_user:
+            all_notifications = notification.find({'message_record': True})
+
+        for n in all_notifications:
+            message = n.get('message')
+            id = n.get('_id')
+            if new_user:
+                result = notification.insert_one({'user_record': True, 'user_id': user_id, 'message': message, 'ttl': n.get('ttl'), 'ack': False})
+                id = result.inserted_id
+
+            message.update({'id': str(id)})
+            emit('notification', message)
+        
 
     def on_login(self, data):
         ClientHandleNamespace.devices_in_use[data.get('user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), {})
@@ -131,7 +151,10 @@ class ClientHandleNamespace(Namespace):
 
         device_token = token_urlsafe(27).encode()
 
+        new_user = False
+
         if user == None:
+            new_user = True
             user = {
                 'user_id': data.get('user_id'),
                 'name': data.get('name'),
@@ -181,6 +204,9 @@ class ClientHandleNamespace(Namespace):
         }
         emit('login', {'successful': True, "message": credentials})
         emit('all_devices', {'successful': True, 'message': self.__get_tabs_data(user)})
+
+        self.__send_notification(data.get('user_id'), new_user)
+
         sys.stderr.flush()
         sys.stdout.flush()
 
@@ -253,7 +279,6 @@ class ClientHandleNamespace(Namespace):
         user = users.find_one({'user_id': data.get('user_id')})
         privacy = list(privacy_report.find({'user_id': data.get('user_id')}))
         for p in privacy:
-            print('privacy_record: ', p, flush=True)
             del p['_id']
             del p['expireAt']
         del user['_id']
@@ -517,21 +542,38 @@ class ClientHandleNamespace(Namespace):
         
         emit('delete_history', {'successful': True, 'message': {'is_delete_all': is_delete_all, 'id': id}})
 
-    # def on_send_notification(self, data):
-    #     send_to = data.get('send_to')
-    #     ttl = data.get('ttl')
-    #     message = data.get('message')
+    def on_send_notification(self, data):
+        send_to = data.get('send_to')
+        ttl = datetime.utcnow() + timedelta(days=int(data.get('ttl')))
+        message = {'message': data.get('message')}
 
-    #     if send_to == None:
-    #         send_to = users.get({}, {'user_id': 1})
-
+        if send_to == None:
+            notification.insert_one({'message_record': True, 'message': message, 'ttl': ttl})
+            send_to = users.find({}, {'user_id': 1})
         
-    #     for user in send_to:
-    #         current_devices = users.find({'user_id': user})
-    #         user_obj = ClientHandleNamespace.devices_in_use.get(user)
+        for user in send_to:
+            user_id = user.get('user_id')
+            currently_connected_devices = list(ClientHandleNamespace.devices_in_use.get(user_id).values())        
+            result = notification.insert_one({'user_record': True, 'user_id': user_id, 'message': message, 'ttl': ttl, 'ack': False})
+            message.update({'id': str(result.inserted_id)})
+            if currently_connected_devices != []:
+                emit('notification', message, to=currently_connected_devices)
+        
+        emit('send_notification', {'successful': True})
+        
+    def on_notification_ack(self, data):
+        user_id = data.get('user_id')
 
+        user = users.find_one({'user_id': user_id})
 
-            
+        if not self.__authenticate_device('notification_ack', user, data):
+            return
+        
+        notification_id = data.get('id')
+
+        notification.update_one({'_id': ObjectId(notification_id)}, {'$set': {'ack': True}})
+
+        emit('notification_ack', {'successful': True})
 
     def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
@@ -562,6 +604,7 @@ class ClientHandleNamespace(Namespace):
                 emit('all_devices', {'successful': True,
                      'message': self.__get_tabs_data(user)})
                 ClientHandleNamespace.devices_in_use[user_id_from_data][device_name] = request.sid
+                self.__send_notification(d.get('user_id'))
                 return
         emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
 
