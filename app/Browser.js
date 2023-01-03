@@ -171,10 +171,11 @@ class Browser extends Component {
         const { canGoForward, canGoBack, url, title } = syntheticEvent.nativeEvent;
 
         const tab_metadata = { "title": title, "url": url };
-        const old_metadata = this.props.metadata;
-        if (old_metadata.has(this.props.id) && (old_metadata.get(this.props.id)).url !== url) {
+        if (this.props.metadata.has(this.props.id) && (this.props.metadata.get(this.props.id)).url !== url) {
             this?.context?.socket?.emit("update_tab", { 'user_id': this?.context?.credentials?.user_id, 'device_name': this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.props?.target_device, "tabs_data": { [this.props.id]: tab_metadata } })
         }
+        this.props.metadata.set(this.props.id, tab_metadata);
+        // this.props.setMetaData(this.props.metadata);
 
 
         const parsedUrl = new URL(url);

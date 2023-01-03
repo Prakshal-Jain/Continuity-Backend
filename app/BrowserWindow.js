@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { View, TextInput, SafeAreaView, StatusBar, StyleSheet, KeyboardAvoidingView, Animated, Keyboard, ActivityIndicator, Share, ScrollView, Text } from "react-native";
 import { WebView } from "react-native-webview";
 import { StateContext } from "./state_context";
@@ -32,6 +32,19 @@ export default function (props) {
     const incognito = props?.incognito ?? false;
     const source = props?.url ?? (incognito ? null : defaultURL);
     const target_device = props?.target_device;
+
+    useEffect(() => {
+        if (incognito) {
+            onBrowserLoad({
+                nativeEvent: {
+                    canGoBack: false,
+                    canGoForward: false,
+                    url: null,
+                    title: "Incognito"
+                }
+            })
+        }
+    }, [])
 
     let injectedJavaScript = props?.injectedJavaScript ?? `
         window.ReactNativeWebView.postMessage('injected javascript works!');
@@ -159,44 +172,62 @@ export default function (props) {
                     Incognito mode in Continuity ensures that your browsing history for all tabs in this window remains private.
                 </Text>
                 <Text style={styles.incognitoDescriptionText}>
-                When you close this tab, Continuity will not remember the websites you visited, your search history, cookies and site data, or any AutoFill information.
+                    When you close this tab, Continuity will not remember the websites you visited, your search history, cookies and site data, or any AutoFill information.
                 </Text>
             </View>
             <Text style={styles.smallText}>Because your internet history deserves a little mystery.</Text>
         </ScrollView>
     )
 
+    const generateTitle = (title, web_url) => {
+        if (title === null || title === undefined || title.length === 0) {
+            return (new URL(web_url)).hostname;
+        }
+        return title;
+    }
 
     const onBrowserLoad = (syntheticEvent) => {
         const { canGoForward, canGoBack, title } = syntheticEvent.nativeEvent;
         const curr_url = syntheticEvent.nativeEvent?.url;
+        const updated_title = generateTitle(title, curr_url);
         setIsFirstRequest(true);
 
-        const tab_metadata = { "title": title, "url": url };
-        if (props.metadata?.has(props?.id) && (props.metadata?.get(props?.id)).url !== url) {
+        const tab_metadata = { "title": updated_title, "url": url, "is_incognito": incognito };
+        const metadataCopy = props.metadata;
+        if (metadataCopy?.has(props?.id) && (metadataCopy?.get(props?.id)).url !== url) {
             socket?.emit("update_tab", { 'user_id': credentials?.user_id, 'device_name': credentials?.device_name, "device_token": credentials?.device_token, "target_device": props?.target_device, "tabs_data": { [props.id]: tab_metadata } })
         }
+        metadataCopy?.set(props.id, tab_metadata);
+        props.setMetaData(metadataCopy);
 
-        const parsedUrl = new URL(curr_url);
+
+        let parsedUrl;
+
+        try {
+            parsedUrl = new URL(curr_url);
+        }
+        catch (err) {
+            parsedUrl = null;
+        }
 
         if (url !== curr_url) {
-            if ((!incognito) && (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname !== '/search'))) {
+            if ((!incognito) && (!(parsedUrl?.hostname === 'www.google.com' && parsedUrl?.pathname !== '/search'))) {
                 socket?.emit('set_history', {
                     'user_id': credentials?.user_id,
                     'device_name': credentials?.device_name,
                     "device_token": credentials?.device_token,
                     target_device,
-                    title,
+                    updated_title,
                     url,
                 })
             }
 
-            if (parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search') {
+            if (parsedUrl?.hostname === 'www.google.com' && parsedUrl?.pathname === '/search') {
                 // Extract the searched string from the q query parameter
-                const prompt = parsedUrl.searchParams.get('q');
+                const prompt = parsedUrl?.searchParams.get('q');
                 if (prompt !== undefined && prompt !== null && ultraSearchPrompt !== prompt) {
                     // A new prompt from user
-                    setUltraSearchPrompt(parsedUrl.searchParams.get('q'))
+                    setUltraSearchPrompt(parsedUrl?.searchParams.get('q'))
                 }
             }
         }
@@ -335,7 +366,7 @@ export default function (props) {
     const ultraSearchFunc = () => {
         if (credentials?.enrolled_features?.ultra_search?.enrolled === false) {
             // Change Homepage below to "Browser" --> when browser becomes a navigation screen
-            return () => { props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Your Devices' }) }
+            return () => { props?.navigation?.navigate('Ultra Search', { redirectScreen: 'Tabs' }) }
         }
         else {
             // Check if switch is turned on
@@ -410,7 +441,7 @@ export default function (props) {
                                     onSubmitEditing={loadURL}
                                     editable={true}
                                     placeholder="Search or enter a website"
-                                    placeholderTextColor={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'}
+                                    placeholderTextColor="rgba(142, 142, 147, 1)"
                                 />
                                 {refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />}
                             </Animated.View>

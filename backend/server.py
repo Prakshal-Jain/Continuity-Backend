@@ -20,6 +20,7 @@ def index():
 def error_handler(e):
     logging.exception(f"\n ============================================================ \n Exception occurred \n Event: {request.event['message']}\n Data: {request.event['args']} \n Error: \n")
     data = open('error.log').read()
+    print(data, flush=True)
     emit('error_occured', data)
 
 if __name__ == '__main__':

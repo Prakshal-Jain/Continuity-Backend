@@ -21,7 +21,7 @@ import Login from './Login';
 import TabsManager from './TabsManager';
 
 const Stack = createNativeStackNavigator();
-const socket = io("http://10.3.12.22");
+const socket = io("http://10.4.3.41");
 
 
 export default function () {

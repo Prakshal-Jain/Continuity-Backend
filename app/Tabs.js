@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ScaleXView from "./components/ScaleXView";
 import { StateContext } from "./state_context";
 import webIcon from "./assets/web_icon.png"
+import incognitoIcon from "./assets/incognito.png"
 
 class Tabs extends Component {
     static contextType = StateContext;
@@ -27,9 +28,11 @@ class Tabs extends Component {
         const filtered = Array.from(this.props.metadata).filter(x => (x[1].title.toLowerCase().includes(this.state.searchQuery.toLowerCase())) || (x[1].url.toLowerCase().includes(this.state.searchQuery.toLowerCase())))
 
         for (const [key, tab] of filtered) {
-            let img_url =
-                `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab.url}&sz=64`
-
+            let img_url = { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` };
+            console.log(tab?.is_incognito);
+            if (tab?.is_incognito) {
+                img_url = incognitoIcon
+            }
 
             const deleteScaleRef = new Animated.Value(1);
             const onDelete = () => {
@@ -47,7 +50,7 @@ class Tabs extends Component {
                     <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)}>
                         <Image
                             style={{ width: 40, height: 40, resizeMode: "contain", margin: 10, borderRadius: 10, }}
-                            source={{ uri: img_url }}
+                            source={img_url}
                             onError={() => {
                                 img_url = webIcon
                             }}
@@ -77,15 +80,18 @@ class Tabs extends Component {
             <View style={styles.root}>
                 <View style={styles.tab_count}>
                     <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                        <FontAwesome name={this.props.device_type} size={25} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 5 }} />
-                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }}>{this.props.device_name}</Text>
+                        <FontAwesome name={this.props.device_type} size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 10 }} />
+                        <View>
+                            <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>{this.props.device_name}</Text>
+                            <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontWeight: "bold" }}>
+                                {tabCount} {tabCount === 1 ? "Tab" : "Tabs"}
+                            </Text>
+                        </View>
                     </View>
 
-                    <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontWeight: "bold", fontSize: 16 }}>
-                        {tabCount} {tabCount === 1 ? "Tab" : "Tabs"}
-                    </Text>
 
-                    <Icon name="history" size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} onPress={() => this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })} />
+
+                    <Icon name="history" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} onPress={() => this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })} />
                 </View>
 
                 <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
