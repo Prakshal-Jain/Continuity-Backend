@@ -55,7 +55,7 @@ class Tabs extends Component {
                                     img_url = webIcon
                                 }}
                             />
-                            <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15 }} numberOfLines={2}>{tab.title}</Text>
+                            <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
                         </TouchableOpacity>
                         <FontAwesome name="close" size={25} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={onDelete} />
                     </View>

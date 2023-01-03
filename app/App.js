@@ -1,5 +1,4 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from '@react-navigation/stack';
 import Profile from "./Profile";
 import Help from "./Help";
@@ -56,7 +55,8 @@ export default function () {
             component={Login}
             options={{
               headerShown: false,
-              animation: 'none'
+              animation: 'none',
+              gestureEnabled: false
             }}
           />
 

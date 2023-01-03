@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
         marginRight: 40,
         marginLeft: 40,
         marginTop: 15,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingVertical: 10,
         backgroundColor: 'rgba(255, 149, 0, 1)',
         borderRadius: 10,
     },
@@ -50,8 +49,7 @@ const styles = StyleSheet.create({
     upgradeText: {
         color: '#fff',
         textAlign: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
+        paddingHorizontal: 10,
         fontSize: 20,
         fontWeight: 'bold'
     },

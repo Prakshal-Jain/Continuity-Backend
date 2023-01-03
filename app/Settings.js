@@ -10,6 +10,7 @@ import {
     Image,
     TouchableOpacity,
     Switch,
+    Button,
 } from "react-native";
 import React from "react";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -32,7 +33,7 @@ function Settings({ navigation, route }) {
         })
     }, [])
 
-    const Tiles = ({ icon, title, onSwitch, learnMore, learnMoreParams, isSwitchEnabled }) => {
+    const Tiles = ({ icon, title, description, actionComponent, learnMore, learnMoreParams }) => {
         const tileStyle = StyleSheet.create({
             container: {
                 backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -50,32 +51,33 @@ function Settings({ navigation, route }) {
 
             title: {
                 color: (colorScheme === 'dark') ? '#fff' : '#000',
-                fontSize: 18,
+                fontSize: 20,
                 flex: 1,
                 fontWeight: "bold",
             },
 
             link: {
                 color: 'rgba(0, 122, 255, 1)',
+                fontSize: 15,
+            },
+
+            description: {
+                color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+                marginTop: 5
             }
         });
-
-        const toggleSwitch = () => {
-            onSwitch(!isSwitchEnabled);
-        }
 
         return (
             <View style={tileStyle.container}>
                 <View style={tileStyle.tileContainer}>
                     {icon}
-                    <Text style={tileStyle.title}>{title}</Text>
-                    {onSwitch && (
-                        <Switch
-                            onValueChange={toggleSwitch}
-                            value={isSwitchEnabled}
-                            disabled={(credentials?.enrolled_features?.ultra_search?.enrolled === false)}
-                        />
-                    )}
+                    <View style={{ flex: 1, paddingHorizontal: 15 }}>
+                        <Text style={tileStyle.title}>{title}</Text>
+                        {description && (
+                            <Text style={tileStyle.description}>{description}</Text>
+                        )}
+                    </View>
+                    {actionComponent}
                 </View>
                 {(learnMore !== null && learnMore !== undefined) && (
                     <View>
@@ -83,10 +85,10 @@ function Settings({ navigation, route }) {
                             style={{
                                 borderBottomColor: 'rgba(142, 142, 147, 1)',
                                 borderBottomWidth: StyleSheet.hairlineWidth,
-                                marginVertical: 10
+                                marginVertical: 15
                             }}
                         />
-                        <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more...</Text>
+                        <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more</Text>
                     </View>
                 )}
             </View>
@@ -109,8 +111,50 @@ function Settings({ navigation, route }) {
             flex: 1,
             width: '100%',
             padding: 20,
-        }
+        },
+
+        upgradeBtn: {
+            padding: 10,
+            backgroundColor: 'rgba(255, 149, 0, 1)',
+            borderRadius: 10,
+        },
+
+        upgradeText: {
+            color: '#fff',
+            textAlign: 'center',
+            fontSize: 15,
+            fontWeight: 'bold'
+        },
     })
+
+
+    const UltraSearchActionComponent = () => {
+
+        if (credentials?.enrolled_features?.ultra_search?.enrolled === false) {
+            return (
+                <TouchableOpacity
+                    style={styles.upgradeBtn}
+                    onPress={() => navigation.navigate('Ultra Search', { redirectScreen: 'Settings' })}
+                    underlayColor='#fff'>
+                    <Text style={styles.upgradeText}>Upgrade</Text>
+                </TouchableOpacity>
+            )
+        }
+
+        else {
+            const toggleSwitch = () => {
+                socket.emit('switch_feature', { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) });
+            }
+
+            return (
+                <Switch
+                    onValueChange={toggleSwitch}
+                    value={credentials?.enrolled_features?.ultra_search?.switch}
+                    disabled={(credentials?.enrolled_features?.ultra_search?.enrolled === false)}
+                />
+            )
+        }
+    }
 
 
     return (
@@ -126,14 +170,14 @@ function Settings({ navigation, route }) {
                 )}
                 <Tiles
                     title="Ultra Search"
+                    description="Ultra Search uses advanced AI to generate the most accurate and custom tailored results."
                     icon={<MaterialCommunityIcons
                         name="lightning-bolt"
-                        style={{ marginRight: 15, fontSize: 25 }}
+                        style={{ fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
                     learnMore={"Ultra Search"}
                     learnMoreParams={{ redirectScreen: 'Settings' }}
-                    onSwitch={() => { socket.emit('switch_feature', { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, feature_name: "ultra_search", switch: (!credentials?.enrolled_features?.ultra_search?.switch) }) }}
-                    isSwitchEnabled={credentials?.enrolled_features?.ultra_search?.switch}
+                    actionComponent={<UltraSearchActionComponent />}
                 />
             </ScrollView>
         </SafeAreaView>
