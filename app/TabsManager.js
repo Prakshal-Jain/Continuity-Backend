@@ -136,7 +136,6 @@ class TabsManager extends React.Component {
                 tabs.set(tabIdx, {
                     browser: <BrowserWindow url={(this.state.metadata?.get(tabIdx))?.url} incognito={(this.state.metadata?.get(tabIdx))?.is_incognito} setMetaData={(value) => this.setState({ metadata: value })} switchCurrOpenWindow={this.switchCurrOpenWindow} id={tabIdx} key={tabIdx} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />,
                     animation: new Animated.Value(0),
-                    isOpen: false
                 })
 
                 this.setState({ tabs: tabs, currOpenTab: tabIdx }, () => {
@@ -178,7 +177,6 @@ class TabsManager extends React.Component {
         tabsBackup?.set(uniqueID, {
             browser: <BrowserWindow url={url} incognito={isIncognito} setMetaData={(value) => this.setState({ metadata: value })} switchCurrOpenWindow={this.switchCurrOpenWindow} id={uniqueID} key={uniqueID} metadata={this.state.metadata} target_device={this.state.tabs_data?.device_name} navigation={this.props?.navigation} />,
             animation: new Animated.Value(0),
-            isOpen: false
         });
 
         this.setState({
@@ -204,9 +202,9 @@ class TabsManager extends React.Component {
 
     renderTabs = () => {
         const tabs = [];
-        for (const [key, { browser, animation, isOpen }] of this.state.tabs) {
+        for (const [key, { browser, animation }] of this.state.tabs) {
             tabs.push(
-                <Animated.View style={{ ...styles.browser, display: (this.state.currOpenTab !== key) ? 'none' : undefined, transform: [{ scale: animation }] }} key={key}>
+                <Animated.View style={[styles.browser, { display: (this.state.currOpenTab !== key) ? 'none' : undefined, transform: [{ scale: animation }] }]} key={key}>
                     {browser}
                 </Animated.View>)
         }
@@ -240,7 +238,8 @@ class TabsManager extends React.Component {
                             {this.renderTabs()}
                             {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} navigation={this.props?.navigation} /> : null}
                         </View>
-                    )}
+                    )
+                }
             </SafeAreaView>
         );
     }
