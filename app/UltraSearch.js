@@ -6,11 +6,13 @@ import {
     SafeAreaView,
     StatusBar,
     View,
-    TouchableOpacity
+    TouchableOpacity,
+    Alert,
 } from "react-native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StateContext } from "./state_context";
 import { throttle } from 'lodash';
+import * as Haptics from 'expo-haptics';
 
 
 const styles = StyleSheet.create({
@@ -94,18 +96,18 @@ class UltraSearch extends Component {
 
     onNavPop = throttle(() => {
         const redirectScreen = this.props?.route?.params?.redirectScreen;
-        if(redirectScreen === undefined || redirectScreen === null){
+        if (redirectScreen === undefined || redirectScreen === null) {
             if (this.props?.navigation.canGoBack()) {
                 this.props?.navigation.goBack();
             }
         }
-        else{
+        else {
             this.props?.navigation?.navigate(redirectScreen);
         }
     }, 500, { trailing: false });
 
 
-    upgradeUltraSearch = () => {
+    upgradeHelper = () => {
         this?.context?.socket.emit('enroll_feature', {
             user_id: this?.context?.credentials?.user_id,
             device_name: this?.context?.credentials?.device_name,
@@ -113,6 +115,36 @@ class UltraSearch extends Component {
             feature_name: "ultra_search",
             is_enrolled: this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled
         })
+    }
+
+    upgradeUltraSearch = () => {
+        if (this?.context?.button_haptics !== 'none') {
+            Haptics.impactAsync(this?.context?.button_haptics);
+        }
+
+        if (this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === true) {
+            Alert.alert(
+                "Are you sure you wish to unenroll?",
+                "Ultra Search ensures that you have the best search experience possible. If you unenroll, you will lose access to these benefits. If you have any feedback or concerns, please consider visiting our report page.",
+                [
+                    {
+                        text: "Stay Enrolled",
+                        onPress: () => { }
+                    },
+                    {
+                        text: "Unenroll",
+                        onPress: this.upgradeHelper
+                    },
+                    {
+                        text: "Report",
+                        onPress: () => this.props?.navigation.navigate('Report')
+                    }
+                ]
+            )
+        }
+        else {
+            this.upgradeHelper();
+        }
     }
 
 

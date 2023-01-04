@@ -1,12 +1,13 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated, Pressable } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ScaleXView from "./components/ScaleXView";
 import { StateContext } from "./state_context";
-import webIcon from "./assets/web_icon.png"
-import incognitoIcon from "./assets/incognito.png"
+import webIcon from "./assets/web_icon.png";
+import incognitoIcon from "./assets/incognito.png";
+import * as Haptics from 'expo-haptics';
 
 class Tabs extends Component {
     static contextType = StateContext;
@@ -132,11 +133,57 @@ class Tabs extends Component {
                         </View>
                     }
                 </ScrollView>
+
+
                 <View style={styles.footer_options}>
-                    <MaterialIcons style={{ padding: 10 }} name="devices" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => { this?.context?.setCurrentDeviceName(null); this.props?.navigation.navigate("Your Devices"); }} />
-                    <Icon style={{ padding: 10 }} name="plus" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} onPress={() => this.addNewTab(false)} />
-                    <Icon style={{ padding: 10 }} name="history" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} onPress={() => this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })} />
-                    <Icon style={{ padding: 10 }} name="delete" size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={this.props.deleteAllTabs} />
+                    <Pressable
+                        onPress={() => {
+                            if (this?.context?.button_haptics !== 'none') {
+                                Haptics.impactAsync(this?.context?.button_haptics);
+                            }
+                            this?.context?.setCurrentDeviceName(null);
+                            this.props?.navigation.navigate("Your Devices");
+                        }}
+                        hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                    >
+                        <MaterialIcons style={{ padding: 10 }} name="devices" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} />
+                    </Pressable>
+
+                    <Pressable
+                        onPress={() => {
+                            if (this?.context?.button_haptics !== 'none') {
+                                Haptics.impactAsync(this?.context?.button_haptics);
+                            }
+                            this.addNewTab(false)
+                        }}
+                        hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                    >
+                        <Icon style={{ padding: 10 }} name="plus" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} />
+                    </Pressable>
+
+                    <Pressable
+                        onPress={() => {
+                            if (this?.context?.button_haptics !== 'none') {
+                                Haptics.impactAsync(this?.context?.button_haptics);
+                            }
+                            this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })
+                        }}
+                        hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                    >
+                        <Icon style={{ padding: 10 }} name="history" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} />
+                    </Pressable>
+
+                    <Pressable
+                        onPress={() => {
+                            if (this?.context?.button_haptics !== 'none') {
+                                Haptics.impactAsync(this?.context?.button_haptics);
+                            }
+                            this.props.deleteAllTabs();
+                        }}
+                        hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                    >
+                        <Icon style={{ padding: 10 }} name="delete" size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} />
+                    </Pressable>
                 </View>
             </View>
         )

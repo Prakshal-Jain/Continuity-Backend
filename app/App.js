@@ -19,16 +19,38 @@ import DeviceBrowserHistory from "./DeviceBrowserHistory";
 import BrowserWindow from "./BrowserWindow";
 import Login from './Login';
 import TabsManager from './TabsManager';
+import storage from "./utilities/storage";
+import * as Haptics from 'expo-haptics';
+import Report from './Report';
 
 const Stack = createStackNavigator();
 const socket = io("http://10.3.12.22");
 
 
 export default function () {
-  const colorScheme = useColorScheme();
+  const scheme = useColorScheme();
+  const [colorScheme, setColorScheme] = useState(scheme);
   const [credentials, setCredentials] = useState(null);
   const [currDeviceName, setCurrentDeviceName] = useState(null);
   const [devices, setDevices] = useState([]);
+  const [button_haptics, setButtonHaptics] = useState('none');
+
+  useEffect(() => {
+    (async () => {
+      let buttonHaptics = await storage.get("button_haptics");
+      if (buttonHaptics === Haptics.ImpactFeedbackStyle.Medium) {
+        setButtonHaptics(buttonHaptics);
+      }
+      else{
+        setButtonHaptics('none');
+      }
+
+      const color_scheme = await storage.get("color_scheme");
+      if (color_scheme === 'dark' || color_scheme === 'light') {
+        setColorScheme(color_scheme);
+      }
+    })();
+  }, []);
 
   const headerOptions = {
     headerStyle: {
@@ -41,7 +63,7 @@ export default function () {
   }
 
   return (
-    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme }}>
+    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics }}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Your Devices">
           <Stack.Screen
@@ -100,6 +122,10 @@ export default function () {
 
           <Stack.Screen name="Tabs" component={TabsManager}
             options={{ headerShown: false }}
+          />
+
+          <Stack.Screen name="Report" component={Report}
+            options={headerOptions}
           />
         </Stack.Navigator>
       </NavigationContainer>

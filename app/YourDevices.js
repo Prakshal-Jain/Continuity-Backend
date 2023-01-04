@@ -10,12 +10,14 @@ import {
     StatusBar,
     Image,
     TouchableOpacity,
+    Pressable,
 } from "react-native";
 import ScaleTouchableOpacity from './components/ScaleTouchableOpacity';
 import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
 import PreloadingScreen from './components/PreloadingScreen';
 import userIcon from "./assets/user.png";
+import * as Haptics from 'expo-haptics';
 
 class YourDevices extends Component {
     static contextType = StateContext;
@@ -129,17 +131,41 @@ class YourDevices extends Component {
                                 }
                             </ScrollView>
                             <View style={styles.footer_options} key="footer">
-                                <TouchableOpacity onPress={() => this.navigation.navigate('Help')}>
+                                <Pressable
+                                    onPress={() => {
+                                        if (this?.context?.button_haptics !== 'none') {
+                                            Haptics.impactAsync(this?.context?.button_haptics);
+                                        }
+                                        this.navigation.navigate('Help');
+                                    }}
+                                    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                                >
                                     <MaterialIcons name="help-outline" size={35} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
-                                </TouchableOpacity>
+                                </Pressable>
 
-                                <TouchableOpacity onPress={() => this.navigation.navigate('Settings')}>
+                                <Pressable
+                                    onPress={() => {
+                                        if (this?.context?.button_haptics !== 'none') {
+                                            Haptics.impactAsync(this?.context?.button_haptics);
+                                        }
+                                        this.navigation.navigate('Settings');
+                                    }}
+                                    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                                >
                                     <MaterialIcons name="settings" size={35} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
-                                </TouchableOpacity>
+                                </Pressable>
 
-                                <TouchableOpacity onPress={() => this.navigation.navigate('Profile')}>
+                                <Pressable
+                                    onPress={() => {
+                                        if (this?.context?.button_haptics !== 'none') {
+                                            Haptics.impactAsync(this?.context?.button_haptics);
+                                        }
+                                        this.navigation.navigate('Profile')
+                                    }}
+                                    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                                >
                                     <Image source={{ uri: this?.context?.credentials?.picture }} style={{ width: 35, height: 35, borderRadius: (35 / 2) }} defaultSource={userIcon} />
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </>
                     )

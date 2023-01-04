@@ -1,11 +1,11 @@
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function CheckBoxList({ selected, onSelect, ...props }) {
+export default function CheckBoxList({ selected, direction='row', onSelect, ...props }) {
 
     const styles = StyleSheet.create({
         list_container: {
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: direction,
             flex: 1,
             alignItems: 'center',
             justifyContent: 'center',

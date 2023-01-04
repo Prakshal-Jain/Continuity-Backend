@@ -1,17 +1,18 @@
+import { useContext } from "react";
 import {
     ScrollView,
     Text,
     StyleSheet,
-    useColorScheme,
     SafeAreaView,
     StatusBar,
     View,
     Linking
 } from "react-native";
+import { StateContext } from "./state_context";
 
 
 const PrivacyPolicy = () => {
-    const colorScheme = useColorScheme();
+    const { colorScheme } = useContext(StateContext);
 
     const styles = StyleSheet.create({
         root: {

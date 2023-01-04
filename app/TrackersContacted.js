@@ -3,7 +3,6 @@ import {
     ScrollView,
     Text,
     StyleSheet,
-    useColorScheme,
     SafeAreaView,
     StatusBar,
     View,

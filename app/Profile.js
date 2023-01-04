@@ -8,6 +8,7 @@ import {
     StatusBar,
     Image,
     TouchableOpacity,
+    Alert,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import storage from "./utilities/storage";
@@ -17,9 +18,10 @@ import randomColor from "randomcolor";
 import CheckBoxList from "./components/CheckBoxList";
 import Loader from "./components/Loader";
 import userIcon from "./assets/user.png";
+import * as Haptics from 'expo-haptics';
 
 export default function ({ navigation, ...props }) {
-    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices } = useContext(StateContext);
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, buttonHaptics } = useContext(StateContext);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [trackerCounts, setTrackerCounts] = useState(null);
     const [trackers, setTrackers] = useState(null);
@@ -188,7 +190,24 @@ export default function ({ navigation, ...props }) {
     })
 
     const onLogout = () => {
-        socket.emit("logout", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token });
+        if (buttonHaptics !== 'none') {
+            Haptics.impactAsync(buttonHaptics);
+        }
+
+        Alert.alert(
+            "Are you sure you wish to Sign Out?",
+            null,
+            [
+                {
+                    text: "Stay Signed In",
+                    onPress: () => { }
+                },
+                {
+                    text: "Sign Out",
+                    onPress: () => { socket.emit("logout", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token }); }
+                },
+            ]
+        )
     }
 
     const TrackerList = () => (

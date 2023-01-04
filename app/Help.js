@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
     StyleSheet,
     Text,
@@ -5,14 +6,12 @@ import {
     SafeAreaView,
     ScrollView,
     StatusBar,
-    useColorScheme,
-    Image,
-    TouchableOpacity,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { StateContext } from "./state_context";
 
 export default function () {
-    const colorScheme = useColorScheme();
+    const { colorScheme } = useContext(StateContext);
 
     const styles = StyleSheet.create({
         root: {

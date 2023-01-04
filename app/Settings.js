@@ -6,21 +6,25 @@ import {
     SafeAreaView,
     ScrollView,
     StatusBar,
-    useColorScheme,
-    Image,
     TouchableOpacity,
     Switch,
-    Button,
+    Pressable,
+    useColorScheme,
 } from "react-native";
 import React from "react";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StateContext } from "./state_context";
 import AlertMessage from "./components/AlertMessage";
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import storage from "./utilities/storage";
+import * as Haptics from 'expo-haptics';
 
 function Settings({ navigation, route }) {
-    const { colorScheme, credentials, socket, setCredentials } = useContext(StateContext);
+    const { colorScheme, setColorScheme, credentials, socket, setCredentials, button_haptics, setButtonHaptics } = useContext(StateContext);
 
     const { action_message, feature_name, icon_type } = route?.params ?? { action_message: undefined, feature_name: undefined };
+
+    const color_scheme = useColorScheme();
 
     useEffect(() => {
         socket.on("switch_feature", (data) => {
@@ -33,7 +37,7 @@ function Settings({ navigation, route }) {
         })
     }, [])
 
-    const Tiles = ({ icon, title, description, actionComponent, learnMore, learnMoreParams }) => {
+    const Tiles = ({ icon, title, description, actionComponent, moreInfoComponent }) => {
         const tileStyle = StyleSheet.create({
             container: {
                 backgroundColor: (colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -42,6 +46,7 @@ function Settings({ navigation, route }) {
                 padding: 15,
                 borderWidth: (feature_name === title) ? 2 : undefined,
                 borderColor: (feature_name === title) ? ((colorScheme === 'dark') ? 'rgba(255, 214, 10, 1)' : 'rgba(255, 149, 0, 1)') : undefined,
+                marginVertical: 15,
             },
 
             tileContainer: {
@@ -54,11 +59,6 @@ function Settings({ navigation, route }) {
                 fontSize: 20,
                 flex: 1,
                 fontWeight: "bold",
-            },
-
-            link: {
-                color: 'rgba(0, 122, 255, 1)',
-                fontSize: 15,
             },
 
             description: {
@@ -79,7 +79,7 @@ function Settings({ navigation, route }) {
                     </View>
                     {actionComponent}
                 </View>
-                {(learnMore !== null && learnMore !== undefined) && (
+                {(moreInfoComponent !== null && moreInfoComponent !== undefined) && (
                     <View>
                         <View
                             style={{
@@ -88,7 +88,7 @@ function Settings({ navigation, route }) {
                                 marginVertical: 15
                             }}
                         />
-                        <Text onPress={() => navigation.navigate(learnMore, learnMoreParams)} style={tileStyle.link}>Learn more</Text>
+                        {moreInfoComponent}
                     </View>
                 )}
             </View>
@@ -125,6 +125,21 @@ function Settings({ navigation, route }) {
             fontSize: 15,
             fontWeight: 'bold'
         },
+
+        option_container: {
+            padding: 5,
+            flex: 1,
+            marginVertical: 5,
+            marginHorizontal: 10,
+            borderWidth: 1,
+            borderColor: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            borderRadius: 10
+        },
+
+        link: {
+            color: 'rgba(0, 122, 255, 1)',
+            fontSize: 15,
+        },
     })
 
 
@@ -157,6 +172,23 @@ function Settings({ navigation, route }) {
     }
 
 
+    const SwitchColorScheme = () => (
+        <View style={{ padding: 10, flexDirection: 'row', alignItems: "center", justifyContent: "center" }}>
+            <FontAwesome5 name="moon" size={18} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+            <Switch
+                onValueChange={async () => {
+                    const scheme = (colorScheme === 'dark') ? 'light' : 'dark';
+                    setColorScheme(scheme);
+                    await storage.set('color_scheme', scheme);
+                }}
+                style={{ marginHorizontal: 10 }}
+                value={colorScheme === 'light'}
+            />
+            <FontAwesome5 name="sun" size={20} color='rgba(255, 149, 0, 1)' />
+        </View>
+    )
+
+
     return (
         <SafeAreaView style={styles.root}>
             <StatusBar animated={true}
@@ -175,9 +207,49 @@ function Settings({ navigation, route }) {
                         name="lightning-bolt"
                         style={{ fontSize: 25 }}
                         color="rgba(255, 149, 0, 1)" />}
-                    learnMore={"Ultra Search"}
-                    learnMoreParams={{ redirectScreen: 'Settings' }}
+                    moreInfoComponent={<Text onPress={() => navigation.navigate('Ultra Search', { redirectScreen: 'Settings' })} style={styles.link}>Learn more</Text>}
                     actionComponent={<UltraSearchActionComponent />}
+                />
+
+
+                <Tiles
+                    title="Appearence"
+                    description="Switch to toggle between dark and light themes."
+                    icon={<MaterialCommunityIcons
+                        name="theme-light-dark"
+                        style={{ fontSize: 25 }}
+                        color="rgba(255, 149, 0, 1)" />}
+                    moreInfoComponent={
+                        <Text
+                            onPress={() => {
+                                setColorScheme(color_scheme);
+                            }}
+                            style={styles.link}>
+                            Set automatically
+                        </Text>
+                    }
+                    actionComponent={<SwitchColorScheme />}
+                />
+
+                <Tiles
+                    title="Haptic Feedback"
+                    description="Switch to enable or disable haptic feedback."
+                    icon={<MaterialCommunityIcons
+                        name="vibrate"
+                        style={{ fontSize: 25 }}
+                        color="rgba(255, 149, 0, 1)" />}
+                    actionComponent={
+                        <Switch
+                            onValueChange={async () => {
+                                const haptics = (button_haptics === Haptics.ImpactFeedbackStyle.Medium) ? 'none' : Haptics.ImpactFeedbackStyle.Medium;
+                                setButtonHaptics(haptics);
+                                await storage.set('button_haptics', haptics);
+                            }}
+                            
+                            style={{ marginHorizontal: 10 }}
+                            value={button_haptics === Haptics.ImpactFeedbackStyle.Medium}
+                        />
+                    }
                 />
             </ScrollView>
         </SafeAreaView>
