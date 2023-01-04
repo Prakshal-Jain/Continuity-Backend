@@ -119,13 +119,13 @@ export default function (props) {
             borderWidth: 0.1,
             borderColor: '#171717',
             alignItems: "center",
-            backgroundColor: (colorScheme === 'dark') ? '#171717' : '#f8f8ff'
+            backgroundColor: (colorScheme === 'dark' || incognito) ? '#171717' : '#f8f8ff'
         },
 
         searchBox: {
             flex: 1,
             marginRight: 8,
-            color: (colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'
+            color: (colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'
         },
 
         incognitoContainer: {
@@ -455,11 +455,11 @@ export default function (props) {
                                 />
                                 {isInputFocused ?
                                     (
-                                        <Icon name="close-circle-outline" size={20} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} onPress={() => setIntermediateURL(null)} />
+                                        <Icon name="close-circle-outline" size={20} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} onPress={() => setIntermediateURL(null)} />
                                     )
                                     :
                                     (
-                                        refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />
+                                        refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />
                                     )}
                             </Animated.View>
                         </View>
