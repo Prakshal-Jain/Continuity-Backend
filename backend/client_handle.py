@@ -16,11 +16,11 @@ privacy_report = db['privacy_report_data']
 ultra_search = db['ultra_search']
 history = db['history']
 notification = db['notification']
+feedback = db['feedback']
 
 privacy_report.create_index('expireAt', expireAfterSeconds=0)
 history.create_index('expireAt', expireAfterSeconds=0)
 notification.create_index('ttl', expireAfterSeconds=0)
-
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
@@ -166,7 +166,6 @@ class ClientHandleNamespace(Namespace):
                                     }
                     }
             users.insert_one(user)
-
         elif user.get('devices').get(data.get('device_name')) == None:
             device_token = self.__check_for_same_token(device_token, user.get('tabs_data'))
             devices = user.get('devices')
@@ -183,6 +182,10 @@ class ClientHandleNamespace(Namespace):
                  },
                  to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
         else:
+            if data.get('device_type') != user.get('devices').get(data.get('device_name')):
+                emit('login', {'successful': False, 'message': 'Error: Device with same name already registered use a different name'})
+                return
+
             device_tabs_data = user.get('tabs_data').get(data.get('device_name'))
             
             if device_tabs_data.get('device_token', None) is not None:
@@ -574,6 +577,24 @@ class ClientHandleNamespace(Namespace):
         notification.update_one({'_id': ObjectId(notification_id)}, {'$set': {'ack': True}})
 
         emit('notification_ack', {'successful': True})
+    
+    def on_report_feedback(self, data):
+        user_id = data.get('user_id')
+
+        user = users.find_one({'user_id': user_id})
+
+        if not self.__authenticate_device('report_feedback', user, data):
+            return
+        
+        user_feedback = data.get('feedback')
+        
+        feedback.insert_one({'user_id': user_id, 'feedback': user_feedback})
+
+        emit('report_feedback', {'successful': True})
+
+    def on_get_feedback(self):
+        user_feedback = list(feedback.find({}, {'_id': 0}))
+        emit('get_feedback', {'successful': True, 'message': user_feedback})
 
     def on_auto_authenticate(self, data):
         device_name = data.get('device_name')
