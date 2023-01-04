@@ -65,7 +65,6 @@ export default function (props) {
     const [isFirstRequest, setIsFirstRequest] = useState(true);
     const [isInputFocused, setIsInputFocused] = useState(false);
 
-
     const setURL = (u) => {
         setURLHelper(u);
         setIntermediateURL(u);
@@ -381,6 +380,60 @@ export default function (props) {
         }
     }
 
+    const barRef = useRef(0);
+    const [isScrollUp, setIsScrollUp] = useState(true);
+    const scrollAnim = useRef(new Animated.Value(0)).current;
+
+    const translation = scrollAnim.interpolate({
+        inputRange: [0, 100],
+        outputRange: [100, 0],
+        extrapolate: 'clamp',
+    });
+
+    const opacityAnim = scrollAnim.interpolate({
+        inputRange: [0, 100],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+    });
+
+    const handleScroll = (event) => {
+        const currentYPosition = event.nativeEvent.contentOffset.y;
+        const oldPosition = barRef.current;
+        if (currentYPosition < 30) {
+            if (!isScrollUp) {
+                setIsScrollUp(true);
+                Animated.timing(scrollAnim, {
+                    toValue: 100,
+                    duration: 300,
+                    useNativeDriver: true
+                }).start();
+            }
+        }
+        else {
+            if (oldPosition < currentYPosition) {
+                if (isScrollUp) {
+                    setIsScrollUp(false);
+                    Animated.timing(scrollAnim, {
+                        toValue: 0,
+                        duration: 300,
+                        useNativeDriver: true
+                    }).start();
+                }
+            }
+            else {
+                if (!isScrollUp) {
+                    setIsScrollUp(true);
+                    Animated.timing(scrollAnim, {
+                        toValue: 100,
+                        duration: 300,
+                        useNativeDriver: true
+                    }).start();
+                }
+            }
+        }
+        barRef.current = currentYPosition;
+    }
+
     return (
         <SafeAreaView style={styles.root}>
             <StatusBar animated={true}
@@ -422,11 +475,13 @@ export default function (props) {
                             allowsBackForwardNavigationGestures={true}
                             mediaPlaybackRequiresUserAction={true}
                             onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
+                            style={{ backgroundColor: (colorScheme === 'dark' || incognito) ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', flex: 1 }}
+                            onScroll={handleScroll}
                         />
                     )
                 }
 
-                <Animated.View>
+                <Animated.View style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}>
                     <LinearGradient
                         // Button Linear Gradient
                         colors={[(colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
@@ -447,7 +502,7 @@ export default function (props) {
                                     selectTextOnFocus={true}
                                     onFocus={() => setIsInputFocused(true)}
                                     onBlur={() => {
-                                        if(url !== intermediateURL){
+                                        if (url !== intermediateURL) {
                                             setURL(url);
                                         }
                                         setIsInputFocused(false);
