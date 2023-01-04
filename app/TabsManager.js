@@ -18,6 +18,7 @@ class TabsManager extends React.Component {
         }
     }
 
+
     componentDidMount() {
         this.setState({ tabs_data: this?.context?.devices.filter(device => device.device_name === this?.context?.currDeviceName)[0] }, () => {
             this?.context?.socket.emit("get_my_tabs", { "user_id": this?.context?.credentials?.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name })
@@ -155,6 +156,8 @@ class TabsManager extends React.Component {
                     }).start();
                 })
             }
+
+            this?.context?.setCanGoBackToYourDevices(false);
         }
         else {
             Animated.timing(this.state.tabs?.get(this.state.currOpenTab)?.animation, {
@@ -164,6 +167,7 @@ class TabsManager extends React.Component {
             }).start(() => {
                 this.setState({ currOpenTab: tabIdx });
             });
+            this?.context?.setCanGoBackToYourDevices(true);
         }
     }
 

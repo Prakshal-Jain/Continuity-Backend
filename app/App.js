@@ -34,6 +34,7 @@ export default function () {
   const [currDeviceName, setCurrentDeviceName] = useState(null);
   const [devices, setDevices] = useState([]);
   const [button_haptics, setButtonHaptics] = useState('none');
+  const [canGoBackToYourDevices, setCanGoBackToYourDevices] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -41,7 +42,7 @@ export default function () {
       if (buttonHaptics === Haptics.ImpactFeedbackStyle.Medium) {
         setButtonHaptics(buttonHaptics);
       }
-      else{
+      else {
         setButtonHaptics('none');
       }
 
@@ -63,7 +64,7 @@ export default function () {
   }
 
   return (
-    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics }}>
+    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics, canGoBackToYourDevices, setCanGoBackToYourDevices }}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Your Devices">
           <Stack.Screen
@@ -121,7 +122,7 @@ export default function () {
           />
 
           <Stack.Screen name="Tabs" component={TabsManager}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, gestureEnabled: canGoBackToYourDevices }}
           />
 
           <Stack.Screen name="Report" component={Report}

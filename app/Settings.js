@@ -221,8 +221,9 @@ function Settings({ navigation, route }) {
                         color="rgba(255, 149, 0, 1)" />}
                     moreInfoComponent={
                         <Text
-                            onPress={() => {
+                            onPress={async () => {
                                 setColorScheme(color_scheme);
+                                storage.remove('color_scheme');
                             }}
                             style={styles.link}>
                             Set automatically
@@ -245,7 +246,7 @@ function Settings({ navigation, route }) {
                                 setButtonHaptics(haptics);
                                 await storage.set('button_haptics', haptics);
                             }}
-                            
+
                             style={{ marginHorizontal: 10 }}
                             value={button_haptics === Haptics.ImpactFeedbackStyle.Medium}
                         />
