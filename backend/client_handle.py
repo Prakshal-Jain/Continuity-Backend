@@ -124,25 +124,19 @@ class ClientHandleNamespace(Namespace):
         
         return request_sid_list
     
-    def __send_notification(self, user_id, new_user=False):
-        all_notifications = notification.find({'user_record': True, 'user_id': user_id, 'ack': False})
-
-        all_notifications = list(all_notifications)
+    def __send_notification_count(self, user_id, new_user=False):
+        notification_count = notification.count_documents({'user_record': True, 'user_id': user_id, 'ack': False})
         
         if new_user:
+            notification_count = 0
             all_notifications = notification.find({'message_record': True})
-
-        for n in all_notifications:
-            message = n.get('message')
-            id = n.get('_id')
-            if new_user:
-                result = notification.insert_one({'user_record': True, 'user_id': user_id, 'message': message, 'ttl': n.get('ttl'), 'ack': False})
-                id = result.inserted_id
-
-            message.update({'id': str(id)})
-            emit('notification', message)
+            for n in all_notifications:
+                notification_count+=1
+                message = {'message': n.get('message')}
+                notification.insert_one({'user_record': True, 'user_id': user_id, 'message': message, 'ttl': n.get('ttl'), 'ack': False})
         
-
+        emit('notification_count', {'successful': True, 'message': {'notification_count': notification_count}})
+        
     def on_login(self, data):
         ClientHandleNamespace.devices_in_use[data.get('user_id')] = ClientHandleNamespace.devices_in_use.get(data.get('user_id'), {})
         ClientHandleNamespace.devices_in_use[data.get('user_id')][data.get('device_name')] = request.sid
@@ -208,7 +202,7 @@ class ClientHandleNamespace(Namespace):
         emit('login', {'successful': True, "message": credentials})
         emit('all_devices', {'successful': True, 'message': self.__get_tabs_data(user)})
 
-        self.__send_notification(data.get('user_id'), new_user)
+        self.__send_notification_count(data.get('user_id'), new_user)
 
         sys.stderr.flush()
         sys.stdout.flush()
@@ -545,51 +539,59 @@ class ClientHandleNamespace(Namespace):
         
         emit('delete_history', {'successful': True, 'message': {'is_delete_all': is_delete_all, 'id': id}})
 
-    def on_send_notification(self, data):
-        send_to = data.get('send_to')
+    def on_set_notification(self, data):
+        send_to = data.get('send_to', set())
         ttl = datetime.utcnow() + timedelta(days=int(data.get('ttl')))
         message = {'message': data.get('message')}
 
-        if send_to == None:
-            notification.insert_one({'message_record': True, 'message': message, 'ttl': ttl})
-            send_to = users.find({}, {'user_id': 1})
+        if send_to == set():
+            notification.insert_one({'message_record': True, 'message': message, 'ttl': ttl})        
+            send_to = [u.get('user_id') for u in users.find({}, {'user_id': 1})]
         
         for user in send_to:
-            user_id = user.get('user_id')
-            currently_connected_devices = list(ClientHandleNamespace.devices_in_use.get(user_id).values())        
-            result = notification.insert_one({'user_record': True, 'user_id': user_id, 'message': message, 'ttl': ttl, 'ack': False})
-            message.update({'id': str(result.inserted_id)})
-            if currently_connected_devices != []:
-                emit('notification', message, to=currently_connected_devices)
-        
-        emit('send_notification', {'successful': True})
-        
-    def on_notification_ack(self, data):
-        user_id = data.get('user_id')
+            notification.insert_one({'user_record': True, 'user_id': user, 'message': message, 'ttl': ttl, 'ack': False})
 
+        emit('set_notification', {'successful': True})
+        
+    def on_ack_notification(self, data):
+        user_id = data.get('user_id')
         user = users.find_one({'user_id': user_id})
 
-        if not self.__authenticate_device('notification_ack', user, data):
+        if not self.__authenticate_device('ack_notification', user, data):
             return
         
         notification_id = data.get('id')
-
         notification.update_one({'_id': ObjectId(notification_id)}, {'$set': {'ack': True}})
+        emit('ack_notification', {'successful': True})
+    
+    def on_get_notification(self, data):
+        user_id = data.get('user_id')
+        user = users.find_one({'user_id': user_id})
 
-        emit('notification_ack', {'successful': True})
+        if not self.__authenticate_device('get_notification', user, data):
+            return
+
+        all_notifications = notification.find({'user_record': True, 'user_id': user_id, 'ack': False})
+        notifications_to_send = []
+
+        for n in all_notifications:
+            message = n.get('message')
+            id = n.get('_id')
+            message.update({'id': str(id)})
+            notifications_to_send.append(message)
+        
+        emit('get_notification', {'successful': True, 'message': notifications_to_send})
+
     
     def on_report_feedback(self, data):
         user_id = data.get('user_id')
-
         user = users.find_one({'user_id': user_id})
 
         if not self.__authenticate_device('report_feedback', user, data):
             return
         
         user_feedback = data.get('feedback')
-        
         feedback.insert_one({'user_id': user_id, 'feedback': user_feedback})
-
         emit('report_feedback', {'successful': True})
 
     def on_get_feedback(self):
@@ -625,7 +627,7 @@ class ClientHandleNamespace(Namespace):
                 emit('all_devices', {'successful': True,
                      'message': self.__get_tabs_data(user)})
                 ClientHandleNamespace.devices_in_use[user_id_from_data][device_name] = request.sid
-                self.__send_notification(d.get('user_id'))
+                self.__send_notification_count(d.get('user_id'))
                 return
         emit('auto_authenticate', {'successful': False, 'message': 'Error: User not found'})
 

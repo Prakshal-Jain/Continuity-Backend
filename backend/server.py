@@ -21,7 +21,7 @@ def error_handler(e):
     logging.exception(f"\n ============================================================ \n Exception occurred \n Event: {request.event['message']}\n Data: {request.event['args']} \n Error: \n")
     data = open('error.log').read()
     print(data, flush=True)
-    emit('error_occured', data)
+    emit(request.event['message'], {'successful': False, 'message': data})
 
 if __name__ == '__main__':
     socketio.on_namespace(ClientHandleNamespace('/'))

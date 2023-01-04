@@ -132,25 +132,30 @@
       console.log(data);
     });
 
-    socket.on('send_notification', function(data) {
-      console.log("send_notification");
+    socket.on('set_notification', function(data) {
+      console.log("set_notification");
       console.log(data);
       console.log("========================")
     });
 
-    socket.on('notification', function(data) {
-      console.log("notification");
+    socket.on('get_notification', function(data) {
+      console.log("get_notification");
       console.log(data);
       console.log("========================")
     });
 
-    socket.on('notification_ack', function(data) {
-      console.log("notification_ack");
+    socket.on('ack_notification', function(data) {
+      console.log("ack_notification");
       console.log(data);
       console.log("========================")
     });
 
-
+    socket.on('notification_count', function(data) {
+      console.log("notification_count");
+      console.log(data);
+      console.log("========================")
+    });
+    
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
     }
@@ -223,8 +228,13 @@
     }
 
     function set_notification(){
-      socket.emit("send_notification", {'message': 'hello'});
+      socket.emit("set_notification", {'message': 'hello', 'ttl': 1});
     }
+
+    function get_notification(){
+      socket.emit("get_notification", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -244,7 +254,8 @@
     <button onclick="privacy_report();">privacy_report</button>
     <button onclick="set_history();">set_history</button>
     <button onclick="get_history();">get_history</button>
-    <button onclick="set_notification();">get_history</button>
+    <button onclick="set_notification();">set_notification</button>
+    <button onclick="get_notification();">get_notification</button>
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>
