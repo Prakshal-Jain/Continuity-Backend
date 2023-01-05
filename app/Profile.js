@@ -212,8 +212,8 @@ export default function ({ navigation, ...props }) {
 
     const TrackerList = () => (
         websites?.map((x, i) => (
-            <TouchableOpacity style={[styles.websiteContainer, { borderColor: colors[i] }]} key={`website_${i}`} onPress={() => navigation.navigate('Trackers Contacted', { website: x, tracker: trackers[i], count: trackerCounts[i], color: colors[i] })}>
-                <View style={[styles.websiteColorCode, { backgroundColor: colors[i] }]}></View>
+            <TouchableOpacity style={[styles.websiteContainer, { borderColor: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] }]} key={`website_${i}`} onPress={() => navigation.navigate('Trackers Contacted', { website: x, tracker: trackers[i], count: trackerCounts[i], color: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] })}>
+                <View style={[styles.websiteColorCode, { backgroundColor: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] }]}></View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.websiteName}>{x}</Text>
                     <Text style={styles.trackerCountStyle}><Text style={{ fontWeight: "bold" }}>{trackerCounts[i]}</Text> Trackers Contacted</Text>
@@ -225,16 +225,15 @@ export default function ({ navigation, ...props }) {
 
     const all_devices = devices.map(({ device_name }) => ({ id: device_name, label: device_name }));
 
-    const colorOptions = { luminosity: colorScheme === "light" ? "dark" : "light" }
-
-    const colors = Array((trackerCounts?.length) ?? 0).fill(0).map(_ => randomColor(colorOptions));
+    const colors_light = ['rgb(255, 59, 48)', 'rgb(245, 59, 173)', 'rgb(255, 149, 0)', 'rgb(255, 204, 0)', 'rgb(175, 82, 222)', 'rgb(88, 86, 214)', "rgb(52, 199, 89)", "rgb(50, 173, 230)", "rgb(0, 122, 255)", "rgb(162, 132, 94)"];
+    const colors_dark = ['rgb(255, 69, 58)', 'rgb(245, 73, 178)', 'rgb(255, 159, 10)', 'rgb(255, 214, 10)', 'rgb(191, 90, 242)', 'rgb(94, 92, 230)', "rgb(48, 209, 88)", "rgb(100, 210, 255)", "rgb(10, 132, 255)", "rgb(172, 142, 104)"];
 
     const pieData = trackerCounts
         ?.map((value, index) => ({
             value,
             svg: {
-                fill: colors[index],
-                onPress: () => navigation.navigate('Trackers Contacted', { website: websites[index], tracker: trackers[index], count: value, color: colors[index] })
+                fill: (colorScheme === 'dark') ? colors_dark[index] : colors_light[index],
+                onPress: () => navigation.navigate('Trackers Contacted', { website: websites[index], tracker: trackers[index], count: value, color: (colorScheme === 'dark') ? colors_dark[index] : colors_light[index] })
             },
             key: `pie-${index}`,
         }))

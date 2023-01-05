@@ -481,7 +481,9 @@ export default function (props) {
                     )
                 }
 
-                <Animated.View style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}>
+                <Animated.View
+                    // style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}
+                >
                     <LinearGradient
                         // Button Linear Gradient
                         colors={[(colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
