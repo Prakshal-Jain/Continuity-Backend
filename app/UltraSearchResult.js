@@ -108,6 +108,7 @@ class UltraSearchResult extends Component {
                             placeholderTextColor="rgba(142, 142, 147, 1)"
                             multiline={true}
                             selectTextOnFocus={true}
+                            editable={!this.state.loading}
                         />
                         <TouchableOpacity style={styles.ultraSearchBtn} onPress={this.emitPrompt}>
                             <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />

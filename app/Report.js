@@ -62,7 +62,7 @@ const Report = () => {
                 <View style={{ padding: 15 }}>
                     <TextInput
                         onChangeText={() => { }}
-                        style={{ flex: 1, color: '#000', paddingTop: 12, paddingBottom: 12, paddingLeft: 12, backgroundColor: 'rgba(242, 242, 247, 1)', borderRadius: 10 }}
+                        style={{ flex: 1, color: '#000', paddingTop: 12, paddingBottom: 12, paddingLeft: 12, backgroundColor: 'rgba(242, 242, 247, 1)', borderRadius: 10, borderWidth: 1, borderColor: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}
                         returnKeyType="return"
                         placeholder="Add your feedback here..."
                         placeholderTextColor="rgba(142, 142, 147, 1)"

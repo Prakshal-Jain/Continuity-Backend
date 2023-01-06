@@ -115,8 +115,6 @@ export default function (props) {
             flexDirection: 'row',
             justifyContent: "space-between",
             padding: 12,
-            borderWidth: 0.1,
-            borderColor: '#171717',
             alignItems: "center",
             backgroundColor: (colorScheme === 'dark' || incognito) ? '#171717' : '#f8f8ff'
         },
@@ -435,104 +433,99 @@ export default function (props) {
     }
 
     return (
-        <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
-            <KeyboardAvoidingView
-                {...(Platform.OS === 'ios' ? { behavior: 'padding' } : {})}
-                style={{
-                    width: "100%",
-                    ...styles.root,
-                }}
+        <KeyboardAvoidingView
+            {...(Platform.OS === 'ios' ? { behavior: 'padding' } : {})}
+            style={{
+                width: "100%",
+                ...styles.root,
+            }}
+        >
+            {(incognito && (url === null))
+                ?
+                (
+                    <IncognitoDescription />
+                )
+                :
+                (
+                    <WebView
+                        ref={browserRef}
+                        originWhitelist={['*']}
+                        source={{ uri: url }}
+                        onLoad={onBrowserLoad}
+                        onLoadStart={() => setRefreshing(true)}
+                        onLoadEnd={() => setRefreshing(false)}
+                        onError={onBrowserError}
+                        onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+                        onNavigationStateChange={onNavigationStateChange}
+                        onMessage={onBrowserMessage}
+                        dataDetectorTypes={config.detectorTypes}
+                        thirdPartyCookiesEnabled={config.allowCookies}
+                        domStorageEnabled={config.allowStorage}     // Allow webview to use localStorage and sessionStorage APIs.
+                        javaScriptEnabled={config.allowJavascript}
+                        geolocationEnabled={config.allowLocation}
+                        cacheEnabled={config.allowCaching}
+                        injectedJavaScript={injectedJavaScript}
+                        pullToRefreshEnabled={true}
+                        allowsBackForwardNavigationGestures={true}
+                        mediaPlaybackRequiresUserAction={true}
+                        onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
+                        style={{ backgroundColor: (colorScheme === 'dark' || incognito) ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', flex: 1 }}
+                        onScroll={handleScroll}
+                    />
+                )
+            }
+
+            <Animated.View
+            // style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}
             >
-                {(incognito && (url === null))
-                    ?
-                    (
-                        <IncognitoDescription />
-                    )
-                    :
-                    (
-                        <WebView
-                            ref={browserRef}
-                            originWhitelist={['*']}
-                            source={{ uri: url }}
-                            onLoad={onBrowserLoad}
-                            onLoadStart={() => setRefreshing(true)}
-                            onLoadEnd={() => setRefreshing(false)}
-                            onError={onBrowserError}
-                            onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-                            onNavigationStateChange={onNavigationStateChange}
-                            onMessage={onBrowserMessage}
-                            dataDetectorTypes={config.detectorTypes}
-                            thirdPartyCookiesEnabled={config.allowCookies}
-                            domStorageEnabled={config.allowStorage}     // Allow webview to use localStorage and sessionStorage APIs.
-                            javaScriptEnabled={config.allowJavascript}
-                            geolocationEnabled={config.allowLocation}
-                            cacheEnabled={config.allowCaching}
-                            injectedJavaScript={injectedJavaScript}
-                            pullToRefreshEnabled={true}
-                            allowsBackForwardNavigationGestures={true}
-                            mediaPlaybackRequiresUserAction={true}
-                            onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
-                            style={{ backgroundColor: (colorScheme === 'dark' || incognito) ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', flex: 1 }}
-                            onScroll={handleScroll}
-                        />
-                    )
-                }
-
-                <Animated.View
-                // style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}
+                <LinearGradient
+                    // Button Linear Gradient
+                    colors={[(colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
+                    style={styles.browserBar}
                 >
-                    <LinearGradient
-                        // Button Linear Gradient
-                        colors={[(colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)', (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)']}
-                        style={styles.browserBar}
-                    >
-                        <View style={styles.layers}>
-                            <Animated.View style={styles.browserAddressBar}>
-                                <TextInput
-                                    onChangeText={setIntermediateURL}
-                                    value={intermediateURL}
-                                    style={styles.searchBox}
-                                    returnKeyType="search"
-                                    autoCapitalize='none'
-                                    onSubmitEditing={loadURL}
-                                    editable={true}
-                                    placeholder="Search or enter a website"
-                                    placeholderTextColor="rgba(142, 142, 147, 1)"
-                                    selectTextOnFocus={true}
-                                    onFocus={() => setIsInputFocused(true)}
-                                    onBlur={() => {
-                                        if (url !== intermediateURL) {
-                                            setURL(url);
-                                        }
-                                        setIsInputFocused(false);
-                                    }}
-                                />
-                                {isInputFocused ?
-                                    (
-                                        <Icon name="close-circle-outline" size={20} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} onPress={() => setIntermediateURL(null)} />
-                                    )
-                                    :
-                                    (
-                                        refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />
-                                    )}
-                            </Animated.View>
-                        </View>
+                    <View style={styles.layers}>
+                        <Animated.View style={styles.browserAddressBar}>
+                            <TextInput
+                                onChangeText={setIntermediateURL}
+                                value={intermediateURL}
+                                style={styles.searchBox}
+                                returnKeyType="search"
+                                autoCapitalize='none'
+                                onSubmitEditing={loadURL}
+                                editable={true}
+                                placeholder="Search or enter a website"
+                                placeholderTextColor="rgba(142, 142, 147, 1)"
+                                selectTextOnFocus={true}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => {
+                                    if (url !== intermediateURL) {
+                                        setURL(url);
+                                    }
+                                    setIsInputFocused(false);
+                                }}
+                            />
+                            {isInputFocused ?
+                                (
+                                    <Icon name="close-circle-outline" size={20} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} onPress={() => setIntermediateURL(null)} />
+                                )
+                                :
+                                (
+                                    refreshing ? <ActivityIndicator size="small" /> : <Icon name="refresh" size={20} onPress={reload} color={(colorScheme === 'dark' || incognito) ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)'} />
+                                )}
+                        </Animated.View>
+                    </View>
 
-                        <View style={styles.layers}>
-                            <Icon name="chevron-left" size={30} onPress={goBack} style={{ color: canGoBack ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
-                            <Icon name="export-variant" size={25} onPress={onShare} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            {(!incognito) && (
-                                <Icon name="lightning-bolt" size={30} onPress={ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
-                            )}
-                            <Ionicons name="ios-copy-outline" size={25} onPress={() => props?.switchCurrOpenWindow(-1)} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            <Icon name="chevron-right" size={30} onPress={goForward} style={{ color: canGoForward ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
-                        </View>
-                    </LinearGradient>
-                </Animated.View>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+                    <View style={styles.layers}>
+                        <Icon name="chevron-left" size={30} onPress={goBack} style={{ color: canGoBack ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
+                        <Icon name="export-variant" size={25} onPress={onShare} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                        {(!incognito) && (
+                            <Icon name="lightning-bolt" size={30} onPress={ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
+                        )}
+                        <Ionicons name="ios-copy-outline" size={25} onPress={() => props?.switchCurrOpenWindow(-1)} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
+                        <Icon name="chevron-right" size={30} onPress={goForward} style={{ color: canGoForward ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
+                    </View>
+                </LinearGradient>
+            </Animated.View>
+        </KeyboardAvoidingView>
     )
 }

@@ -40,8 +40,14 @@ class Tabs extends Component {
     renderSearchWithTabs = (tabs) => (
         <View>
             <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
+            {this.props.isIncognitoView && (
+                <View style={{ paddingTop: 15, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                    <Icon name="incognito-circle" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(true)} />
+                    <Text style={{ marginLeft: 5, fontWeight: "bold", textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }}>Incognito Mode</Text>
+                </View>
+            )}
             <View style={[styles.searchBar, { backgroundColor: this.props.isIncognitoView ? 'rgba(58, 58, 60, 1)' : 'rgba(229, 229, 234, 1)' }]}>
-                <View style={{ flexDirection: 'row', justifyContent: "space-between", }}>
+                <View style={{ flexDirection: 'row', justifyContent: "space-between", alignItems: "center" }}>
                     <FontAwesome name="search" style={{ fontSize: 18 }} color={this.props.isIncognitoView ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} />
                     <TextInput
                         onChangeText={this.onSearch}
@@ -63,10 +69,6 @@ class Tabs extends Component {
     renderRegularTabs = () => {
         const tabs = [];
         const filtered = Array.from(this.props.metadata ?? []).filter(([key, metadata]) => ((!metadata?.is_incognito) && ((metadata?.title?.toLowerCase()?.includes(this.state.searchQuery?.toLowerCase())) || (metadata?.url?.toLowerCase()?.includes(this.state.searchQuery?.toLowerCase())))))
-
-        if (filtered?.length === 0) {
-            return this.renderNoOpenTabs();
-        }
 
         for (const [key, tab] of filtered) {
             const deleteScaleRef = new Animated.Value(1);
@@ -105,10 +107,6 @@ class Tabs extends Component {
     renderIncognitoTabs = () => {
         const tabs = [];
         const filtered = Array.from(this.props.metadata ?? []).filter(([key, metadata]) => ((metadata?.is_incognito) && ((metadata?.title?.toLowerCase()?.includes(this.state.searchQuery?.toLowerCase())) || (metadata?.url?.toLowerCase()?.includes(this.state.searchQuery?.toLowerCase())))))
-
-        if (filtered?.length === 0) {
-            return this.renderNoOpenTabs();
-        }
 
         for (const [key, tab] of filtered) {
             const deleteScaleRef = new Animated.Value(1);
@@ -174,18 +172,23 @@ class Tabs extends Component {
                     }
                 </View>
 
-                <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }}>
+                <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
+                    <RefreshControl
+                        refreshing={this.props.loading}
+                        onRefresh={this.props.refreshTabs}
+                    />
+                }>
                     {this.props.loading === true ?
                         (
-                            <Loader message="Fetching your tabs like a good doggo..." />
+                            <Loader message="Fetching your tabs like a good doggo..." showActivityIndicator={false} />
                         )
                         :
                         (
                             (this.props.isIncognitoView)
                                 ?
-                                this.renderSearchWithTabs(incognitoTabsList)
+                                (tabCount === 0 ? this.renderNoOpenTabs() : this.renderSearchWithTabs(incognitoTabsList))
                                 :
-                                this.renderSearchWithTabs(regularTabsList)
+                                (tabCount === 0 ? this.renderNoOpenTabs() : this.renderSearchWithTabs(regularTabsList))
                         )
                     }
                 </ScrollView>
@@ -305,14 +308,12 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 12,
         margin: 20,
-        borderWidth: 0.1,
-        borderColor: 'rgba(44, 44, 46, 1)',
-        alignItems: "center"
     },
     searchBox: {
         flex: 1,
         marginHorizontal: 10,
-        fontSize: 15
+        fontSize: 15,
+        borderWidth: 0,
     },
 });
 

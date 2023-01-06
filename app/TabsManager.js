@@ -264,7 +264,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         display: 'flex',
-        padding: 10,
     },
     browser: {
         flex: 1,
