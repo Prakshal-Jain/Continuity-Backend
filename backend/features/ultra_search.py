@@ -14,6 +14,6 @@ def ultra_search_query(data):
             return None
         
         response = completion.get('choices')[0].get('text', '').strip()
-        return {'response': response, 'prompt': prompt.strip()}
+        return {'response': response, 'prompt': prompt}
     except:
         return None

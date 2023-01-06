@@ -482,7 +482,7 @@ export default function (props) {
                 }
 
                 <Animated.View
-                    // style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}
+                // style={isInputFocused ? {} : { transform: [{ translateY: translation }], position: 'absolute', bottom: 0, left: 0, right: 0, opacity: opacityAnim }}
                 >
                     <LinearGradient
                         // Button Linear Gradient
@@ -524,7 +524,9 @@ export default function (props) {
                         <View style={styles.layers}>
                             <Icon name="chevron-left" size={30} onPress={goBack} style={{ color: canGoBack ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoBack} />
                             <Icon name="export-variant" size={25} onPress={onShare} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
-                            <Icon name="lightning-bolt" size={30} onPress={ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
+                            {(!incognito) && (
+                                <Icon name="lightning-bolt" size={30} onPress={ultraSearchFunc()} color="rgba(255, 149, 0, 1)" />
+                            )}
                             <Ionicons name="ios-copy-outline" size={25} onPress={() => props?.switchCurrOpenWindow(-1)} color={(colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)'} />
                             <Icon name="chevron-right" size={30} onPress={goForward} style={{ color: canGoForward ? ((colorScheme === 'dark') ? 'rgba(242, 242, 247, 1)' : 'rgba(44, 44, 46, 1)') : ((colorScheme === 'dark') ? 'rgba(44, 44, 46, 1)' : 'rgba(242, 242, 247, 1)') }} disabled={!canGoForward} />
                         </View>

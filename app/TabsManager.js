@@ -208,7 +208,7 @@ class TabsManager extends React.Component {
         const tabs = [];
         for (const [key, { browser, animation }] of this.state.tabs) {
             tabs.push(
-                <Animated.View style={[styles.browser, { display: (this.state.currOpenTab !== key) ? 'none' : undefined, transform: [{ scale: animation }] }]} key={key}>
+                <Animated.View style={[styles.browser, { display: (this.state.currOpenTab !== key) ? 'none' : undefined, transform: [{ scale: animation }], opacity: animation }]} key={key}>
                     {browser}
                 </Animated.View>)
         }

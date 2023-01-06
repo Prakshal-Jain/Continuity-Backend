@@ -223,7 +223,7 @@ function Settings({ navigation, route }) {
                         <Text
                             onPress={async () => {
                                 setColorScheme(color_scheme);
-                                storage.remove('color_scheme');
+                                await storage.remove('color_scheme');
                             }}
                             style={styles.link}>
                             Set automatically

@@ -1,0 +1,34 @@
+{
+    "name": "Continuity",
+    "description": "Seamlessly syncs all your tabs across multiple devices in real time.",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {},
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "all_frames": true,
+            "js": [
+                "content.js",
+                "websocket.js"
+            ],
+            "html": [
+                "background.html"
+            ]
+        }
+    ],
+    "permissions": [
+        "tabs",
+        "windows",
+        "background",
+        "identity",
+        "identity.email",
+        "storage"
+    ]
+}

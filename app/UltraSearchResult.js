@@ -82,9 +82,7 @@ class UltraSearchResult extends Component {
 
         this?.context?.socket.on('ultra_search_query', (data) => {
             if (data?.successful === true) {
-                if (data?.message?.prompt === this.state.ultra_search_prompt) {
-                    this.setState({ ultra_search_response: data?.message?.response?.trim() })
-                }
+                this.setState({ ultra_search_response: data?.message?.response, ultra_search_prompt: data?.message?.prompt })
             }
             else {
                 console.log(data?.message)
@@ -109,6 +107,7 @@ class UltraSearchResult extends Component {
                             placeholder="Search here"
                             placeholderTextColor="rgba(142, 142, 147, 1)"
                             multiline={true}
+                            selectTextOnFocus={true}
                         />
                         <TouchableOpacity style={styles.ultraSearchBtn} onPress={this.emitPrompt}>
                             <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
