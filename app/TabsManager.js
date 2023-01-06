@@ -15,21 +15,25 @@ class TabsManager extends React.Component {
             id: 0,
             metadata: new Map(),
             tabs_data: null,
+            loading: true,
+            isIncognitoView: false
         }
     }
 
 
     componentDidMount() {
-        this.setState({ tabs_data: this?.context?.devices.filter(device => device.device_name === this?.context?.currDeviceName)[0] }, () => {
+        this.setState({ tabs_data: this?.context?.devices.filter(device => device.device_name === this?.context?.currDeviceName)[0], loading: true }, () => {
             this?.context?.socket.emit("get_my_tabs", { "user_id": this?.context?.credentials?.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name })
         })
+
         this?.context?.socket.on("get_my_tabs", (data) => {
             if (data?.successful === true) {
                 const metadata_list = Object.entries(data?.message).map(([key, value]) => [Number(key), value]);
                 const id = metadata_list.length === 0 ? 0 : ((metadata_list.reduce((a, b) => a[1] > b[1] ? a : b, 0)[0]) + 1);
-                this.setState({ metadata: new Map(metadata_list), id: id });
+                this.setState({ metadata: new Map(metadata_list), id: id, loading: false });
             }
             else {
+                this.setState({ loading: false });
                 console.log(data?.message);
             }
         })
@@ -230,6 +234,12 @@ class TabsManager extends React.Component {
         }
     }
 
+    refreshTabs = () => {
+        this.setState({ loading: true }, () => {
+            this?.context?.socket.emit("get_my_tabs", { "user_id": this?.context?.credentials?.user_id, "device_name": this?.context?.credentials?.device_name, "device_token": this?.context?.credentials?.device_token, "target_device": this.state.tabs_data?.device_name });
+        })
+    }
+
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
@@ -240,7 +250,7 @@ class TabsManager extends React.Component {
                     (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
                         <View style={{ flex: 1 }}>
                             {this.renderTabs()}
-                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} clearTabCache={() => { this.setState({ tabs: new Map() }) }} navigation={this.props?.navigation} /> : null}
+                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} refreshTabs={this.refreshTabs} loading={this.state.loading} navigation={this.props?.navigation} isIncognitoView={this.state.isIncognitoView} setIsIncognitoView={(value) => this.setState({isIncognitoView: value})} /> : null}
                         </View>
                     )
                 }
