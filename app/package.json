@@ -42,6 +42,7 @@
     "react-intl": "^6.2.5",
     "react-native": "0.69.6",
     "react-native-encrypted-storage": "^4.0.3",
+    "react-native-hold-menu": "^0.1.5",
     "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-pie-chart": "^2.1.0",
     "react-native-svg": "12.3.0",

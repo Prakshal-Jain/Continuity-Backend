@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { View, Image, Text, ScrollView, ActivityIndicator } from "react-native";
 import { StateContext } from "../state_context";
 import logoDark from "../assets/logo-dark.png";
@@ -25,6 +25,13 @@ const messages = [
 
 export default function () {
     const { colorScheme } = useContext(StateContext);
+    const [message, setMessage] = useState(null)
+
+    useEffect(() => {
+        setTimeout(() => {
+            setMessage("Hang tight, getting ready for an epic experience!");
+        }, 1500)
+    })
 
     return (
         <View style={{ padding: 20, flex: 1 }}>
@@ -32,11 +39,13 @@ export default function () {
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 10 }} />
             </View>
             <ActivityIndicator />
-            {/* <View>
-                <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 16 }}>
-                    {messages[Math.floor(Math.random() * messages.length)]}
-                </Text>
-            </View> */}
+            {message && (
+                <View>
+                    <Text style={{ marginTop: 15, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 15 }}>
+                        {message}
+                    </Text>
+                </View>
+            )}
         </View>
     )
 }

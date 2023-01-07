@@ -22,8 +22,40 @@ class Tabs extends Component {
         }
     }
 
+    componentDidUpdate = () => {
+        const tabCount = this.tabCounter(this.props.isIncognitoView);
+        this.props?.navigation.setOptions({
+            headerLeft: () => (
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginLeft: 20 }}>
+                    <FontAwesome name={this.props.device_type} size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 10 }} />
+                    <View>
+                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>{this.props.device_name}</Text>
+                        <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontWeight: "bold" }}>
+                            {tabCount} {tabCount === 1 ? "Tab" : "Tabs"}
+                        </Text>
+                    </View>
+                </View>
+            ),
+
+            headerRight: () => (
+                <View style={{ marginRight: 20 }}>
+                    {(this.props.isIncognitoView)
+                        ?
+                        <Ionicons name="md-grid" size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(false)} />
+                        :
+                        <Icon name="incognito-circle" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(true)} />
+                    }
+                </View>
+            )
+        })
+    }
+
     addNewTab = (isIncognito) => {
         this.props.addNewTab(isIncognito ? null : "https://www.google.com", isIncognito);
+    }
+
+    tabCounter = (isIncognito) => {
+        return Array.from(this.props.metadata).reduce((acc, curr) => acc + ((curr[1]?.is_incognito === isIncognito) ? 1 : 0), 0)
     }
 
     renderNoOpenTabs = () => (
@@ -153,25 +185,6 @@ class Tabs extends Component {
 
         return (
             <View style={styles.root}>
-                <View style={styles.tab_count}>
-                    <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                        <FontAwesome name={this.props.device_type} size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 10 }} />
-                        <View>
-                            <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>{this.props.device_name}</Text>
-                            <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontWeight: "bold" }}>
-                                {tabCount} {tabCount === 1 ? "Tab" : "Tabs"}
-                            </Text>
-                        </View>
-                    </View>
-
-                    {(this.props.isIncognitoView)
-                        ?
-                        <Ionicons name="md-grid" size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(false)} />
-                        :
-                        <Icon name="incognito-circle" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(true)} />
-                    }
-                </View>
-
                 <ScrollView style={styles.tabsContainer} contentContainerStyle={{ paddingVertical: 15 }} refreshControl={
                     <RefreshControl
                         refreshing={this.props.loading}

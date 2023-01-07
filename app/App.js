@@ -122,7 +122,7 @@ export default function () {
           />
 
           <Stack.Screen name="Tabs" component={TabsManager}
-            options={{ headerShown: false, gestureEnabled: canGoBackToYourDevices }}
+            options={{ ...headerOptions, gestureEnabled: canGoBackToYourDevices, headerLeft: null, headerRight: null, headerShown: canGoBackToYourDevices }}
           />
 
           <Stack.Screen name="Report" component={Report}
