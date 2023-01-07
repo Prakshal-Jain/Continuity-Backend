@@ -471,6 +471,7 @@ export default function (props) {
                         onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
                         style={{ backgroundColor: (colorScheme === 'dark' || incognito) ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', flex: 1 }}
                         onScroll={handleScroll}
+                        incognito={incognito}
                     />
                 )
             }
