@@ -1,6 +1,6 @@
 import "./websocket.js";
 
-var socket = io("http://continuitybrowser.com");
+const socket = io.connect("http://continuitybrowser.com");
 
 socket.on('connect', function () {
     console.log("User connected")
