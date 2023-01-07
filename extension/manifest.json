@@ -15,8 +15,7 @@
             ],
             "all_frames": true,
             "js": [
-                "content.js",
-                "websocket.js"
+                "content.js"
             ],
             "html": [
                 "background.html"

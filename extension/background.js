@@ -1,3 +1,15 @@
+import "./websocket.js";
+
+var socket = io("http://continuitybrowser.com");
+
+socket.on('connect', function () {
+    console.log("User connected")
+});
+
+socket.on('disconnect', function () {
+    console.log("User disconnected")
+});
+
 // Get tab URL
 // chrome.tabs.onUpdated.addListener(async function (id) {
 //     const tab_url = await chrome.tabs.get(id);
