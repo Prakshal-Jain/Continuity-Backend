@@ -24,7 +24,7 @@ import * as Haptics from 'expo-haptics';
 import Report from './Report';
 
 const Stack = createStackNavigator();
-const socket = io("https://continuitybrowser.com");
+const socket = io("http://10.3.12.22/");
 
 
 export default function () {

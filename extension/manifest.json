@@ -7,22 +7,21 @@
         "service_worker": "background.js",
         "type": "module"
     },
-    "action": {},
     "content_scripts": [
         {
             "matches": [
                 "<all_urls>"
             ],
-            "all_frames": true,
+            "all_frames": false,
             "js": [
                 "websocket.js",
                 "content.js"
-            ],
-            "html": [
-                "background.html"
             ]
         }
     ],
+    "action": {
+        "default_popup": "popup.html"
+    },
     "permissions": [
         "tabs",
         "windows",

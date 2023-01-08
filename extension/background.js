@@ -1,14 +1,23 @@
-import "./websocket.js";
 
-const socket = io.connect("http://continuitybrowser.com");
+// const socket = new WebSocket('ws://10.3.12.22/websocket')
 
-socket.on('connect', function () {
-    console.log("User connected")
-});
+// socket.onopen = (event) => {
+//     console.log('Connection Established');
+//     const data = {
+//         event_name: "login",
+//         data: { 'device_name': 'Blahhh', 'email': 'prashaljain42@gail.com', 'family_name': 'Jain', 'given_name': 'prakshal', 'id': '108536725217798960329', 'locale': 'en', 'name': 'prakshal Jain', 'picture': 'https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c', 'verified_email': true, 'device_type': 'tablet', 'user_id': 'prashaljain42@gail.com' }
+//     }
+//     socket.send(JSON.stringify(data));
+// };
 
-socket.on('disconnect', function () {
-    console.log("User disconnected")
-});
+// socket.onclose = (event) => {
+//     console.log('Connection Closed');
+// }
+
+// socket.onmessage = (event) => {
+//     console.log(event);
+// }
+
 
 // Get tab URL
 // chrome.tabs.onUpdated.addListener(async function (id) {
@@ -36,11 +45,12 @@ socket.on('disconnect', function () {
 
 
 // Get user info
-// chrome.identity.getProfileUserInfo().then(function (userInfo){
-//     console.log(userInfo);
-// },
-//     (err) => console.log(err)
-// )
+let profile = {};
+chrome.identity.getProfileUserInfo().then(function (userInfo) {
+    profile = userInfo;
+},
+    (err) => console.log(err)
+)
 
 
 // Storage
@@ -55,4 +65,40 @@ socket.on('disconnect', function () {
 
 // Privacy tracker --> TODO
 
-// In the background script or content script:
+
+const readLocalStorage = async () => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
+            if (result === undefined || result === null) {
+                reject();
+            } else {
+                resolve(result);
+            }
+        });
+    })
+};
+
+
+const methods = {
+    "login": (data, sendResponse) => {
+        const to_send = { message: { ...(data ?? {}), email: profile?.email, user_id: profile?.email } };
+        sendResponse(to_send);
+        return true;
+    },
+    "on_login": (data, sendResponse) => {
+        const to_save = { device_name: data?.device_name, device_token: data?.device_token, user_id: data?.user_id };
+        chrome.storage.local.set(to_save);
+    },
+
+    "auto_authenticate": (data, sendResponse) => {
+        sendResponse(readLocalStorage());
+    }
+}
+
+
+
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+    if (methods[request?.message?.type] !== undefined && methods[request?.message?.type] !== null) {
+        methods[request?.message?.type](request?.message?.data, sendResponse);
+    }
+});

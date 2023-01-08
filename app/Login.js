@@ -128,7 +128,7 @@ export default function Login({ navigation }) {
                 {user === null ? (
                     <GoogleSignInButton
                         // onPress={() => promptAsync()}
-                        onPress={() => setUser({ "email": "prashaljain42@gail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                        onPress={() => setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
                         colorScheme={colorScheme}
                     />
                 )
