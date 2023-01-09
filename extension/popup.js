@@ -15,10 +15,22 @@ socket.on('connect', async function () {
 
 socket.on('disconnect', async function () {
     render_login_page();
+
+    document.querySelector('.get_started')?.addEventListener('click', () => {
+        chrome.identity.getProfileUserInfo().then(function (userInfo) {
+            socket.emit('login', {
+                device_name: document.querySelector('.device_name').value,
+                device_type: document.querySelector('input[name="device_type"]:checked').id,
+                user_id: userInfo?.email
+            });
+        },
+            (err) => console.log(err)
+        )
+    })
 });
 
 socket.on('login', function (d) {
-    if (data?.successful === true) {
+    if (d?.successful === true) {
         const data = d?.message;
         const to_save = { device_name: data?.device_name, device_token: data?.device_token, user_id: data?.user_id };
         chrome.storage.local.set(to_save);
@@ -31,6 +43,18 @@ socket.on("auto_authenticate", function (data) {
     }
     else {
         render_login_page();
+
+        document.querySelector('.get_started')?.addEventListener('click', () => {
+            chrome.identity.getProfileUserInfo().then(function (userInfo) {
+                socket.emit('login', {
+                    device_name: document.querySelector('.device_name').value,
+                    device_type: document.querySelector('input[name="device_type"]:checked').id,
+                    user_id: userInfo?.email
+                });
+            },
+                (err) => console.log(err)
+            )
+        })
     }
 });
 
@@ -115,7 +139,7 @@ function render_devices_page() {
     heading_container.appendChild(heading);
 
     heading_container.appendChild(headerRight);
-    content_container.appendChild(heading_container)
+    content_container.appendChild(heading_container);
 
 
     const devices_wrapper = document.createElement('div');
@@ -164,22 +188,6 @@ function render_devices_page() {
 }
 
 
-const open_incognito_tab = (url) => {
-    chrome.windows.getAll({ populate: false, windowTypes: ['normal'] }, function (windows) {
-        for (let w of windows) {
-            if (w.incognito) {
-                // Use this window.
-                chrome.tabs.create({ url, windowId: w.id });
-                return;
-            }
-        }
-
-        // No incognito window found, open a new one.
-        chrome.windows.create({ url, incognito: true });
-    });
-}
-
-
 const tab_component = (id, title, url, is_incognito) => {
     const parent_tab_container = document.createElement('div');
     parent_tab_container.classList.add('parent_tab_container', is_incognito ? 'incognito_tab' : 'regular_tab');
@@ -189,21 +197,18 @@ const tab_component = (id, title, url, is_incognito) => {
     tab_container.classList.add('tab_container');
 
     const img = document.createElement('img');
-    img.setAttribute('src', `https://s2.googleusercontent.com/s2/favicons?domain_url=${url}&sz=64`)
+    img.setAttribute('src', (is_incognito === true && url === null) ? "./assets/incognito.png" : `https://s2.googleusercontent.com/s2/favicons?domain_url=${url}&sz=64`)
     img.classList.add('favicon');
     tab_container.appendChild(img);
 
-    if (is_incognito) {
-        tab_container.onclick = () => {
-            open_incognito_tab(url);
-        }
-    }
-    else {
-        tab_container.onclick = () => {
-            chrome.tabs.create({
+    tab_container.onclick = () => {
+        chrome.runtime.sendMessage({
+            type: "open_tab", data: {
+                is_incognito,
                 url,
-            })
-        }
+                window_id: `continuity-device-${target_device}-is_incognito=${is_incognito}`
+            }
+        });
     }
 
     const tab_title = document.createElement('div');
@@ -311,16 +316,3 @@ function render_tabs(tabs) {
     content_container.appendChild(all_tabs);
     content_container.appendChild(no_tabs)
 }
-
-
-document.querySelector('.get_started')?.addEventListener('click', () => {
-    chrome.identity.getProfileUserInfo().then(function (userInfo) {
-        socket.emit('login', {
-            device_name: document.querySelector('.device_name').value,
-            device_type: document.querySelector('input[name="device_type"]:checked').id,
-            user_id: userInfo?.email
-        });
-    },
-        (err) => console.log(err)
-    )
-})
