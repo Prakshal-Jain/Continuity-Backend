@@ -147,6 +147,11 @@ class ClientHandleNamespace(Namespace):
 
         new_user = False
 
+        if data.get('device_name', '') == '' or data.get('device_type', '') == '' or data.get('user_id', '') == '':
+            emit('login', {'successful': False, 'message': 'Error: device_name or device_type or user_id is empty'})
+            return        
+
+
         if user == None:
             new_user = True
             user = {
@@ -221,8 +226,6 @@ class ClientHandleNamespace(Namespace):
 
         del data['device_token']
         emit('add_tab', {'successful': True, "message": data}, to=self.__send_update(data.get('user_id')), skip_sid=request.sid)
-        sys.stderr.flush()
-        sys.stdout.flush()
 
     def on_remove_tab(self, data):
         user = users.find_one({'user_id': data.get('user_id')})
@@ -247,8 +250,19 @@ class ClientHandleNamespace(Namespace):
             return
 
         target_device = data.get('target_device')
+        is_incognito = data.get('is_incognito')
+        delete_all = (is_incognito == None) 
         tabs_data = user.get('tabs_data')
-        tabs_data.get(target_device)['tabs'] = {}
+        device_tabs_data = tabs_data.get(target_device)
+        tabs = device_tabs_data.get('tabs', {})
+    
+        for (key, value) in list(tabs.items()):
+            
+            if (is_incognito or delete_all) and value.get('is_incognito'): 
+                del tabs[key]
+            elif ((not is_incognito) or delete_all) and not value.get('is_incognito'):
+                del tabs[key]
+        
         users.update_one({'user_id': data.get('user_id')}, {"$set": {'tabs_data': tabs_data}})
 
         del data['device_token']
