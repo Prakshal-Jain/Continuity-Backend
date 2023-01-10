@@ -1,10 +1,11 @@
 import "./websocket.js";
 import { render_login_page, render_loading_page } from "./pages.js";
-
+import { throttle } from "./utilities.js";
 
 const socket = io.connect("https://continuitybrowser.com");
 let all_devices = [];
 let target_device = null;
+let target_device_type = null;
 const content_container = document.body;
 
 socket.on('connect', async function () {
@@ -62,6 +63,13 @@ socket.on("auto_authenticate", function (data) {
 socket.on("all_devices", function (data) {
     if (data?.successful === true) {
         all_devices = data?.message;
+        render_devices_page();
+    }
+});
+
+socket.on("add_device", function (data) {
+    if (data?.successful === true) {
+        all_devices = [...all_devices, data?.message];
         render_devices_page();
     }
 });
@@ -153,6 +161,7 @@ function render_devices_page() {
             device_box.setAttribute("id", device_name);
             device_box.onclick = () => {
                 target_device = device_name;
+                target_device_type = device_type;
                 chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
                     const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token, "target_device": device_name };
                     socket.emit("get_my_tabs", to_send);
@@ -201,15 +210,17 @@ const tab_component = (id, title, url, is_incognito) => {
     img.classList.add('favicon');
     tab_container.appendChild(img);
 
-    tab_container.onclick = () => {
+    tab_container.onclick = throttle(() => {
+        console.log(target_device_type);
         chrome.runtime.sendMessage({
             type: "open_tab", data: {
                 is_incognito,
                 url,
-                window_id: target_device
+                window_id: target_device,
+                target_device_type: target_device_type
             }
         });
-    }
+    }, 1000, { leading: true, trailing: false })
 
     const tab_title = document.createElement('div');
     tab_title.appendChild(document.createTextNode(title))

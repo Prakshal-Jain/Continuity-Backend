@@ -18,17 +18,17 @@ export const render_loading_page = () => {
     loading_text.classList.add('loading_text');
     loading_text.appendChild(document.createTextNode('Hang tight, getting ready for an epic experience!'));
     content_container.appendChild(loading_text);
-    
+
 }
 
 
 
 
 const device_type_checklist = [
-    { id: 'mobile-phone', label: 'Mobile Phone', isSelected: true },
+    { id: 'mobile-phone', label: 'Mobile Phone' },
     { id: 'tablet', label: 'Tablet' },
     { id: 'laptop', label: 'Laptop' },
-    { id: 'desktop', label: 'Desktop' },
+    { id: 'desktop', label: 'Desktop', isSelected: true },
 ];
 
 export const render_login_page = () => {
