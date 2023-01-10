@@ -228,7 +228,8 @@
     }
 
     function set_notification(){
-      socket.emit("set_notification", {'message': 'hello', 'ttl': 1});
+      // action_type: redirect | link
+      socket.emit("set_notification", {'title': 'Update Continuity', 'description': 'Update Continuity today for best features', 'action_type': 'redirect', 'target': 'Settings', 'ttl': 1});
     }
 
     function get_notification(){

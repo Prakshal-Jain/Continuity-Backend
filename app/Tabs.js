@@ -197,11 +197,16 @@ class Tabs extends Component {
                         )
                         :
                         (
-                            (this.props.isIncognitoView)
-                                ?
-                                (tabCount === 0 ? this.renderNoOpenTabs() : this.renderSearchWithTabs(incognitoTabsList))
-                                :
-                                (tabCount === 0 ? this.renderNoOpenTabs() : this.renderSearchWithTabs(regularTabsList))
+                            <>
+                                {this.renderSearchWithTabs(this.props.isIncognitoView ? incognitoTabsList : regularTabsList)}
+                                {
+                                    (this.props.isIncognitoView)
+                                        ?
+                                        (tabCount === 0 && this.renderNoOpenTabs())
+                                        :
+                                        (tabCount === 0 && this.renderNoOpenTabs())
+                                }
+                            </>
                         )
                     }
                 </ScrollView>

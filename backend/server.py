@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
 from client_handle import ClientHandleNamespace
 from random import randint
@@ -11,10 +11,17 @@ app.config["SECRET_KEY"] = "secret!"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 
+@app.route("/extension_device_details")
+def extension_device_details():
+    return render_template("extension_device_details.html")
+
 @app.route("/")
 def index():
     return render_template("test.html", device_name="Dell_" + str(randint(0, 10)))
 
+@app.route('/assets/<path:path>')
+def assets(path):
+    return send_from_directory('assets', path)
 
 @socketio.on_error_default
 def error_handler(e):

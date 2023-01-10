@@ -2,7 +2,7 @@ import "./websocket.js";
 import { render_login_page, render_loading_page } from "./pages.js";
 
 
-const socket = io.connect("http://10.3.12.22");
+const socket = io.connect("https://continuitybrowser.com");
 let all_devices = [];
 let target_device = null;
 const content_container = document.body;
@@ -206,7 +206,7 @@ const tab_component = (id, title, url, is_incognito) => {
             type: "open_tab", data: {
                 is_incognito,
                 url,
-                window_id: `continuity-device-${target_device}-is_incognito=${is_incognito}`
+                window_id: target_device
             }
         });
     }

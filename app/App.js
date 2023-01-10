@@ -22,9 +22,10 @@ import TabsManager from './TabsManager';
 import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
 import Report from './Report';
+import Notifications from './Notifications';
 
 const Stack = createStackNavigator();
-const socket = io("http://10.3.12.22/");
+const socket = io("https://continuitybrowser.com");
 
 
 export default function () {
@@ -126,6 +127,10 @@ export default function () {
           />
 
           <Stack.Screen name="Report" component={Report}
+            options={headerOptions}
+          />
+
+          <Stack.Screen name="Notifications" component={Notifications}
             options={headerOptions}
           />
         </Stack.Navigator>

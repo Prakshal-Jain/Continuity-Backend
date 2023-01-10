@@ -18,11 +18,16 @@ import { StateContext } from "./state_context";
 import PreloadingScreen from './components/PreloadingScreen';
 import userIcon from "./assets/user.png";
 import * as Haptics from 'expo-haptics';
+import NotificationIcon from './components/NotificationIcon';
 
 class YourDevices extends Component {
     static contextType = StateContext;
     constructor(props) {
         super(props);
+
+        this.state = {
+            notification_count: null
+        }
     }
 
     navigation = this.props?.navigation;
@@ -74,6 +79,15 @@ class YourDevices extends Component {
                     data?.message
                 ];
                 this?.context?.setDevices(all_dev);
+            }
+            else {
+                console.log(data?.message)
+            }
+        });
+
+        this?.context?.socket.on('notification_count', (data) => {
+            if (data?.successful === true) {
+                this.setState({ notification_count: data?.message?.notification_count })
             }
             else {
                 console.log(data?.message)
@@ -153,6 +167,18 @@ class YourDevices extends Component {
                                     hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
                                 >
                                     <MaterialIcons name="settings" size={35} color={this?.context?.colorScheme === 'dark' ? '#fff' : '#000'} />
+                                </Pressable>
+
+                                <Pressable
+                                    onPress={() => {
+                                        if (this?.context?.button_haptics !== 'none') {
+                                            Haptics.impactAsync(this?.context?.button_haptics);
+                                        }
+                                        this.navigation.navigate('Notifications');
+                                    }}
+                                    hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
+                                >
+                                    <NotificationIcon count={this.state.notification_count} size={35} />
                                 </Pressable>
 
                                 <Pressable
