@@ -213,7 +213,7 @@ function Settings({ navigation, route }) {
 
 
                 <Tiles
-                    title="Appearence"
+                    title="Appearance"
                     description="Switch to toggle between dark and light themes."
                     icon={<MaterialCommunityIcons
                         name="theme-light-dark"
