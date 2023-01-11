@@ -17,17 +17,7 @@ socket.on('connect', async function () {
 socket.on('disconnect', async function () {
     render_login_page();
 
-    document.querySelector('.get_started')?.addEventListener('click', () => {
-        chrome.identity.getProfileUserInfo().then(function (userInfo) {
-            socket.emit('login', {
-                device_name: document.querySelector('.device_name').value,
-                device_type: document.querySelector('input[name="device_type"]:checked').id,
-                user_id: userInfo?.email
-            });
-        },
-            (err) => console.log(err)
-        )
-    })
+    add_login_btn_eventlistner();
 });
 
 socket.on('login', function (d) {
@@ -36,26 +26,31 @@ socket.on('login', function (d) {
         const to_save = { device_name: data?.device_name, device_token: data?.device_token, user_id: data?.user_id };
         chrome.storage.local.set(to_save);
     }
+    else {
+        chrome.storage.local.clear();
+    }
 });
+
+socket.on("logout", function (data) {
+    if (data?.successful === true) {
+        chrome.storage.local.clear()
+        render_login_page();
+        add_login_btn_eventlistner();
+    }
+    else {
+        console.log(data?.message);
+    }
+})
 
 socket.on("auto_authenticate", function (data) {
     if (data?.successful === true) {
         console.log(data);
     }
     else {
+        chrome.storage.local.clear()
         render_login_page();
 
-        document.querySelector('.get_started')?.addEventListener('click', () => {
-            chrome.identity.getProfileUserInfo().then(function (userInfo) {
-                socket.emit('login', {
-                    device_name: document.querySelector('.device_name').value,
-                    device_type: document.querySelector('input[name="device_type"]:checked').id,
-                    user_id: userInfo?.email
-                });
-            },
-                (err) => console.log(err)
-            )
-        })
+        add_login_btn_eventlistner();
     }
 });
 
@@ -132,13 +127,36 @@ socket.on('remove_all_tabs', (data) => {
 render_loading_page();
 
 
+function add_login_btn_eventlistner() {
+    document.querySelector('.get_started')?.addEventListener('click', () => {
+        chrome.identity.getProfileUserInfo().then(function (userInfo) {
+            socket.emit('login', {
+                device_name: document.querySelector('.device_name').value,
+                device_type: document.querySelector('input[name="device_type"]:checked').id,
+                user_id: userInfo?.email
+            });
+        },
+            (err) => console.log(err)
+        )
+    })
+}
+
+
 function render_devices_page() {
     content_container.innerHTML = '';
     const heading_container = document.createElement('div');
     heading_container.classList.add('heading_container');
     const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
-    headerLeft.classList.add('header_parts');
-    headerRight.classList.add('header_parts');
+    headerLeft.classList.add('header_parts', 'header_left');
+    headerRight.classList.add('header_parts', 'header_right');
+
+    const logo_link = document.createElement('a');
+    logo_link.setAttribute('href', 'https://continuitybrowser.com/');
+    logo_link.setAttribute('target', '_blank');
+    const small_logo = document.createElement('div');
+    small_logo.classList.add('small_logo');
+    logo_link.appendChild(small_logo);
+    headerLeft.appendChild(logo_link);
     heading_container.appendChild(headerLeft);
 
     const heading = document.createElement('div');
@@ -155,8 +173,6 @@ function render_devices_page() {
         chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
             const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token };
             socket.emit("logout", to_send);
-            chrome.storage.local.clear()
-            render_login_page();
         })
     }
     logout_icon.style.color = 'rgba(255, 45, 85, 1)';
@@ -219,15 +235,12 @@ const tab_component = (id, title, url, is_incognito) => {
     parent_tab_container.classList.add('parent_tab_container', is_incognito ? 'incognito_tab' : 'regular_tab');
     parent_tab_container.setAttribute('id', `device-${target_device}tab_id-${id}`)
 
-    const tab_container = document.createElement('div');
-    tab_container.classList.add('tab_container');
-
     const img = document.createElement('img');
     img.setAttribute('src', (is_incognito === true && url === null) ? "./assets/incognito.png" : `https://s2.googleusercontent.com/s2/favicons?domain_url=${url}&sz=64`)
     img.classList.add('favicon');
-    tab_container.appendChild(img);
+    parent_tab_container.appendChild(img);
 
-    tab_container.onclick = throttle(() => {
+    img.onclick = throttle(() => {
         chrome.runtime.sendMessage({
             type: "open_tab", data: {
                 is_incognito,
@@ -243,14 +256,25 @@ const tab_component = (id, title, url, is_incognito) => {
     const tab_title = document.createElement('div');
     tab_title.appendChild(document.createTextNode(title))
     tab_title.classList.add('tab_title');
-    tab_container.appendChild(tab_title);
-    parent_tab_container.appendChild(tab_container);
+    tab_title.onclick = throttle(() => {
+        chrome.runtime.sendMessage({
+            type: "open_tab", data: {
+                is_incognito,
+                unique_tab_id: id,
+                title,
+                target_device_type: target_device_type,
+                url,
+                window_id: target_device
+            }
+        });
+    }, 1000, { leading: true, trailing: false });
+
+    parent_tab_container.appendChild(tab_title);
 
     const closeBtn = document.createElement('i');
     closeBtn.classList.add('fa', 'fa-close');
     closeBtn.style.color = 'rgba(255, 45, 85, 1)';
     closeBtn.style.fontSize = 'large';
-    closeBtn.style.marginRight = '1rem';
     closeBtn.onclick = () => {
         chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
             const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token, "target_device": target_device, id };
@@ -282,8 +306,8 @@ function render_tabs(tabs) {
     const heading_container = document.createElement('div');
     heading_container.classList.add('heading_container');
     const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
-    headerLeft.classList.add('header_parts');
-    headerRight.classList.add('header_parts');
+    headerLeft.classList.add('header_parts', 'header_left');
+    headerRight.classList.add('header_parts', 'header_right');
     const back = document.createElement('div');
     const angle_left = document.createElement('i');
     angle_left.classList.add('fa', 'fa-angle-left');

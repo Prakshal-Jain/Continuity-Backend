@@ -3,7 +3,6 @@ body {
     width: 25rem;
     min-height: 30rem;
     text-align: center;
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -27,6 +26,12 @@ body > * {
 .logo {
     content: url("./assets/logo-dark.png");
     width: 6rem;
+    height: auto;
+}
+
+.small_logo{
+    content: url("./assets/logo-dark.png");
+    width: 3rem;
     height: auto;
 }
 
@@ -145,8 +150,8 @@ input:focus {
     color: #000;
     width: 100%;
     border-bottom: 0.1em solid rgba(199, 199, 204, 1);
-    padding-bottom: 1em;
     margin-bottom: 1em;
+    padding: 1em;
 }
 
 .header_parts {
@@ -156,6 +161,14 @@ input:focus {
     align-items: center;
     cursor: pointer;
     font-size: medium;
+}
+
+.header_left{
+    margin-left: 1em;
+}
+
+.header_right{
+    margin-right: 1em;
 }
 
 .subheading{
@@ -189,7 +202,7 @@ input:focus {
 .all_tabs {
     display: flex;
     flex-direction: column;
-    width: 22rem;
+    width: 80%;
     align-items: center;
     justify-content: center;
 }
@@ -209,8 +222,12 @@ input:focus {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    width: 18rem;
+    flex: 1;
     font-size: medium;
+    height: 2rem;
+    line-height: 2rem;
+    align-items: center;
+    justify-content: center;
 }
 
 .favicon {
@@ -224,6 +241,10 @@ input:focus {
     }
 
     .logo {
+        content: url("./assets/logo-light.png");
+    }
+
+    .small_logo{
         content: url("./assets/logo-light.png");
     }
 
