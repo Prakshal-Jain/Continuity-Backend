@@ -137,8 +137,8 @@ function render_devices_page() {
     const heading_container = document.createElement('div');
     heading_container.classList.add('heading_container');
     const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
-    headerLeft.classList.add('header_parts', 'header_left');
-    headerRight.classList.add('header_parts', 'header_right');
+    headerLeft.classList.add('header_parts');
+    headerRight.classList.add('header_parts');
     heading_container.appendChild(headerLeft);
 
     const heading = document.createElement('div');
@@ -146,6 +146,23 @@ function render_devices_page() {
     heading.classList.add('heading1')
     heading_container.appendChild(heading);
 
+
+    const logout_icon = document.createElement('i');
+    logout_icon.classList.add('fa', 'fa-sign-out');
+    logout_icon.style.fontSize = 'x-large';
+    logout_icon.style.marginLeft = '0.5rem';
+    logout_icon.onclick = () => {
+        chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
+            const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token };
+            socket.emit("logout", to_send);
+            chrome.storage.local.clear()
+            render_login_page();
+        })
+    }
+    logout_icon.style.color = 'rgba(255, 45, 85, 1)';
+    headerRight.appendChild(logout_icon);
+
+    headerRight.style.justifyContent = 'end';
     heading_container.appendChild(headerRight);
     content_container.appendChild(heading_container);
 

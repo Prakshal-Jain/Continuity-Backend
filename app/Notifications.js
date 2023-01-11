@@ -1,5 +1,5 @@
 import { StateContext } from "./state_context";
-import { SafeAreaView, StatusBar, StyleSheet, ScrollView } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, ScrollView, Text } from "react-native";
 import React, { Component } from "react";
 
 class Notifications extends Component {
@@ -33,8 +33,8 @@ class Notifications extends Component {
                 <StatusBar animated={true}
                     barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
                 />
-                <ScrollView style={{ width: '100%', flex: 1 }}>
-                    
+                <ScrollView style={{ width: '100%', flex: 1, padding: 10 }}>
+                    <Text style={{ marginVertical: 10, textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)', }}>Your notifications will show up here...</Text>
                 </ScrollView>
             </SafeAreaView>
         )

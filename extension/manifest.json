@@ -29,6 +29,7 @@
         "background",
         "identity",
         "identity.email",
-        "storage"
+        "storage",
+        "scripting"
     ]
 }

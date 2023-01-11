@@ -21,7 +21,7 @@ import userIcon from "./assets/user.png";
 import * as Haptics from 'expo-haptics';
 
 export default function ({ navigation, ...props }) {
-    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, buttonHaptics } = useContext(StateContext);
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, button_haptics } = useContext(StateContext);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [trackerCounts, setTrackerCounts] = useState(null);
     const [trackers, setTrackers] = useState(null);
@@ -190,8 +190,8 @@ export default function ({ navigation, ...props }) {
     })
 
     const onLogout = () => {
-        if (buttonHaptics !== 'none') {
-            Haptics.impactAsync(buttonHaptics);
+        if (button_haptics !== 'none') {
+            Haptics.impactAsync(button_haptics);
         }
 
         Alert.alert(

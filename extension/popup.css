@@ -203,6 +203,7 @@ input:focus {
 }
 
 .tab_title {
+    text-align: left;
     margin-left: 0.8rem;
     margin-right: 0.8rem;
     white-space: nowrap;

@@ -70,7 +70,7 @@ const windowid_to_device_map = new Map();
 const tab_ids = new Map();
 
 const methods = {
-    "open_tab": async ({ is_incognito = false, unique_tab_id, url, title, window_id, target_device_type }, sendResponse) => {
+    "open_tab": async ({ is_incognito = false, unique_tab_id, url, title, window_id, target_device_type }, sendResponse, sender) => {
         if (device_to_windowid_map.has(window_id)) {
             const id = device_to_windowid_map.get(window_id);
             chrome.windows.getAll({ populate: false, windowTypes: ['normal'] }, async function (windows) {
@@ -126,12 +126,45 @@ const methods = {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (methods[request?.type] !== undefined && methods[request?.type] !== null) {
-        methods[request?.type](request?.data, sendResponse);
+        methods[request?.type](request?.data, sendResponse, sender);
     }
 });
 
 
-chrome.tabs.onRemoved.addListener(function (tabId) {
+chrome.tabs.onRemoved.addListener(async function (tabId, { isWindowClosing }) {
+    // const window = await chrome.windows.getCurrent();
+    // const window_id = window.id;
+    // chrome.storage.local.get(['device_name', 'device_token', 'user_id'], async function ({ device_name, device_token, user_id }) {
+    //     const target = windowid_to_device_map.get(window_id);
+    //     if ((!isWindowClosing) && (device_name === target) && (tab_ids.has(tabId))) {
+    //         const message = {
+    //             event_name: 'remove_tab',
+    //             data: {
+    //                 device_name,
+    //                 device_token,
+    //                 user_id,
+    //                 target_device: windowid_to_device_map.get(window_id),
+    //                 id: tab_ids.get(tabId).unique_tab_id
+    //             }
+    //         }
+
+    //         tab_ids.delete(tabId);
+
+
+    //         chrome.tabs.create({ url: EXTENSION_DEVICE_DETAILS_PAGE, active: false }, function (processing_tab) {
+    //             chrome.tabs.onUpdated.addListener(async function listener(tabId, info, tab) {
+    //                 console.log(tabId, processing_tab.id, info.status);
+    //                 if (tabId === processing_tab.id && info.status === 'complete') {
+    //                     await chrome.tabs.sendMessage(processing_tab.id, message);
+    //                     chrome.tabs.onUpdated.removeListener(listener);
+    //                 }
+    //             });
+    //         });
+    //         // await chrome.tabs.remove(tab.id);
+    //     }
+    // })
+
+
     tab_ids.delete(tabId);
 })
 
@@ -148,7 +181,7 @@ chrome.windows.onRemoved.addListener(function (window_id) {
 chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
     const url = (tab.url.startsWith('http://') || tab.url.startsWith('https://')) ? tab.url : 'https://www.google.com';
     const title = (tab.url.startsWith('http://') || tab.url.startsWith('https://')) ? tab.title : 'Google Search';
-    if (url !== undefined && changeinfo.status == "complete") {
+    if (url !== undefined && changeinfo.status == "complete" && (!url.includes(EXTENSION_DEVICE_DETAILS_PAGE))) {
         chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function ({ device_name, device_token, user_id }) {
             if (windowid_to_device_map.has(tab.windowId)) {
                 // Window already exist for given device.
@@ -175,9 +208,7 @@ chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
                             }
                         }
 
-                        console.log(message);
                         chrome.tabs.sendMessage(tabid, message)
-                        // socket.send(message);
                     }
                 }
                 else {
@@ -204,9 +235,7 @@ chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
                         }
                     }
 
-                    console.log(message);
                     chrome.tabs.sendMessage(tabid, message)
-                    // socket.send(message);
                 }
             }
 
@@ -237,7 +266,6 @@ chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
                             }
                         }
 
-                        console.log(message);
                         chrome.tabs.sendMessage(tabid, message)
                         // socket.send(message);
                     }
@@ -267,9 +295,7 @@ chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
                         }
                     }
 
-                    console.log(message);
                     chrome.tabs.sendMessage(tabid, message)
-                    // socket.send(message);
                 }
 
                 windowid_to_device_map.set(tab.windowId, device_name);

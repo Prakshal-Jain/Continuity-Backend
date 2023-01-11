@@ -20,7 +20,6 @@ socket.on('update_tab', (data) => {
 
 
 function send_message(message) {
-    // console.log(message.data)
     socket.emit(message.event_name, message.data);
 }
 
