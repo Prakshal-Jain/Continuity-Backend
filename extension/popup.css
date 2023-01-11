@@ -158,6 +158,12 @@ input:focus {
     font-size: medium;
 }
 
+.subheading{
+    margin-top: 0.5em;
+    font-size: small;
+    color: rgba(99, 99, 102, 1);
+}
+
 .parent_tab_container {
     display: flex;
     flex-direction: row;
@@ -255,6 +261,10 @@ input:focus {
     }
 
     .loading_text {
+        color: rgba(174, 174, 178, 1);
+    }
+
+    .subheading{
         color: rgba(174, 174, 178, 1);
     }
 }

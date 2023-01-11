@@ -1,20 +1,35 @@
-// import "./websocket.js";
+const socket = io.connect("https://continuitybrowser.com");
 
-// const socket = io.connect("https://continuitybrowser.com");
+let buffer = [];
 
-// socket.on('connect', function () {
-//     console.log("connected user!")
-//     // setInterval(() => {
-//     //     socket.emit("login", { 'user_id': 'Swask', 'name': 'Swask', 'picture': 'Test picture', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_type': 'Laptop' });
-//     // }, 1000)
-// });
+socket.on('connect', function () {
+    console.log("connected user!")
+    while (buffer.length > 0) {
+        const m = buffer.pop();
+        send_message(m);
+    }
+});
 
-// socket.on('login', function (data) {
-//     console.log("login")
-//     console.log(data)
-//     console.log("========================")
-// });
+socket.on('disconnect', function () {
+    console.log("User disconnected")
+});
 
-// socket.on('disconnect', function () {
-//     console.log("User disconnected")
-// });
+socket.on('update_tab', (data) => {
+    console.log(data);
+})
+
+
+function send_message(message) {
+    // console.log(message.data)
+    socket.emit(message.event_name, message.data);
+}
+
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (socket.connected) {
+        send_message(message);
+    }
+    else {
+        buffer.push(message);
+    }
+})

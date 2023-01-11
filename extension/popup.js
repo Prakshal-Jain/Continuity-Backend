@@ -113,7 +113,7 @@ socket.on('remove_tab', (data) => {
         const id = data?.message?.id;
         document.getElementById(`device-${target_device}tab_id-${id}`)?.remove();
         if (document.getElementById(`tab_list-${target_device}`)?.children?.length === 0) {
-            document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode('No open tabs.'));
+            document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`));
         }
     }
     else {
@@ -125,7 +125,7 @@ socket.on('remove_all_tabs', (data) => {
     if (data?.successful === true && data?.message?.target_device === target_device) {
         document.getElementById(`tab_list-${target_device}`).innerHTML = '';
         document.getElementById(`no_tabs-${target_device}`).innerHTML = '';
-        document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode('No open tabs.'));
+        document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`));
     }
 })
 
@@ -211,16 +211,17 @@ const tab_component = (id, title, url, is_incognito) => {
     tab_container.appendChild(img);
 
     tab_container.onclick = throttle(() => {
-        console.log(target_device_type);
         chrome.runtime.sendMessage({
             type: "open_tab", data: {
                 is_incognito,
+                unique_tab_id: id,
+                title,
+                target_device_type: target_device_type,
                 url,
-                window_id: target_device,
-                target_device_type: target_device_type
+                window_id: target_device
             }
         });
-    }, 1000, { leading: true, trailing: false })
+    }, 1000, { leading: true, trailing: false });
 
     const tab_title = document.createElement('div');
     tab_title.appendChild(document.createTextNode(title))
@@ -282,8 +283,43 @@ function render_tabs(tabs) {
 
     const heading = document.createElement('div');
     heading.appendChild(document.createTextNode('Tabs'));
-    heading.classList.add('heading1')
+    if (target_device !== null && target_device !== undefined) {
+        const subheading = document.createElement('div');
+        const icon = document.createElement('i');
+        icon.classList.add('fa', `fa-${target_device_type}`);
+        icon.style.fontSize = 'medium';
+        icon.style.marginRight = '0.5em';
+        subheading.appendChild(icon);
+        subheading.appendChild(document.createTextNode(target_device));
+        subheading.classList.add('subheading');
+        heading.appendChild(subheading);
+    }
+
+    heading.classList.add('heading1');
     heading_container.appendChild(heading);
+
+
+    const add_new_tab_icon = document.createElement('i');
+    add_new_tab_icon.classList.add('fa', 'fa-plus');
+    add_new_tab_icon.style.fontSize = 'x-large';
+    add_new_tab_icon.style.marginLeft = '0.5rem';
+    add_new_tab_icon.style.marginRight = '0.5rem';
+    add_new_tab_icon.onclick = throttle(() => {
+        chrome.runtime.sendMessage({
+            type: "open_tab", data: {
+                is_incognito: false,
+                unique_tab_id: null,
+                title: "Google Search",
+                target_device_type: target_device_type,
+                url: "https://www.google.com",
+                window_id: target_device
+            }
+        });
+    }, 1000, { leading: true, trailing: false });
+
+    add_new_tab_icon.style.color = 'rgba(0, 122, 255, 1)';
+    headerRight.appendChild(add_new_tab_icon);
+
 
     const delete_all = document.createElement('i');
     delete_all.classList.add('fa', 'fa-trash');
@@ -294,13 +330,14 @@ function render_tabs(tabs) {
             const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token, "target_device": target_device };
             document.getElementById(`tab_list-${target_device}`).innerHTML = '';
             document.getElementById(`no_tabs-${target_device}`).innerHTML = '';
-            document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode('No open tabs.'));
+            document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`));
             socket.emit("remove_all_tabs", to_send);
         })
     }
-    headerRight.style.justifyContent = 'end';
     delete_all.style.color = 'rgba(255, 45, 85, 1)';
     headerRight.appendChild(delete_all);
+
+    headerRight.style.justifyContent = 'end';
     heading_container.appendChild(headerRight);
 
     content_container.appendChild(heading_container)
@@ -321,7 +358,7 @@ function render_tabs(tabs) {
         }
     }
     else {
-        no_tabs.appendChild(document.createTextNode('No open tabs.'))
+        no_tabs.appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`))
     }
 
     content_container.appendChild(all_tabs);

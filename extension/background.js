@@ -1,12 +1,5 @@
-// const socket = new WebSocket('ws://10.3.12.22/websocket')
-
 // socket.onopen = (event) => {
 //     console.log('Connection Established');
-//     const data = {
-//         event_name: "login",
-//         data: { 'device_name': 'Blahhh', 'email': 'prashaljain42@gail.com', 'family_name': 'Jain', 'given_name': 'prakshal', 'id': '108536725217798960329', 'locale': 'en', 'name': 'prakshal Jain', 'picture': 'https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c', 'verified_email': true, 'device_type': 'tablet', 'user_id': 'prashaljain42@gail.com' }
-//     }
-//     socket.send(JSON.stringify(data));
 // };
 
 // socket.onclose = (event) => {
@@ -77,14 +70,19 @@ const windowid_to_device_map = new Map();
 const tab_ids = new Map();
 
 const methods = {
-    "open_tab": async ({ is_incognito, url, window_id, target_device_type }, sendResponse) => {
+    "open_tab": async ({ is_incognito = false, unique_tab_id, url, title, window_id, target_device_type }, sendResponse) => {
         if (device_to_windowid_map.has(window_id)) {
             const id = device_to_windowid_map.get(window_id);
             chrome.windows.getAll({ populate: false, windowTypes: ['normal'] }, async function (windows) {
                 const idx = windows.findIndex((w) => w?.id === id);
                 if (idx !== -1) {
                     const tab = await chrome.tabs.create({ url, windowId: id });
-                    tab_ids.set(tab.id, tab.pendingUrl);
+                    tab_ids.set(tab.id, {
+                        unique_tab_id: unique_tab_id ?? tab.id,
+                        url: tab.pendingUrl,
+                        title,
+                        is_incognito
+                    });
                     chrome.windows.update(id, {
                         focused: true
                     });
@@ -97,7 +95,12 @@ const methods = {
                     // window was closed. Open a new window
                     const window = await chrome.windows.create({ url: [`${EXTENSION_DEVICE_DETAILS_PAGE}?device_name=${window_id}&device_type=${target_device_type}`, url], incognito: is_incognito });
                     for (const tab of window.tabs) {
-                        tab_ids.set(tab.id, tab.pendingUrl);
+                        tab_ids.set(tab.id, {
+                            unique_tab_id: (tab.pendingUrl.includes(EXTENSION_DEVICE_DETAILS_PAGE) ? tab.id : unique_tab_id) ?? tab.id,
+                            url: tab.pendingUrl,
+                            title: tab.pendingUrl.includes(EXTENSION_DEVICE_DETAILS_PAGE) ? "Continuity | Device Details" : title,
+                            is_incognito: tab.incognito
+                        });
                     }
                     device_to_windowid_map.set(window_id, window?.id);
                     windowid_to_device_map.set(window?.id, window_id);
@@ -107,7 +110,12 @@ const methods = {
         else {
             const window = await chrome.windows.create({ url: [`${EXTENSION_DEVICE_DETAILS_PAGE}?device_name=${window_id}&device_type=${target_device_type}`, url], incognito: is_incognito });
             for (const tab of window.tabs) {
-                tab_ids.set(tab.id, tab.pendingUrl);
+                tab_ids.set(tab.id, {
+                    unique_tab_id: (tab.pendingUrl.includes(EXTENSION_DEVICE_DETAILS_PAGE) ? tab.id : unique_tab_id) ?? tab.id,
+                    url: tab.pendingUrl,
+                    title: tab.pendingUrl.includes(EXTENSION_DEVICE_DETAILS_PAGE) ? "Continuity | Device Details" : title,
+                    is_incognito: tab.incognito
+                });
             }
             device_to_windowid_map.set(window_id, window?.id);
             windowid_to_device_map.set(window?.id, window_id);
@@ -138,46 +146,135 @@ chrome.windows.onRemoved.addListener(function (window_id) {
 
 // ============== Event listners ==============
 chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
-    const url = tab.url;
+    const url = (tab.url.startsWith('http://') || tab.url.startsWith('https://')) ? tab.url : 'https://www.google.com';
+    const title = (tab.url.startsWith('http://') || tab.url.startsWith('https://')) ? tab.title : 'Google Search';
     if (url !== undefined && changeinfo.status == "complete") {
-        if (windowid_to_device_map.has(tab.windowId)) {
-            // Window already exist for given device.
-            if (tab_ids.has(tabid)) {
-                if (tab_ids.get(tabid) !== url) {
-                    // Tab is already added --> an update. Get the device and emit update!
-                    console.log(`UPDATE url: ${url} \n\nto device: ${windowid_to_device_map.get(tab.windowId)}`);
-                }
-            }
-            else {
-                // New tab added to device. Create a new tab.
-                console.log(`CREATE url: ${url} \n\nto device: ${windowid_to_device_map.get(tab.windowId)}`);
-
-                tab_ids.set(tabid, url);
-            }
-        }
-
-        else {
-            // Window doesn't exist for any device. Add these tabs to current (this) device!
-
-            chrome.storage.local.get('device_name', function (curr) {
-                const curr_device = curr?.device_name;
-
+        chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function ({ device_name, device_token, user_id }) {
+            if (windowid_to_device_map.has(tab.windowId)) {
+                // Window already exist for given device.
                 if (tab_ids.has(tabid)) {
-                    if (tab_ids.get(tabid) !== url) {
+                    if (tab_ids.get(tabid).url !== url) {
                         // Tab is already added --> an update. Get the device and emit update!
-                        console.log(`UPDATE url: ${url} \n\nto device: ${windowid_to_device_map.get(tab.windowId)}`);
+                        tab_ids.get(tabid).url = url;
+                        tab_ids.get(tabid).title = title;
+
+                        const message = {
+                            event_name: 'update_tab',
+                            data: {
+                                device_name,
+                                device_token,
+                                user_id,
+                                target_device: windowid_to_device_map.get(tab.windowId),
+                                tabs_data: {
+                                    [tab_ids.get(tabid).unique_tab_id]: {
+                                        url,
+                                        title,
+                                        is_incognito: tab_ids.get(tabid).is_incognito ?? false
+                                    }
+                                }
+                            }
+                        }
+
+                        console.log(message);
+                        chrome.tabs.sendMessage(tabid, message)
+                        // socket.send(message);
                     }
                 }
                 else {
                     // New tab added to device. Create a new tab.
-                    console.log(`CREATE url: ${url} \n\nto device: ${curr_device}`);
+                    tab_ids.set(
+                        tabid,
+                        { unique_tab_id: tabid, url, title, is_incognito: tab.incognito }
+                    );
 
-                    tab_ids.set(tabid, url);
+                    const message = {
+                        event_name: 'add_tab',
+                        data: {
+                            device_name,
+                            device_token,
+                            user_id,
+                            target_device: windowid_to_device_map.get(tab.windowId),
+                            tabs_data: {
+                                [tab_ids.get(tabid).unique_tab_id]: {
+                                    url,
+                                    title,
+                                    is_incognito: tab_ids.get(tabid).is_incognito ?? false
+                                }
+                            }
+                        }
+                    }
+
+                    console.log(message);
+                    chrome.tabs.sendMessage(tabid, message)
+                    // socket.send(message);
+                }
+            }
+
+            else {
+                // Window doesn't exist for any device. Add these tabs to current (this) device!
+
+                if (tab_ids.has(tabid)) {
+                    if (tab_ids.get(tabid).url !== url) {
+                        // Tab is already added --> an update. Get the device and emit update!
+
+                        tab_ids.get(tabid).url = url;
+                        tab_ids.get(tabid).title = title;
+
+                        const message = {
+                            event_name: 'update_tab',
+                            data: {
+                                device_name,
+                                device_token,
+                                user_id,
+                                target_device: device_name,
+                                tabs_data: {
+                                    [tab_ids.get(tabid).unique_tab_id]: {
+                                        url,
+                                        title,
+                                        is_incognito: tab_ids.get(tabid).is_incognito ?? false
+                                    }
+                                }
+                            }
+                        }
+
+                        console.log(message);
+                        chrome.tabs.sendMessage(tabid, message)
+                        // socket.send(message);
+                    }
+                }
+                else {
+
+                    tab_ids.set(
+                        tabid,
+                        { unique_tab_id: tabid, url, title, is_incognito: tab.incognito }
+                    );
+
+                    // New tab added to device. Create a new tab.
+                    const message = {
+                        event_name: 'add_tab',
+                        data: {
+                            device_name,
+                            device_token,
+                            user_id,
+                            target_device: device_name,
+                            tabs_data: {
+                                [tab_ids.get(tabid).unique_tab_id]: {
+                                    url,
+                                    title,
+                                    is_incognito: tab_ids.get(tabid).is_incognito ?? false
+                                }
+                            }
+                        }
+                    }
+
+                    console.log(message);
+                    chrome.tabs.sendMessage(tabid, message)
+                    // socket.send(message);
                 }
 
-                windowid_to_device_map.set(tab.windowId, curr_device);
-                device_to_windowid_map.set(curr_device, tab.windowId);
-            });
-        }
+                windowid_to_device_map.set(tab.windowId, device_name);
+                device_to_windowid_map.set(device_name, tab.windowId);
+            }
+        });
     }
 })
