@@ -15,6 +15,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def extension_device_details():
     return render_template("extension_device_details.html")
 
+@app.route("/syncing_devices")
+def syncing_devices():
+    return render_template("syncing_devices.html")
+
 @app.route("/")
 def index():
     return render_template("test.html", device_name="Dell_" + str(randint(0, 10)))
