@@ -1,13 +1,21 @@
 from flask_socketio import Namespace, emit
 from flask import request
 import sys
-from pymongo import MongoClient
+
+from pymongo import MongoClient, cursor
 from bson.objectid import ObjectId
 from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
 from features.ultra_search import ultra_search_query
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+import os
+from dotenv import load_dotenv
+import hashlib
+import json
+
+
+load_dotenv()
 
 client = MongoClient("mongo")
 db = client["user_data"]
@@ -25,6 +33,7 @@ notification.create_index("ttl", expireAfterSeconds=0)
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
+    admin_socket = {}
 
     def __create_tab(self, device_name, device_type, device_token):
         return {
@@ -386,15 +395,6 @@ class ClientHandleNamespace(Namespace):
             to=self.__send_update(data.get("user_id")),
             skip_sid=request.sid,
         )
-
-    def on_get(self, data):
-        user = users.find_one({"user_id": data.get("user_id")})
-        privacy = list(privacy_report.find({"user_id": data.get("user_id")}))
-        for p in privacy:
-            del p["_id"]
-            del p["expireAt"]
-        del user["_id"]
-        emit("get", {"successful": True, "message": [user, privacy], "type": "message"})
 
     def on_get_my_tabs(self, data):
         user = users.find_one({"user_id": data.get("user_id")})
@@ -768,30 +768,6 @@ class ClientHandleNamespace(Namespace):
             },
         )
 
-    def on_set_notification(self, data):
-        send_to = data.get("send_to", set())
-        ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
-        message = {"message": data.get("message")}
-
-        if send_to == set():
-            notification.insert_one(
-                {"message_record": True, "message": message, "ttl": ttl}
-            )
-            send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
-
-        for user in send_to:
-            notification.insert_one(
-                {
-                    "user_record": True,
-                    "user_id": user,
-                    "message": message,
-                    "ttl": ttl,
-                    "ack": False,
-                }
-            )
-
-        emit("set_notification", {"successful": True, "type": "message"})
-
     def on_ack_notification(self, data):
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
@@ -838,13 +814,6 @@ class ClientHandleNamespace(Namespace):
         user_feedback = data.get("feedback")
         feedback.insert_one({"user_id": user_id, "feedback": user_feedback})
         emit("report_feedback", {"successful": True, "type": "message"})
-
-    def on_get_feedback(self):
-        user_feedback = list(feedback.find({}, {"_id": 0}))
-        emit(
-            "get_feedback",
-            {"successful": True, "message": user_feedback, "type": "message"},
-        )
 
     def on_auto_authenticate(self, data):
         device_name = data.get("device_name")
@@ -914,3 +883,247 @@ class ClientHandleNamespace(Namespace):
 
         emit("logout", {"successful": True, "type": "message"})
         print("Logged Out Successfully")
+
+    def __authenticate_admin(self, key):
+        hashed_key = os.getenv("ADMIN_PASSWORD")
+        key_hash = hashlib.sha256()
+        key_hash.update(key.encode())
+        key_hash = key_hash.hexdigest().upper()
+
+        return hashed_key == key_hash
+
+    def __check_admin_socket(self):
+        admin = os.getenv("ADMIN_USERNAME")
+        sid = ClientHandleNamespace.admin_socket.get(admin)
+
+        if sid == None:
+            emit(
+                "error_occured",
+                {
+                    "successful": False,
+                    "type": "error",
+                    "message": "Admin Socket not set",
+                },
+            )
+            return None
+
+        return sid
+
+    def on_admin_socket(self, data):
+        key = data.get("key")
+        admin = os.getenv("ADMIN_USERNAME")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+        action = data.get("action")
+
+        if action == "insert":
+            ClientHandleNamespace.admin_socket[admin] = request.sid
+        else:
+            del ClientHandleNamespace.admin_socket[admin]
+
+        emit(
+            "admin_socket",
+            {"successful": True, "type": "message"},
+        )
+
+    def on_admin_get_feedback(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        user_feedback = list(feedback.find({}, {"_id": 0}))
+        emit(
+            "admin_get_feedback",
+            {"successful": True, "message": user_feedback, "type": "message"},
+            to=sid,
+        )
+
+    def on_admin_get(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        user_info = users.find_one({"user_id": data.get("user_id")}, {"_id": 0})
+        privacy_info = list(
+            privacy_report.find(
+                {"user_id": data.get("user_id")}, {"_id": 0, "expireAt": 0}
+            )
+        )
+        history_info = list(
+            history.find({"user_id": data.get("user_id")}, {"_id": 0, "expireAt": 0})
+        )
+        notification_info = list(
+            notification.find({"user_id": data.get("user_id")}, {"_id": 0, "ttl": 0})
+        )
+        feedback_info = list(
+            feedback.find({"user_id": data.get("user_id")}, {"_id": 0})
+        )
+
+        emit(
+            "admin_get",
+            {
+                "successful": True,
+                "message": {
+                    "user_info": user_info,
+                    "privacy_info": privacy_info,
+                    "history_info": history_info,
+                    "notification_info": notification_info,
+                    "feedback_info": feedback_info,
+                },
+                "type": "message",
+            },
+            to=sid,
+        )
+
+    def on_admin_run_query(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        collection_dict = {
+            "users": users,
+            "privacy_report": privacy_report,
+            "history": history,
+            "notification": notification,
+            "feedback": feedback,
+        }
+
+        collection = data.get("collection")
+        action = data.get("action")
+        query = data.get("query")
+        return_ = bool(data.get("return"))
+        collection = collection_dict.get(collection)
+        func = getattr(collection, action)
+        result = func(*json.loads(query))
+
+        if return_:
+            if isinstance(result, cursor.Cursor):
+                result = list(result)
+
+            emit(
+                "admin_run_query",
+                {"successful": True, "message": result, "type": "message"},
+                to=sid,
+            )
+        else:
+            emit(
+                "admin_run_query",
+                {"successful": True, "type": "message"},
+                to=sid,
+            )
+
+    def on_admin_get_registered(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        total_count = users.count_documents({})
+
+        emit(
+            "admin_get_registered",
+            {
+                "successful": True,
+                "message": {"registered_users": total_count},
+                "type": "message",
+            },
+            to=sid,
+        )
+
+    def on_admin_get_active(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        active_users = len(ClientHandleNamespace.devices_in_use)
+
+        active_devices = 0
+
+        for (_, value) in list(ClientHandleNamespace.devices_in_use.items()):
+            active_devices += len(value)
+
+        emit(
+            "admin_get_active",
+            {
+                "successful": True,
+                "message": {
+                    "active_users": active_users,
+                    "active_devices": active_devices,
+                },
+                "type": "message",
+            },
+            to=sid,
+        )
+
+    def on_set_notification(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        send_to = data.get("send_to", set())
+        ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
+        message = {"message": data.get("message")}
+
+        if send_to == set():
+            notification.insert_one(
+                {"message_record": True, "message": message, "ttl": ttl}
+            )
+            send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
+
+        for user in send_to:
+            notification.insert_one(
+                {
+                    "user_record": True,
+                    "user_id": user,
+                    "message": message,
+                    "ttl": ttl,
+                    "ack": False,
+                }
+            )
+
+        emit("set_notification", {"successful": True, "type": "message"}, to=sid)
