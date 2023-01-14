@@ -1,63 +1,68 @@
 <!DOCTYPE html>
 <html>
 <style>
-    body,
-    html {
-        height: 100%;
-        margin: 0;
-    }
+body, html {
+  height: 100%;
+  margin: 0;
+}
 
-    .bgimg {
-        background-image: url('/w3images/forestbridge.jpg');
-        height: 100%;
-        background-position: center;
-        background-size: cover;
-        position: relative;
-        color: white;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 25px;
-    }
+.logo{
+    width: 3em;
+    height: auto;
+}
 
-    .topleft {
-        position: absolute;
-        top: 0;
-        left: 16px;
-    }
+.bgimg {
+  background-image: url('https://www.w3schools.com//w3images/forestbridge.jpg');
+  height: 100%;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  color: white;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 25px;
+}
 
-    .bottomleft {
-        position: absolute;
-        bottom: 0;
-        left: 16px;
-    }
+.topleft {
+  position: absolute;
+  top: 0;
+  left: 16px;
+}
 
-    .middle {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
+.bottomleft {
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+}
 
-    hr {
-        margin: auto;
-        width: 40%;
-    }
+.middle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+hr {
+  margin: auto;
+  width: 40%;
+}
 </style>
-
 <body>
 
-    <div class="bgimg">
-        <div class="topleft">
-            <p>Logo</p>
-        </div>
-        <div class="middle">
-            <h1>COMING SOON</h1>
-        </div>
-        <div class="bottomleft">
-            <p>https://continuitybrowser.com/</p>
-        </div>
-    </div>
+<div class="bgimg">
+  <div class="topleft">
+    <img src="https://continuitybrowser.com/assets/logo-light.png" class="logo" />
+  </div>
+  <div class="middle">
+      <h1>Continuity</h1>
+      <h3>Seamless . Private . Productive</h3>
+      <h4>Web Browser</h4>
+    <h5>COMING SOON</h5>
+  </div>
+  <div class="bottomleft">
+    <p>https://continuitybrowser.com/</p>
+  </div>
+</div>
 
 </body>
-
 </html>
