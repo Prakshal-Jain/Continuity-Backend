@@ -22,6 +22,10 @@ def syncing_devices():
 
 
 @app.route("/")
+def temp_website():
+    return render_template("temp_website.html")
+
+@app.route("/testing")
 def index():
     return render_template("test.html", device_name="Dell_" + str(randint(0, 10)))
 
