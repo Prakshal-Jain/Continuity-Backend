@@ -6,3 +6,4 @@ bcrypt
 openai
 tzdata
 flask-sock
+python-dotenv

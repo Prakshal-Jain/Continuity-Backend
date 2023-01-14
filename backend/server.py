@@ -15,9 +15,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def extension_device_details():
     return render_template("extension_device_details.html")
 
+
 @app.route("/syncing_devices")
 def syncing_devices():
     return render_template("syncing_devices.html")
+
 
 @app.route("/")
 def temp_website():
@@ -27,9 +29,16 @@ def temp_website():
 def index():
     return render_template("test.html", device_name="Dell_" + str(randint(0, 10)))
 
-@app.route('/assets/<path:path>')
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
+@app.route("/assets/<path:path>")
 def assets(path):
-    return send_from_directory('assets', path)
+    return send_from_directory("assets", path)
+
 
 @socketio.on_error_default
 def error_handler(e):
