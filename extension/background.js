@@ -120,6 +120,19 @@ const methods = {
             device_to_windowid_map.set(window_id, window?.id);
             windowid_to_device_map.set(window?.id, window_id);
         }
+    },
+
+    "login": async ({ curr_device }) => {
+        const window = await chrome.windows.getCurrent();
+        const window_id = window.id;
+
+        if (!device_to_windowid_map.has(curr_device)) {
+            device_to_windowid_map.set(curr_device, window_id);
+        }
+
+        if (!windowid_to_device_map.has(window_id)) {
+            windowid_to_device_map.set(window_id, curr_device);
+        }
     }
 }
 
@@ -135,75 +148,108 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 let closedTabs = [];
 
 chrome.tabs.onRemoved.addListener(async function (tabId, { isWindowClosing }) {
-    if (!isWindowClosing) {
-        const window = await chrome.windows.getCurrent();
-        const window_id = window.id;
-        const { device_name, device_token, user_id } = chrome.storage.local.get(['device_name', 'device_token', 'user_id'])
-        if (windowid_to_device_map.has(window_id) && tab_ids.has(tabId)) {
-            const [curr_device, closed_tab_id] = [windowid_to_device_map.get(window_id), tab_ids.get(tabId).unique_tab_id];
+    // if (!isWindowClosing) {
+    //     const window = await chrome.windows.getCurrent();
+    //     const window_id = window.id;
+    //     const { device_name, device_token, user_id } = chrome.storage.local.get(['device_name', 'device_token', 'user_id'])
+    //     if (windowid_to_device_map.has(window_id) && tab_ids.has(tabId)) {
+    //         const [curr_device, closed_tab_id] = [windowid_to_device_map.get(window_id), tab_ids.get(tabId).unique_tab_id];
 
-            // Filter to only delete tabs for current devide (from which logged in!)
-            if (curr_device !== device_name) {
-                return;
-            }
+    //         // Filter to only delete tabs for current devide (from which logged in!)
+    //         if (curr_device !== device_name) {
+    //             return;
+    //         }
 
-            const message = {
-                event_name: 'remove_tab',
-                data: {
-                    device_name,
-                    device_token,
-                    user_id,
-                    target_device: curr_device,
-                    id: closed_tab_id
-                }
-            }
+    //         const message = {
+    //             event_name: 'remove_tab',
+    //             data: {
+    //                 device_name,
+    //                 device_token,
+    //                 user_id,
+    //                 target_device: curr_device,
+    //                 id: closed_tab_id
+    //             }
+    //         }
 
-            const tabs = await chrome.tabs.query({ active: true, currentWindow: true, status: "complete" });
-            const processing_tab = tabs[0];
-            // MAYBE need to check if windowid is the same?
-            await chrome.tabs.sendMessage(processing_tab.id, message);
-            tab_ids.delete(tabId);
-        }
-    }
-    else{
-        closedTabs.push(tabId);
-    }
+    //         const tabs = await chrome.tabs.query({ active: true, currentWindow: true, status: "complete" });
+    //         const processing_tab = tabs[0];
+    //         // MAYBE need to check if windowid is the same?
+    //         await chrome.tabs.sendMessage(processing_tab.id, message);
+    //         tab_ids.delete(tabId);
+    //     }
+    // }
+    // else {
+    //     closedTabs.push(tabId);
+    // }
+    tab_ids.delete(tabId);
 })
 
-chrome.windows.onRemoved.addListener(async function (window_id) {
-    closedTabs = closedTabs.filter((tabId) => {
-        if(tab_ids.has(tabId) && (!tab_ids.get(tabId).url.includes(EXTENSION_DEVICE_DETAILS_PAGE))){
-            return true;
-        }
-        else{
-            return false;
-        }
-    })
+chrome.windows.onRemoved.addListener(async function removedWindow(window_id) {
+    // const { device_name, device_token, user_id } = await chrome.storage.local.get(['device_name', 'device_token', 'user_id']);
 
-    console.log(closedTabs);
-    
-    if(closedTabs.length === 0){
-        return;
-    }
-
-    const window = await chrome.windows.create({
-        url: EXTENSION_DEVICE_DETAILS_PAGE,
-        type: "popup",
-        focused: false,
-        height: 0,
-        width: 0
-    })
-    
-    const { device_name, device_token, user_id } = chrome.storage.local.get(['device_name', 'device_token', 'user_id']);
-    if (windowid_to_device_map.has(window_id) && tab_ids.has(tabId)) {
-        console.log(closedTabs);
-    }
-
-    // if (windowid_to_device_map.has(window_id)) {
-    //     const device = windowid_to_device_map.get(window_id);
-    //     device_to_windowid_map.delete(device);
-    //     windowid_to_device_map.delete(window_id);;
+    // // Skip for other device. Only delete for current device
+    // if ((!windowid_to_device_map.has(window_id)) || (windowid_to_device_map.get(window_id) !== device_name)) {
+    //     return;
     // }
+
+
+    // closedTabs = closedTabs.filter((tabId) => {
+    //     if (tab_ids.has(tabId) && (!tab_ids.get(tabId).url.includes(EXTENSION_DEVICE_DETAILS_PAGE))) {
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
+    // })
+
+    // if (closedTabs.length === 0) {
+    //     return;
+    // }
+
+    // const window = await chrome.windows.create({
+    //     url: EXTENSION_DEVICE_DETAILS_PAGE,
+    // })
+
+    // chrome.windows.onRemoved.removeListener(removedWindow);
+
+    // const curr_tabs = await chrome.tabs.query({ windowId: window.id });
+    // const only_tab = curr_tabs[0];
+
+    // let totalSent = 0;
+
+    // for (const tabId of closedTabs) {
+    //     if (windowid_to_device_map.has(window_id) && tab_ids.has(tabId)) {
+    //         const message = {
+    //             event_name: 'remove_tab',
+    //             data: {
+    //                 device_name,
+    //                 device_token,
+    //                 user_id,
+    //                 target_device: windowid_to_device_map.get(window_id),
+    //                 id: tab_ids.get(tabId).unique_tab_id
+    //             }
+    //         }
+
+    //         totalSent += 1;
+
+    //         chrome.tabs.sendMessage(only_tab.id, message, {}, async (m) => {
+    //             console.log(m);
+    //             totalSent -= 1;
+
+    //             if (totalSent === 0) {
+    //                 // await chrome.windows.remove(window.id);
+    //                 // chrome.windows.onRemoved.addListener(removedWindow);
+    //             }
+    //         });
+    //     }
+    // }
+
+
+    if (windowid_to_device_map.has(window_id)) {
+        const device = windowid_to_device_map.get(window_id);
+        device_to_windowid_map.delete(device);
+        windowid_to_device_map.delete(window_id);
+    }
 })
 
 

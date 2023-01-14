@@ -130,10 +130,18 @@ render_loading_page();
 function add_login_btn_eventlistner() {
     document.querySelector('.get_started')?.addEventListener('click', () => {
         chrome.identity.getProfileUserInfo().then(function (userInfo) {
+            const curr_device = document.querySelector('.device_name').value;
             socket.emit('login', {
-                device_name: document.querySelector('.device_name').value,
+                device_name: curr_device,
                 device_type: document.querySelector('input[name="device_type"]:checked').id,
                 user_id: userInfo?.email
+            });
+
+            chrome.runtime.sendMessage({
+                type: "login",
+                data: {
+                    curr_device,
+                }
             });
         },
             (err) => console.log(err)
@@ -242,7 +250,8 @@ const tab_component = (id, title, url, is_incognito) => {
 
     img.onclick = throttle(() => {
         chrome.runtime.sendMessage({
-            type: "open_tab", data: {
+            type: "open_tab",
+            data: {
                 is_incognito,
                 unique_tab_id: id,
                 title,
