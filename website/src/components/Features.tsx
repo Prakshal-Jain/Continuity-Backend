@@ -13,20 +13,28 @@ export default function Features({ scrollTarget }: ScrollProps) {
     return (
         <main className={styles.main}>
             <div>
-                <div className={styles.download_options} ref={scrollTarget}>Download for free on</div>
+                <div className={styles.download_options} ref={scrollTarget} id="download">Download for free on</div>
                 <div className={styles.download_icons}>
-                    <div style={{ textAlign: 'center' }}>
-                        <FontAwesomeIcon icon={faGooglePlay} className={`${styles.playstore} ${styles.scale}`} />
-                        <div className={styles.description}>Google Playstore</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <FontAwesomeIcon icon={faAppStore} className={`${styles.appstore} ${styles.scale}`} />
-                        <div className={styles.description}>Apple AppStore</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <FontAwesomeIcon icon={faChrome} className={`${styles.chrome} ${styles.scale}`} />
-                        <div className={styles.description}>Chrome Extension</div>
-                    </div>
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                        <div style={{ textAlign: 'center' }}>
+                            <FontAwesomeIcon icon={faGooglePlay} className={`${styles.playstore} ${styles.scale}`} />
+                            <div className={styles.description}>Google Playstore</div>
+                        </div>
+                    </a>
+
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                        <div style={{ textAlign: 'center' }}>
+                            <FontAwesomeIcon icon={faAppStore} className={`${styles.appstore} ${styles.scale}`} />
+                            <div className={styles.description}>Apple AppStore</div>
+                        </div>
+                    </a>
+
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                        <div style={{ textAlign: 'center' }}>
+                            <FontAwesomeIcon icon={faChrome} className={`${styles.chrome} ${styles.scale}`} />
+                            <div className={styles.description}>Chrome Extension</div>
+                        </div>
+                    </a>
                 </div>
             </div>
 
@@ -36,7 +44,7 @@ export default function Features({ scrollTarget }: ScrollProps) {
             </div>
 
             <div className={styles.subheading}>
-                And much more...
+                And much more coming soon...
             </div>
         </main>
     )

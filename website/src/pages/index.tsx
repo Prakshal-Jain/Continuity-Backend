@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import { Inter } from '@next/font/google'
-import styles from '@/styles/Home.module.css'
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
 import Navbar from '@/components/Navbar'
 import { useRef } from 'react'
 import "animate.css/animate.min.css"
+import Footer from '@/components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,6 +23,7 @@ export default function Home() {
         <Navbar scrollTarget={scrollRef} />
         <Hero />
         <Features scrollTarget={scrollRef} />
+        <Footer />
       </main>
     </>
   )
