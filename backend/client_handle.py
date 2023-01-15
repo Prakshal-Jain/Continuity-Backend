@@ -565,7 +565,7 @@ class ClientHandleNamespace(Namespace):
             )
             return
 
-        response = ultra_search_query({"prompt": data.get("prompt").strip()})
+        response = ultra_search_query({"prompt": data.get("prompt")})
         if response == None:
             warning = "Oops, something went wrong. Don't worry, we're on it! Trying to fix the issue in a jiffy."
             emit(
