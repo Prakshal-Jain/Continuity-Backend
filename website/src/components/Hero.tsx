@@ -1,5 +1,8 @@
 import styles from '../styles/hero.module.css';
 import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons'
+
 
 export default function Hero() {
     return (
@@ -14,12 +17,18 @@ export default function Hero() {
             <video autoPlay={true} muted={true} loop={true} className={styles.video_player}>
                 <source src="videos/hero_video.mp4" type="video/mp4" />
             </video>
-            <div className={styles.heading}>
-                Seamless . Secure . Productive
-            </div>
 
             <div>
-                Learn More
+                <div className={styles.subtitle}>
+                    <div className={styles.heading}>Seamless</div>
+                    <FontAwesomeIcon icon={faCircle} className={styles.dot} />
+                    <div className={styles.heading}>Secure</div>
+                    <FontAwesomeIcon icon={faCircle} className={styles.dot} />
+                    <div className={styles.heading}>Productive</div>
+                </div>
+                <div className={styles.h2}>
+                    Web Browser
+                </div>
             </div>
         </main>
     )
