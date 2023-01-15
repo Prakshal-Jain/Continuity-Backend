@@ -78,3 +78,10 @@
     color: #fff;
     font-weight: 500;
 }
+
+.subheading{
+    color: rgb(255, 149, 0);
+    font-size: large;
+    text-align: center;
+    font-weight: bold;
+}

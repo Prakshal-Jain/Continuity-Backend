@@ -34,9 +34,9 @@
     /* text-transform: uppercase; */
 }
 
-.heading:hover {
+/* .heading:hover {
     background-color: bisque;
-}
+} */
 
 .dot {
     margin-left: 0.5rem;
@@ -90,6 +90,10 @@
         width: 50vw;
     }
 }
+
+
+
+
 
 @keyframes fadeIn {
     0% {
