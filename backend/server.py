@@ -21,9 +21,9 @@ def syncing_devices():
     return render_template("syncing_devices.html")
 
 
-# @app.route("/")
-# def temp_website():
-#     return render_template("temp_website.html")
+@app.route("/")
+def temp_website():
+    return render_template("temp_website.html")
 
 @app.route("/testing")
 def index():
