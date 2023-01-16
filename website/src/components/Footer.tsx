@@ -11,7 +11,10 @@ export default function Footer() {
                 <Link href="/privacy">Privacy</Link>
             </div>
             <div className={styles.design_develop}>
-                Designed and developed by <a href="https://prakshal-jain.github.io/Portfolio/" target="_blank" className={styles.name}>Prakshal Jain</a>
+                Website Designed and developed by <a href="https://prakshal-jain.github.io/Portfolio/" target="_blank" className={styles.name}>Prakshal Jain</a>
+            </div>
+            <div className={styles.design_develop}>
+                Continuity App Designed and developed by <a href="https://www.linkedin.com/in/prakshal-jain-profile/" target="_blank" className={styles.name}>Prakshal Jain</a> and <a href="https://www.linkedin.com/in/swastikn" target="_blank" className={styles.name}>Swastik Naik</a>
             </div>
         </main>
     )
