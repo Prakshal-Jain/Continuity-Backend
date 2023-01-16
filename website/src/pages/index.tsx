@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { Inter } from '@next/font/google'
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
 import Navbar from '@/components/Navbar'
@@ -7,7 +6,6 @@ import { useRef } from 'react'
 import "animate.css/animate.min.css"
 import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const scrollRef = useRef(null);
@@ -19,7 +17,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={inter.className}>
+      <main>
         <Navbar scrollTarget={scrollRef} />
         <Hero />
         <Features scrollTarget={scrollRef} />

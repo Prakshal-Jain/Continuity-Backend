@@ -8,7 +8,7 @@ type Props = {
     downloadLink?: string
 }
 
-export default function ({ scrollTarget, downloadLink }: Props) {
+export default function Navbar ({ scrollTarget, downloadLink }: Props) {
     return (
         <div className={styles.nav_container}>
             <Link href="/" className={styles.nav_name}>
@@ -17,7 +17,7 @@ export default function ({ scrollTarget, downloadLink }: Props) {
 
             <div className={styles.right_menu}>
 
-                <a href="https://www.buymeacoffee.com/prakshaljain" target="_blank">
+                <a href="https://www.buymeacoffee.com/prakshaljain" target="_blank" rel="noreferrer">
                     <Image
                         className="coffeeImage"
                         src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"

@@ -15,21 +15,21 @@ export default function Features({ scrollTarget }: ScrollProps) {
             <div>
                 <div className={styles.download_options} ref={scrollTarget} id="download">Download for free on</div>
                 <div className={styles.download_icons}>
-                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank" rel="noreferrer">
                         <div style={{ textAlign: 'center' }}>
                             <FontAwesomeIcon icon={faGooglePlay} className={`${styles.playstore} ${styles.scale}`} />
                             <div className={styles.description}>Google Playstore</div>
                         </div>
                     </a>
 
-                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank" rel="noreferrer">
                         <div style={{ textAlign: 'center' }}>
                             <FontAwesomeIcon icon={faAppStore} className={`${styles.appstore} ${styles.scale}`} />
                             <div className={styles.description}>Apple AppStore</div>
                         </div>
                     </a>
 
-                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank">
+                    <a href="https://forms.gle/4pfVmUYMcNq5UfSX7" target="_blank" rel="noreferrer">
                         <div style={{ textAlign: 'center' }}>
                             <FontAwesomeIcon icon={faChrome} className={`${styles.chrome} ${styles.scale}`} />
                             <div className={styles.description}>Chrome Extension</div>
@@ -40,7 +40,7 @@ export default function Features({ scrollTarget }: ScrollProps) {
 
             <div className={styles.features}>
                 <div className={styles.title}>Features</div>
-                {feaures.map((props: Props) => <Tile {...props} />)}
+                {feaures.map((props: Props, idx) => <Tile {...props} key={`tile_${idx}`}/>)}
             </div>
 
             <div className={styles.subheading}>
