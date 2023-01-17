@@ -4,6 +4,7 @@ import { faGooglePlay, faAppStore, faChrome } from '@fortawesome/free-brands-svg
 import { feaures } from "../data/features";
 import Tile, { Props } from './Tile';
 import React from 'react';
+import MoreFeatures from './MoreFeatures';
 
 type ScrollProps = {
     scrollTarget: React.RefObject<HTMLDivElement>
@@ -40,11 +41,14 @@ export default function Features({ scrollTarget }: ScrollProps) {
 
             <div className={styles.features}>
                 <div className={styles.title}>Features</div>
-                {feaures.map((props: Props, idx) => <Tile {...props} key={`tile_${idx}`}/>)}
+                {feaures.map((props: Props, idx) => <Tile {...props} key={`tile_${idx}`} />)}
             </div>
 
-            <div className={styles.subheading}>
-                And much more coming soon...
+            <div>
+                <div className={styles.subheading}>
+                    And much more coming soon...
+                </div>
+                <MoreFeatures />
             </div>
         </main>
     )
