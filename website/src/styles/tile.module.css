@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: row;
     width: 80vw;
-    background-color: #323234;
+    background-color: #3a393d;
     padding: 2rem;
     border-radius: 10px;
     gap: 2rem;
@@ -28,24 +28,32 @@
     color: rgb(199, 199, 204);
 }
 
-.extra_width{
+.extra_width {
     max-width: 65%;
     align-items: center;
     text-align: center;
 }
 
-.normal_width{
+.normal_width {
     max-width: 40%;
     align-items: center;
     text-align: center;
 }
 
+.video_border {
+    width: 60%;
+    border-radius: 25px;
+    border: 0.5rem solid black;
+}
+
 @media (max-width: 767px) {
-    .extra_width, .normal_width{
+    .extra_width,
+    .normal_width {
         max-width: 100%;
     }
-    
+
     .tile_container {
+        background-color: #323234;
         flex-direction: column;
     }
 }

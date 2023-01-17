@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import styles from '../styles/tile.module.css';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import React from 'react';
