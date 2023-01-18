@@ -1103,7 +1103,7 @@ class ClientHandleNamespace(Namespace):
 
         send_to = data.get("send_to", set())
         ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
-        message = {"message": data.get("message")}
+        message = {"message": json.loads(data.get("message"))}
 
         if send_to == set():
             notification.insert_one(
@@ -1123,3 +1123,15 @@ class ClientHandleNamespace(Namespace):
             )
 
         emit("set_notification", {"successful": True, "type": "message"}, to=sid)
+
+    def on_admin_get_error_log(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
