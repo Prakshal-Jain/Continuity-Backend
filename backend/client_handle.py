@@ -10,12 +10,8 @@ from features.ultra_search import ultra_search_query
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import os
-from dotenv import load_dotenv
 import hashlib
 import json
-
-
-load_dotenv()
 
 client = MongoClient("mongo")
 db = client["user_data"]

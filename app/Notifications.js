@@ -16,6 +16,7 @@ class Notifications extends Component {
 
     componentDidMount = () => {
         this?.context?.socket.on('get_notification', (data) => {
+            console.log(data);
             if (data?.successful === true) {
                 this.setState({ notifications: data?.message })
             }
