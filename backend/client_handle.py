@@ -1135,3 +1135,11 @@ class ClientHandleNamespace(Namespace):
 
         if not (sid := self.__check_admin_socket()):
             return
+
+        errors = open("error.log").read()
+
+        emit(
+            "admin_get_error_log",
+            {"successful": True, "type": "message", "message": errors},
+            to=sid,
+        )

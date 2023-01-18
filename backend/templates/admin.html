@@ -123,6 +123,25 @@
             }
         })
 
+        function get_admin_get_error_log() {
+            socket.emit("get_admin_get_error_log", { 'key': admin_key });
+        }
+
+        socket.on("get_admin_get_error_log", function (data) {
+            if (!data.successful) {
+                alert("Error occured: " + JSON.stringify(data.message));
+            } else {
+                const link = document.createElement("a");
+                const content = data.message;
+                const file = new Blob([content], { type: 'text/plain' });
+                link.href = URL.createObjectURL(file);
+                link.download = "error.log";
+                link.click();
+                URL.revokeObjectURL(link.href);
+            }
+        })
+        
+        
         socket.on("error_occured", function (data) {
             alert(JSON.stringify(data.message));
         })
