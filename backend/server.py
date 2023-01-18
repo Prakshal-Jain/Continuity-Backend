@@ -21,10 +21,6 @@ def syncing_devices():
     return render_template("syncing_devices.html")
 
 
-@app.route("/")
-def temp_website():
-    return render_template("temp_website.html")
-
 @app.route("/testing")
 def index():
     return render_template("test.html", device_name="Dell_" + str(randint(0, 10)))
@@ -38,6 +34,17 @@ def admin():
 @app.route("/assets/<path:path>")
 def assets(path):
     return send_from_directory("assets", path)
+
+
+# ============== Hoting static Website ==============
+@app.route("/")
+def website():
+    return send_from_directory("../website/out", "index.html")
+
+@app.route("/<path:path>")
+def website_next(path):
+    return send_from_directory("../website/out", path)
+# ============================
 
 
 @socketio.on_error_default
