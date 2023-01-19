@@ -23,10 +23,12 @@ import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
 import Report from './Report';
 import Notifications from './Notifications';
+import { LogBox } from 'react-native';
 
 const Stack = createStackNavigator();
 const socket = io("https://continuitybrowser.com");
 
+LogBox.ignoreAllLogs();
 
 export default function () {
   const scheme = useColorScheme();

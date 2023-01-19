@@ -71,7 +71,7 @@ class Tabs extends Component {
 
     renderSearchWithTabs = (tabs) => (
         <View>
-            <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync with other devices</Text>
+            <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center" }}>Pull to sync tabs with other devices</Text>
             {this.props.isIncognitoView && (
                 <View style={{ paddingTop: 15, flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
                     <Icon name="incognito-circle" size={35} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onPress={() => this.props.setIsIncognitoView(true)} />

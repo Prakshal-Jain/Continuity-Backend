@@ -51,7 +51,7 @@ export default function ({ type = "message", message }) {
 
     return (
         <View style={styles.alertContainer}>
-            <View style={{ flexDirection: "row", marginHorizontal: 15 }}>
+            <View style={{ flexDirection: "row", marginHorizontal: 15, alignItems: "center" }}>
                 <MaterialCommunityIcons name={iconMap[type].icon} style={styles.iconStyle} color={iconMap[type].color} />
                 <Text style={styles.textStyle}>{message}</Text>
             </View>
