@@ -1112,7 +1112,7 @@ class ClientHandleNamespace(Namespace):
             send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
 
         for user in send_to:
-            new = notification.insert_one(
+            new_notification = notification.insert_one(
                 {
                     "user_record": True,
                     "user_id": user,
@@ -1121,12 +1121,14 @@ class ClientHandleNamespace(Namespace):
                     "ack": False,
                 }
             )
-
-            emit(
-                "get_notification",
-                {"successful": True, "message": [{"message": message, "id": str(new.get('_id'))}], "type": "message"},
-            )
-
+            user_sids = list(ClientHandleNamespace.devices_in_use.get(user).values())
+            if user_sids != []:
+                new_message = {"id": str(new_notification.inserted_id), **message}
+                emit(
+                    "get_notification",
+                    {"successful": True, "message": [new_message], "type": "message"},
+                    to=user_sids
+                )
 
         emit("set_notification", {"successful": True, "type": "message"}, to=sid)
 
