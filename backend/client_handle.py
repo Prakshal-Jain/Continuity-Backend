@@ -143,7 +143,8 @@ class ClientHandleNamespace(Namespace):
 
         return request_sid_list
 
-    def __send_notification_count(self, user_id, new_user=False):
+    def __send_notification_count(self, user_id, new_user=False, sids=[]):
+        sids = [request.sid] if sids == [] else sids
         notification_count = notification.count_documents(
             {"user_record": True, "user_id": user_id, "ack": False}
         )
@@ -171,6 +172,7 @@ class ClientHandleNamespace(Namespace):
                 "message": {"notification_count": notification_count},
                 "type": "message",
             },
+            to=sids
         )
 
     def __at_capacity(self, event, user_id):
@@ -300,7 +302,7 @@ class ClientHandleNamespace(Namespace):
             },
         )
 
-        self.__send_notification_count(data.get("user_id"), new_user)
+        self.__send_notification_count(data.get("user_id"), new_user=new_user)
 
         sys.stderr.flush()
         sys.stdout.flush()
@@ -789,6 +791,8 @@ class ClientHandleNamespace(Namespace):
         notification.update_one(
             {"_id": ObjectId(notification_id)}, {"$set": {"ack": True}}
         )
+        user_sids = list(ClientHandleNamespace.devices_in_use.get(user_id).values())
+        self.__send_notification_count(user_id, sids=user_sids)
         emit("ack_notification", {"successful": True, "type": "message"})
 
     def on_get_notification(self, data):
@@ -1150,6 +1154,7 @@ class ClientHandleNamespace(Namespace):
                     {"successful": True, "message": [new_message], "type": "message"},
                     to=user_sids
                 )
+                self.__send_notification_count(user, sids=user_sids)
 
         emit("set_notification", {"successful": True, "type": "message"}, to=sid)
 
