@@ -123,11 +123,12 @@
             }
         })
 
-        function get_admin_get_error_log() {
-            socket.emit("get_admin_get_error_log", { 'key': admin_key });
+        function admin_get_error_log() {
+            socket.emit("admin_get_error_log", { 'key': admin_key });
         }
 
-        socket.on("get_admin_get_error_log", function (data) {
+        socket.on("admin_get_error_log", function (data) {
+            console.log(data);
             if (!data.successful) {
                 alert("Error occured: " + JSON.stringify(data.message));
             } else {
@@ -196,6 +197,9 @@
     </label>
     <input type="button" onclick="set_notification();" value="set_notification"><br>
     <div id="set_notification"></div>
+    <br>
+    <hr>
+    <input type="button" onclick="admin_get_error_log();" value="get error log">
     <br>
     <hr>
     <input type="button" onclick="diconnect_admin();" value="diconnect_admin">
