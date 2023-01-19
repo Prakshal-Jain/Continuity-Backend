@@ -48,6 +48,10 @@ export default function (props) {
 
     let injectedJavaScript = props?.injectedJavaScript ?? `
         window.ReactNativeWebView.postMessage('injected javascript works!');
+        document.querySelectorAll('video').forEach(x => {
+            x.setAttribute('playsinline', '');
+            x.setAttribute('webkit-playsinline', '')
+        });
         true; // note: this is required, or you'll sometimes get silent failures   
     `;
 
@@ -467,7 +471,10 @@ export default function (props) {
                         injectedJavaScript={injectedJavaScript}
                         pullToRefreshEnabled={true}
                         allowsBackForwardNavigationGestures={true}
-                        mediaPlaybackRequiresUserAction={true}
+                        mediaPlaybackRequiresUserAction={false}
+                        allowsLinkPreview={true}
+                        // allowsFullscreenVideo={false}
+                        allowsInlineMediaPlayback={true}
                         onContentProcessDidTerminate={() => setURL(defaultURL)}     // Handler when webview process terminates (change the source to default page)
                         style={{ backgroundColor: (colorScheme === 'dark' || incognito) ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)', flex: 1 }}
                         onScroll={handleScroll}

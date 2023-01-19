@@ -30,10 +30,18 @@ class TabsManager extends React.Component {
             if (data?.successful === true) {
                 const metadata_list = Object.entries(data?.message).map(([key, value]) => [Number(key), value]);
                 const id = metadata_list.length === 0 ? 0 : ((metadata_list.reduce((a, b) => a[1] > b[1] ? a : b, 0)[0]) + 1);
-                this.setState({ metadata: new Map(metadata_list), id: id, loading: false });
+                this.setState({ metadata: new Map(metadata_list), id: id, loading: false }, () => {
+                    if (this.props?.route?.params?.url !== undefined && this.props?.route?.params?.url !== null) {
+                        this.addNewTab(this.props?.route?.params?.url);
+                    }
+                });
             }
             else {
-                this.setState({ loading: false });
+                this.setState({ loading: false }, () => {
+                    if (this.props?.route?.params?.url !== undefined && this.props?.route?.params?.url !== null) {
+                        this.addNewTab(this.props?.route?.params?.url);
+                    }
+                });
                 console.log(data?.message);
             }
         })
@@ -250,7 +258,7 @@ class TabsManager extends React.Component {
                     (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
                         <View style={{ flex: 1 }}>
                             {this.renderTabs()}
-                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} refreshTabs={this.refreshTabs} loading={this.state.loading} navigation={this.props?.navigation} isIncognitoView={this.state.isIncognitoView} setIsIncognitoView={(value) => this.setState({isIncognitoView: value})} /> : null}
+                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} refreshTabs={this.refreshTabs} loading={this.state.loading} navigation={this.props?.navigation} isIncognitoView={this.state.isIncognitoView} setIsIncognitoView={(value) => this.setState({ isIncognitoView: value })} /> : null}
                         </View>
                     )
                 }

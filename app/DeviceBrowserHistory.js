@@ -152,13 +152,14 @@ class DeviceBrowserHistory extends Component {
                                                         style={{ width: 30, height: 30, resizeMode: "contain", marginRight: 10, borderRadius: 15, }}
                                                         source={{ uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${hist?.url}&sz=64` }}
                                                         defaultSource={webIcon}
+                                                        onPress={() => this?.props?.navigation?.navigate("Tabs", { 'url': hist?.url })}
                                                     />
-                                                    <View style={{ flex: 1, justifyContent: "center" }}>
+                                                    <TouchableOpacity style={{ flex: 1, justifyContent: "center" }} onPress={() => this?.props?.navigation?.push("Tabs", { 'url': hist?.url })}>
                                                         {(hist?.title !== undefined && hist?.title !== null) && (
                                                             <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 17 }} numberOfLines={1}>{hist?.title}</Text>
                                                         )}
                                                         <Text style={{ color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)' }} numberOfLines={1}>{hist?.url}</Text>
-                                                    </View>
+                                                    </TouchableOpacity>
                                                     <FontAwesome name="close" size={20} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} style={{ marginLeft: 10 }} onPress={() => this.deleteOneHistory(hist?.id, index, i)} />
                                                 </View>
                                             </View>
