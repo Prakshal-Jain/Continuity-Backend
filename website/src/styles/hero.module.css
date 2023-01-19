@@ -60,12 +60,20 @@
     .video_player {
         width: 100vw;
     }
+    
+    .subtitle{
+        flex-direction: column;
+    }
 }
 
 /* Media Query for low resolution  Tablets, Ipads */
 @media (min-width: 481px) and (max-width: 767px) {
     .video_player {
         width: 100vw;
+    }
+
+    .subtitle{
+        flex-direction: column;
     }
 }
 
