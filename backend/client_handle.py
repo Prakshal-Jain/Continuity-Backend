@@ -30,6 +30,7 @@ notification.create_index("ttl", expireAfterSeconds=0)
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
     admin_socket = {}
+    max_active_users = 100
 
     def __create_tab(self, device_name, device_type, device_token):
         return {
@@ -172,7 +173,20 @@ class ClientHandleNamespace(Namespace):
             },
         )
 
+    def __at_capacity(self, event, user_id):
+        if (len(ClientHandleNamespace.devices_in_use) >= ClientHandleNamespace.max_active_users) and (user_id not in ClientHandleNamespace.devices_in_use):
+            emit(event, {"successful": False, 
+            "message": "Dear valued users, we apologize for the inconvenience, but our app is currently at capacity. We are working diligently to increase capacity and provide a better experience for all users. Please try again later, and thank you for your patience.", 
+            "type": "warning",
+            "capacity": True
+            })
+            return True
+        return False
+
     def on_login(self, data):
+        if self.__at_capacity("login", data.get("user_id")):
+            return
+
         ClientHandleNamespace.devices_in_use[
             data.get("user_id")
         ] = ClientHandleNamespace.devices_in_use.get(data.get("user_id"), {})
@@ -812,6 +826,7 @@ class ClientHandleNamespace(Namespace):
         emit("report_feedback", {"successful": True, "type": "message"})
 
     def on_auto_authenticate(self, data):
+            
         device_name = data.get("device_name")
         device_token = data.get("device_token")
 
@@ -836,6 +851,10 @@ class ClientHandleNamespace(Namespace):
                 }
                 user = users.find_one({"user_id": user_id_from_data})
                 credentials["enrolled_features"] = user.get("enrolled_features")
+
+                if self.__at_capacity("auto_authenticate", user_id_from_data):
+                    return
+
                 emit(
                     "auto_authenticate",
                     {"successful": True, "message": credentials, "type": "message"},
@@ -876,6 +895,8 @@ class ClientHandleNamespace(Namespace):
         )
 
         del ClientHandleNamespace.devices_in_use.get(user_id)[device]
+        if ClientHandleNamespace.devices_in_use.get(user_id) == {}:
+            del ClientHandleNamespace.devices_in_use[user_id]
 
         emit("logout", {"successful": True, "type": "message"})
         print("Logged Out Successfully")
@@ -1149,5 +1170,27 @@ class ClientHandleNamespace(Namespace):
         emit(
             "admin_get_error_log",
             {"successful": True, "type": "message", "message": errors},
+            to=sid,
+        )
+
+    def on_admin_set_capacity(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+        
+        capacity = int(data.get('capacity'))
+
+        ClientHandleNamespace.max_active_users = capacity
+
+        emit(
+            "admin_set_capacity",
+            {"successful": True, "type": "message"},
             to=sid,
         )
