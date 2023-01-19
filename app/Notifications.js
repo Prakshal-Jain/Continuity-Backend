@@ -1,5 +1,5 @@
 import { StateContext } from "./state_context";
-import { SafeAreaView, StatusBar, StyleSheet, ScrollView, Text, View, TouchableOpacity, Image } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, ScrollView, Text, View, TouchableOpacity, Image, RefreshControl } from "react-native";
 import React, { Component } from "react";
 import Loader from "./components/Loader";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -105,9 +105,19 @@ class Notifications extends Component {
                 <StatusBar animated={true}
                     barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
                 />
-                <ScrollView style={{ width: '100%', flex: 1, padding: 10, paddingVertical: 20 }}>
+                <ScrollView
+                    style={{ width: '100%', flex: 1, padding: 20 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.loading}
+                            onRefresh={() => this?.context?.socket.emit("get_notification", { user_id: this?.context?.credentials?.user_id, device_token: this?.context?.credentials?.device_token, device_name: this?.context?.credentials?.device_name })}
+                            tintColor="rgba(142, 142, 147, 1)"
+                        />
+                    }
+                >
                     {this.state.loading ? <Loader message="Gathering all your notifications..." /> : (
                         <>
+                            <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center", fontSize: 13, marginBottom: 15 }}>Pull to sync with other devices</Text>
                             {(this.state.notifications === null || this.state.notifications === undefined || this.state.notifications?.length === 0)
                                 ?
                                 <Text style={{ marginVertical: 10, textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)', }}>Woohoo! No new notifications yet...</Text>
@@ -159,7 +169,8 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         resizeMode: 'contain',
-        marginRight: 15
+        marginRight: 15,
+        borderRadius: 10,
     }
 });
 
