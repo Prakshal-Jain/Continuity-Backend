@@ -1103,7 +1103,7 @@ class ClientHandleNamespace(Namespace):
 
         send_to = data.get("send_to", set())
         ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
-        message = {"message": data.get("message")}
+        message = {"message": json.loads(data.get("message"))}
 
         if send_to == set():
             notification.insert_one(
@@ -1112,7 +1112,7 @@ class ClientHandleNamespace(Namespace):
             send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
 
         for user in send_to:
-            notification.insert_one(
+            new_notification = notification.insert_one(
                 {
                     "user_record": True,
                     "user_id": user,
@@ -1121,5 +1121,33 @@ class ClientHandleNamespace(Namespace):
                     "ack": False,
                 }
             )
+            user_sids = list(ClientHandleNamespace.devices_in_use.get(user).values())
+            if user_sids != []:
+                new_message = {"id": str(new_notification.inserted_id), **message}
+                emit(
+                    "get_notification",
+                    {"successful": True, "message": [new_message], "type": "message"},
+                    to=user_sids
+                )
 
         emit("set_notification", {"successful": True, "type": "message"}, to=sid)
+
+    def on_admin_get_error_log(self, data):
+        key = data.get("key")
+        if not self.__authenticate_admin(key):
+            emit(
+                "error_occured",
+                {"successful": False, "type": "error", "message": "Incorrect key"},
+            )
+            return
+
+        if not (sid := self.__check_admin_socket()):
+            return
+
+        errors = open("error.log").read()
+
+        emit(
+            "admin_get_error_log",
+            {"successful": True, "type": "message", "message": errors},
+            to=sid,
+        )
