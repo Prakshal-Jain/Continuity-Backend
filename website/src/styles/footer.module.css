@@ -37,3 +37,31 @@
     font-weight: 700;
     font-size: large;
 }
+
+.heading{
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: bolder;
+}
+
+
+.social{
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    font-size: large;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.scale {
+    cursor: pointer;
+    transition: transform 200ms ease-in-out, color 200ms ease-in-out;
+    font-size: 2rem;
+}
+.scale:hover {
+    transform: scale(1.3);
+}

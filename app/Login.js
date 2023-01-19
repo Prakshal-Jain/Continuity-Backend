@@ -125,13 +125,14 @@ export default function Login({ navigation }) {
             />
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
-                {user === null ? (
-                    <GoogleSignInButton
-                        // onPress={() => promptAsync()}
-                        onPress={() => setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
-                        colorScheme={colorScheme}
-                    />
-                )
+                {user === null ?
+                    (
+                        <GoogleSignInButton
+                            // onPress={() => promptAsync()}
+                            onPress={() => setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                            colorScheme={colorScheme}
+                        />
+                    )
                     :
                     (
                         <>
