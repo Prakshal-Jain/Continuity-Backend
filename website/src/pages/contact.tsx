@@ -18,7 +18,7 @@ export default function privacy() {
             <main className={styles.main}>
                 <div className={styles.heading}>Contacting Continuity</div>
                 <div className={styles.contact_options}>
-                    <a href="https://discord.gg/TwJ863WJsQ" rel="noreferrer">
+                    <a href="https://discord.gg/TwJ863WJsQ" rel="noreferrer" target="_blank">
                         <div className={styles.option}>
                             <FontAwesomeIcon icon={faDiscord} style={{ color: 'rgba(88, 101, 242, 1)', fontSize: 'x-large' }} />
                             <span style={{fontSize: 'x-large', fontWeight: 'bold'}}>Discord</span> (recommended for quick responses)
