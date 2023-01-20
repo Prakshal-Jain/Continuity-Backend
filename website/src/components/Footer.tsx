@@ -16,7 +16,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className={styles.footer_links}>
-                <a href="mailto:prakshaljain422@gmail.com" rel="noreferrer">Contact</a>
+                <Link href="/contact">Contact</Link>
                 <a href="https://www.buymeacoffee.com/prakshaljain" target="_blank" rel="noreferrer">Donate</a>
                 <Link href="/privacy">Privacy</Link>
             </div>
