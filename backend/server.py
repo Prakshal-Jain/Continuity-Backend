@@ -41,6 +41,10 @@ def assets(path):
 def website():
     return send_from_directory("../website/out", "index.html")
 
+@app.route("/privacy")
+def website():
+    return send_from_directory("../website/out", "privacy.html")
+
 @app.route("/<path:path>")
 def website_next(path):
     return send_from_directory("../website/out", path)
