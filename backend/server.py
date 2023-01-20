@@ -42,7 +42,7 @@ def website():
     return send_from_directory("../website/out", "index.html")
 
 @app.route("/privacy")
-def website():
+def privacy():
     return send_from_directory("../website/out", "privacy.html")
 
 @app.route("/<path:path>")
