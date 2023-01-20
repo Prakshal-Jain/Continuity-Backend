@@ -146,6 +146,20 @@
         socket.on("error_occured", function (data) {
             alert(JSON.stringify(data.message));
         })
+
+        function set_capacity(){
+            new_capacity = Number(document.getElementById('capacity').value)
+            socket.emit("admin_set_capacity", { 'key': admin_key, 'capacity': new_capacity});
+        }
+
+        socket.on('admin_set_capacity', function (data){
+            if (!data.successful) {
+                alert("Error occured: " + JSON.stringify(data.message));
+            } else {
+                document.getElementById('set_capacity').innerHTML = "Successful!!"
+            }
+        });
+
     </script>
 </head>
 
@@ -200,6 +214,14 @@
     <br>
     <hr>
     <input type="button" onclick="admin_get_error_log();" value="get error log">
+    <br>
+    <hr>
+    <label>
+        Max number of users
+        <input type="number" id='capacity' /><br>
+    </label>
+    <input type="button" onclick="set_capacity();" value="set new capacity">
+    <div id="set_capacity"></div>
     <br>
     <hr>
     <input type="button" onclick="diconnect_admin();" value="diconnect_admin">
