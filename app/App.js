@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Profile from "./Profile";
@@ -23,12 +24,9 @@ import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
 import Report from './Report';
 import Notifications from './Notifications';
-import { LogBox } from 'react-native';
 
 const Stack = createStackNavigator();
 const socket = io("https://continuitybrowser.com");
-
-LogBox.ignoreAllLogs();
 
 export default function () {
   const scheme = useColorScheme();
