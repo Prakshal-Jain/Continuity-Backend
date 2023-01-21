@@ -21,6 +21,8 @@ ultra_search = db["ultra_search"]
 history = db["history"]
 notification = db["notification"]
 feedback = db["feedback"]
+trackers = db['trackers']
+
 
 privacy_report.create_index("expireAt", expireAfterSeconds=0)
 history.create_index("expireAt", expireAfterSeconds=0)
@@ -622,11 +624,9 @@ class ClientHandleNamespace(Namespace):
         if not self.__authenticate_device("privacy_report", user, data):
             return
 
-        target_device = data.get("target_device")
-
         data = privacy_report.aggregate(
             [
-                {"$match": {"user_id": user_id, "device": target_device}},
+                {"$match": {"user_id": user_id}},
                 {
                     "$group": {
                         "_id": {"website_host": "$website_host", "tracker": "$tracker"}

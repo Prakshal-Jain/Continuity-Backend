@@ -24,6 +24,7 @@ import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
 import Report from './Report';
 import Notifications from './Notifications';
+import {privacy_domain_set} from "./utilities/list";
 
 const Stack = createStackNavigator();
 const socket = io("https://continuitybrowser.com");
@@ -65,7 +66,7 @@ export default function () {
   }
 
   return (
-    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics, canGoBackToYourDevices, setCanGoBackToYourDevices }}>
+    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics, canGoBackToYourDevices, setCanGoBackToYourDevices, privacy_domain_set }}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Your Devices">
           <Stack.Screen

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
-from client_handle import ClientHandleNamespace
+from client_handle import ClientHandleNamespace, trackers
 from random import randint
 import logging
 
@@ -35,6 +35,12 @@ def admin():
 def assets(path):
     return send_from_directory("assets", path)
 
+@app.route('/privacy_prevention')
+def privacy_prevention():
+    domain_name = request.args.get('domain_name')
+    instance = trackers.find_one({'domain-name': domain_name})
+    print(instance, flush=True)
+    return {'is_unsafe': instance != None}
 
 # ============== Hoting static Website ==============
 @app.route("/")
