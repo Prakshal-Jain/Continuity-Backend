@@ -16,6 +16,7 @@ export default function Footer() {
                 </div>
             </div>
             <div className={styles.footer_links}>
+                <Link href="/help">Help</Link>
                 <Link href="/contact">Contact</Link>
                 <a href="https://www.buymeacoffee.com/prakshaljain" target="_blank" rel="noreferrer">Donate</a>
                 <Link href="/privacy">Privacy</Link>
