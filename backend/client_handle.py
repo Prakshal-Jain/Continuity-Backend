@@ -506,7 +506,7 @@ class ClientHandleNamespace(Namespace):
         if feature_name not in ["ultra_search", "privacy_prevention"]:
             warning = "The specified feature name is not valid."
             emit(
-                "enroll_feature",
+                "switch_feature",
                 {"successful": False, "message": warning, "type": "error"},
             )
             return
@@ -518,7 +518,7 @@ class ClientHandleNamespace(Namespace):
         ):
             warning = f"You have not opted in for {feature_name}"
             emit(
-                "ultra_search_query",
+                "switch_feature",
                 {"successful": False, "message": warning, "type": "error"},
             )
             return
