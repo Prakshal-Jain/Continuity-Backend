@@ -624,11 +624,9 @@ class ClientHandleNamespace(Namespace):
         if not self.__authenticate_device("privacy_report", user, data):
             return
 
-        target_device = data.get("target_device")
-
         data = privacy_report.aggregate(
             [
-                {"$match": {"user_id": user_id, "device": target_device}},
+                {"$match": {"user_id": user_id}},
                 {
                     "$group": {
                         "_id": {"website_host": "$website_host", "tracker": "$tracker"}
