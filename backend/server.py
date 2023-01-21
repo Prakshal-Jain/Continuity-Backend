@@ -55,6 +55,10 @@ def privacy():
 def contact():
     return send_from_directory("../website/out", "contact.html")
 
+@app.route("/help")
+def help():
+    return send_from_directory("../website/out", "help.html")
+
 @app.route("/<path:path>")
 def website_next(path):
     return send_from_directory("../website/out", path)
