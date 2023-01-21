@@ -66,7 +66,7 @@ export default function ({ navigation, ...props }) {
         setTrackers(null);
         setWebsites(null);
         setSelectedDevice(id);
-        socket.emit("privacy_report", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token, target_device: id });
+        socket.emit("privacy_report", { user_id: credentials?.user_id, device_name: credentials?.device_name, device_token: credentials?.device_token });
     }
 
     const styles = StyleSheet.create({
