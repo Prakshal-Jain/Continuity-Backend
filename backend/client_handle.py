@@ -21,6 +21,8 @@ ultra_search = db["ultra_search"]
 history = db["history"]
 notification = db["notification"]
 feedback = db["feedback"]
+trackers = db['trackers']
+
 
 privacy_report.create_index("expireAt", expireAfterSeconds=0)
 history.create_index("expireAt", expireAfterSeconds=0)
