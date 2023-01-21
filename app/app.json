@@ -1,16 +1,12 @@
 {
   "expo": {
     "name": "Continuity",
+    "scheme": "continuity",
     "slug": "Continuity",
-    "version": "1.0.1",
-    "orientation": "auto",
-    "icon": "./assets/icon.png",
+    "version": "1.0.3",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/logo-light.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1c1c1e"
-    },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -19,17 +15,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.continuity",
-      "splash": {
-        "image": "./assets/logo-light.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#1c1c1e"
-      }
+      "bundleIdentifier": "com.continuity"
     },
     "android": {
       "package": "com.continuity",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo-light.png",
+        "foregroundImage": "./assets/small-logo-light.png",
         "backgroundColor": "#1c1c1e"
       }
     },
