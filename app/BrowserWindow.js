@@ -265,7 +265,7 @@ export default function (props) {
                             "website_host": websiteHost,
                             "tracker": trackerHost
                         })
-                        if(privacy_domain_set.has(trackerHost)){
+                        if (privacy_domain_set.has(trackerHost)) {
                             returnBool = false;
                         }
                     }
@@ -279,7 +279,13 @@ export default function (props) {
         // or filter ads and adult content.
 
         // MUST return true for the request to pass through
-        return returnBool;
+        if ((credentials?.enrolled_features?.privacy_prevention?.enrolled === true) && (credentials?.enrolled_features?.privacy_prevention?.switch === true)) {
+            // Filter and do not allow trackers when enrolled and switch in privacy_prevention
+            return returnBool;
+        }
+        else {
+            return true;
+        }
     }
 
     const onBrowserError = (syntheticEvent) => {
