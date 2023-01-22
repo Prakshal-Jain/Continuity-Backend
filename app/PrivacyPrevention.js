@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
 });
 
 
-class UltraSearch extends Component {
+class PrivacyPrevention extends Component {
     static contextType = StateContext;
     constructor(props) {
         super(props);
@@ -159,17 +159,28 @@ class UltraSearch extends Component {
                         <MaterialCommunityIcons name="lock-check" style={{ marginRight: 15, fontSize: 25 }} color="rgba(40, 205, 65, 1)" />
                     </View>
 
+                    {(this?.context?.credentials?.enrolled_features?.privacy_prevention?.enrolled === false) &&
+                        (
+                            <TouchableOpacity
+                                style={styles.upgradeBtn}
+                                onPress={this.upgradePrivacyPrevention}
+                                underlayColor='#fff'>
+                                <Text style={styles.upgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
+                            </TouchableOpacity>
+                        )
+                    }
+
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
-                        Are you tired of sifting through irrelevant search results and worrying about online safety? Ultra Search is here to change the way you search the web.
+                        As technology has advanced, the ability to track user behavior across websites for advertising purposes has become increasingly prevalent. This tracking can be observed when users see ads for products they have viewed online appearing on other websites. Unfortunately, many websites contain a significant number of trackers from different companies on a single page, making it difficult for users to maintain their privacy.
                     </Text>
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
-                        Our advanced AI technology uses OpenAI's API to provide quick and accurate suggestions to your queries, custom tailored to your specific needs. And for the first time ever, Ultra Search is seamlessly integrated into your web browser, making it a powerful tool for all of your online searches.
+                        To address this issue, Continuity has been designed with user privacy as a top priority. Our commitment to privacy is rooted in the belief that it is a fundamental human right. To uphold this value, we have introduced several key privacy features such as the Intelligent Privacy Report and Intelligent Privacy Prevention.
                     </Text>
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
-                        But that's not all - Ultra Search also ensures that the content you see is safe and appropriate for all users, and your privacy is always protected as we never share your information with third parties or with Continuity.
+                        Our Intelligent Privacy Reports, which can be accessed on your Profile page, provide detailed information about the trackers that have attempted to access your personal and sensitive information. Additionally, our Intelligent Privacy Prevention feature allows you to prevent these trackers from accessing your information by blocking network requests from known and blacklisted trackers. This not only protects your sensitive information, but it also minimizes the amount of data passed to third parties such as search engines.
                     </Text>
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
-                        Upgrade your search game for just $4.99 per month - that's even less than the cost of a cup of coffee! Don't miss out on this opportunity to improve your online search experience with Ultra Search. Try it out today and see the difference for yourself.
+                        Upgrade to Continuity now and ensure that your sensitive information, such as credit card details, passwords, and browsing history, remains private by simply clicking the button below. Browse with peace of mind knowing that your privacy is protected with Continuity.
                     </Text>
 
                     {(this?.context?.credentials?.enrolled_features?.privacy_prevention?.enrolled === false) ?
@@ -198,4 +209,4 @@ class UltraSearch extends Component {
 }
 
 
-export default UltraSearch;
+export default PrivacyPrevention;
