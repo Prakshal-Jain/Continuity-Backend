@@ -21,10 +21,13 @@ export default function help() {
                     Stuck on a question?
                 </div>
 
-                <span className={styles.option}>
-                    <FontAwesomeIcon icon={faDiscord} style={{ color: 'rgba(88, 101, 242, 1)', fontSize: 'large' }} />
-                    <span style={{ fontSize: 'large', fontWeight: 'bold' }}>Join our Discord group</span>
-                </span>
+                <a href="https://discord.gg/TwJ863WJsQ" rel="noreferrer" target="_blank">
+                    <span className={styles.option}>
+                        <FontAwesomeIcon icon={faDiscord} style={{ color: 'rgba(88, 101, 242, 1)', fontSize: 'large' }} />
+                        <span style={{ fontSize: 'large', fontWeight: 'bold' }}>Join our Discord group</span>
+                    </span>
+                </a>
+
                 <div className={styles.light_text}>
                     for speedy and personalized assistance! Plus, it is a great way to connect with other like-minded friends.
                 </div>

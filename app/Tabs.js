@@ -231,11 +231,11 @@ class Tabs extends Component {
                             if (this?.context?.button_haptics !== 'none') {
                                 Haptics.impactAsync(this?.context?.button_haptics);
                             }
-                            this.addNewTab(this.props.isIncognitoView)
+                            this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })
                         }}
                         hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
                     >
-                        <Icon style={{ padding: 10 }} name="plus" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} />
+                        <Icon style={{ padding: 10 }} name="history" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} />
                     </Pressable>
 
                     <Pressable
@@ -243,11 +243,11 @@ class Tabs extends Component {
                             if (this?.context?.button_haptics !== 'none') {
                                 Haptics.impactAsync(this?.context?.button_haptics);
                             }
-                            this.props?.navigation.navigate('Search History', { target_device: this.props.device_name, device_type: this.props.device_type })
+                            this.addNewTab(this.props.isIncognitoView)
                         }}
                         hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
                     >
-                        <Icon style={{ padding: 10 }} name="history" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 159, 10, 1)' : 'rgba(255, 149, 0, 1)'} />
+                        <Icon style={{ padding: 10 }} name="plus" size={40} color={this?.context?.colorScheme === 'dark' ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)'} />
                     </Pressable>
 
                     <Pressable

@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import { URL } from 'react-native-url-polyfill';
+import extractDomain from "extract-domain";
 
 
 /*
@@ -28,7 +29,7 @@ const isValidUrl = urlString => {
 const defaultURL = 'https://www.google.com/';
 
 export default function (props) {
-    const { socket, colorScheme, credentials } = useContext(StateContext);
+    const { socket, colorScheme, credentials, privacy_domain_set } = useContext(StateContext);
     const incognito = props?.incognito ?? false;
     const source = props?.url ?? (incognito ? null : defaultURL);
     const target_device = props?.target_device;
@@ -246,12 +247,15 @@ export default function (props) {
     }
 
     const onShouldStartLoadWithRequest = (request) => {
+        let returnBool = true;
         if (!isFirstRequest) {
             if (!incognito) {
                 const parsedUrl = new URL(request.url);
                 if (!(parsedUrl.hostname === 'www.google.com' && parsedUrl.pathname === '/search')) {
                     const websiteHost = (new URL(url))?.hostname;
-                    const trackerHost = parsedUrl?.hostname;
+                    const tracker = parsedUrl?.hostname;
+                    const trackerHost = extractDomain(tracker);
+
                     if (trackerHost !== null && trackerHost !== undefined && trackerHost !== '' && (!websiteHost.includes(trackerHost)) && websiteHost !== 'www.google.com' && trackerHost !== 'www.google.com') {
                         socket?.emit('report_privacy_trackers', {
                             'user_id': credentials?.user_id,
@@ -261,6 +265,9 @@ export default function (props) {
                             "website_host": websiteHost,
                             "tracker": trackerHost
                         })
+                        if (privacy_domain_set.has(trackerHost)) {
+                            returnBool = false;
+                        }
                     }
                 }
             }
@@ -272,7 +279,13 @@ export default function (props) {
         // or filter ads and adult content.
 
         // MUST return true for the request to pass through
-        return true;
+        if ((credentials?.enrolled_features?.privacy_prevention?.enrolled === true) && (credentials?.enrolled_features?.privacy_prevention?.switch === true)) {
+            // Filter and do not allow trackers when enrolled and switch in privacy_prevention
+            return returnBool;
+        }
+        else {
+            return true;
+        }
     }
 
     const onBrowserError = (syntheticEvent) => {

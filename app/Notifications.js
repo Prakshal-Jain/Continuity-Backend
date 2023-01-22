@@ -111,11 +111,11 @@ class Notifications extends Component {
                         <RefreshControl
                             refreshing={this.state.loading}
                             onRefresh={() => this?.context?.socket.emit("get_notification", { user_id: this?.context?.credentials?.user_id, device_token: this?.context?.credentials?.device_token, device_name: this?.context?.credentials?.device_name })}
-                            tintColor="rgba(142, 142, 147, 1)"
+                            tintColor={this?.context?.colorScheme == 'dark' ? "rgba(209, 209, 214, 1)" : 'rgba(58, 58, 60, 1)'}
                         />
                     }
                 >
-                    {this.state.loading ? <Loader message="Gathering all your notifications..." /> : (
+                    {this.state.loading ? <Loader message="Gathering all your notifications..." showActivityIndicator={false} /> : (
                         <>
                             <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center", fontSize: 13, marginBottom: 15 }}>Pull to sync with other devices</Text>
                             {(this.state.notifications === null || this.state.notifications === undefined || this.state.notifications?.length === 0)

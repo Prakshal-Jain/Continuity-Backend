@@ -10,13 +10,14 @@
 .footer_links{
     display: flex;
     flex-direction: row;
-    gap: 2rem;
+    gap: 1.5rem;
     font-size: large;
     color: rgb(var(--background-end-rgb));
     text-decoration: none;
     font-weight: bold;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .footer_links > *{
