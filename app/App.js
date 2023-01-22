@@ -9,6 +9,7 @@ import {
 import PrivacyPolicy from './PrivacyPolicy';
 import Settings from './Settings';
 import UltraSearch from './UltraSearch';
+import PrivacyPrevention from "./PrivacyPrevention";
 import UltraSearchResult from './UltraSearchResult';
 import React, { useState, useEffect } from 'react';
 import YourDevices from './YourDevices';
@@ -100,6 +101,10 @@ export default function () {
           />
 
           <Stack.Screen name="Ultra Search" component={UltraSearch}
+            options={{ ...headerOptions, presentation: 'modal' }}
+          />
+
+          <Stack.Screen name="Privacy Prevention" component={PrivacyPrevention}
             options={{ ...headerOptions, presentation: 'modal' }}
           />
 
