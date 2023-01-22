@@ -6,12 +6,17 @@ import {
     SafeAreaView,
     ScrollView,
     StatusBar,
+    Image,
+    TouchableOpacity
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { StateContext } from "./state_context";
+import logo from './assets/logo.png'
 
-export default function () {
-    const { colorScheme } = useContext(StateContext);
+
+export default function ({ navigation, ...props }) {
+    const { colorScheme, credentials, setCurrentDeviceName } = useContext(StateContext);
 
     const styles = StyleSheet.create({
         root: {
@@ -41,7 +46,7 @@ export default function () {
         },
 
         item_container: {
-            paddingVertical: 15,
+            paddingVertical: 10,
             borderBottomColor: colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)',
         },
 
@@ -52,12 +57,50 @@ export default function () {
             padding: 10,
             color: colorScheme === 'dark' ? '#fff' : '#000',
         },
+
+        link_container: {
+            marginVertical: 15,
+            justifyContent: "center",
+            textAlign: 'center',
+            alignItems: "center",
+            backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
+            padding: 15,
+            borderRadius: 10
+        },
+
+        links: {
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: "center",
+            flexWrap: 'wrap',
+            justifyContent: "center",
+            marginBottom: 5
+        },
+
+        link_text: {
+            fontWeight: "bold",
+            fontSize: 15,
+            color: colorScheme === 'dark' ? '#fff' : '#000',
+        },
+
+        subheading: {
+            color: colorScheme === 'dark' ? '#fff' : '#000',
+            fontSize: 25,
+            fontWeight: 'bold',
+            marginTop: 30,
+            textAlign: "center",
+        }
     })
 
     const renderRow = (heading, data) => {
         return (
             <Text style={styles.answer}><FontAwesome name="check-circle" style={{ fontSize: 14 }} color={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} /> <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontWeight: "bold" }}>{heading}</Text>: {data}</Text>
         );
+    }
+
+    const navigateToTabUrl = (url) => {
+        setCurrentDeviceName(credentials?.device_name);
+        navigation?.navigate("Tabs", { url })
     }
 
 
@@ -69,6 +112,26 @@ export default function () {
             <ScrollView style={styles.container}>
                 <Text style={styles.heading}>Help</Text>
 
+                <TouchableOpacity style={styles.link_container} onPress={() => navigateToTabUrl('https://discord.gg/TwJ863WJsQ')}>
+                    <View style={styles.links}>
+                        <MaterialCommunityIcons name="discord" color="rgba(88, 101, 242, 1)" size={30} style={{ marginRight: 5 }} /><Text style={styles.link_text}>Join Our Discord Server</Text>
+                    </View>
+                    <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>for speedy and personalized assistance.</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.link_container} onPress={() => navigateToTabUrl('https://continuitybrowser.com/help')}>
+                    <View style={styles.links}>
+                        <Image
+                            source={logo}
+                            style={{ marginRight: 5, width: 30, height: 30, borderRadius: 5 }}
+                        />
+                        <Text style={styles.link_text}>Visit the Help page on our website</Text>
+                    </View>
+                    <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>to view the most recent FAQs.</Text>
+                </TouchableOpacity>
+
+
+                <Text style={styles.subheading}>Common Questions</Text>
                 <View style={[styles.item_container, { borderBottomWidth: 1 }]}>
                     <Text style={styles.question}>
                         How can I access my webpages across all my devices with Continuity?

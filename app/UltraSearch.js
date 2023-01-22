@@ -20,12 +20,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         display: 'flex',
-        padding: 10,
     },
 
     scrollContainer: {
         flex: 1,
-        padding: 10,
+        paddingHorizontal: 10,
     },
 
     text_style: {
@@ -42,7 +41,7 @@ const styles = StyleSheet.create({
     upgradeBtn: {
         marginRight: 40,
         marginLeft: 40,
-        marginTop: 15,
+        marginVertical: 15,
         paddingVertical: 10,
         backgroundColor: 'rgba(255, 149, 0, 1)',
         borderRadius: 10,
@@ -59,7 +58,7 @@ const styles = StyleSheet.create({
     unenrollBtn: {
         marginRight: 40,
         marginLeft: 40,
-        marginTop: 10,
+        marginVertical: 15,
         paddingTop: 10,
         paddingBottom: 10,
         borderWidth: 1,

@@ -112,7 +112,7 @@ export default function ({ navigation, ...props }) {
         logoutButton: {
             marginRight: 40,
             marginLeft: 40,
-            marginTop: 10,
+            marginVertical: 10,
             paddingTop: 10,
             paddingBottom: 10,
             borderWidth: 1,
@@ -282,17 +282,6 @@ export default function ({ navigation, ...props }) {
 
                 <View style={styles.privacyReportContainer}>
                     <Text style={styles.heading}>Intelligent Privacy Report</Text>
-                    <View style={styles.piechartContainer}>
-                        <CheckBoxList check_list={all_devices} onSelect={getDevicePrivacyReport} selected={selectedDevice} colorScheme={colorScheme} />
-                    </View>
-
-                    <View
-                        style={{
-                            borderBottomColor: '#a9a9a9',
-                            borderBottomWidth: StyleSheet.hairlineWidth,
-                            marginVertical: 20,
-                        }}
-                    />
 
                     {(trackerCounts !== null)
                         ?

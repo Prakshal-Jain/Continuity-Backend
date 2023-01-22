@@ -71,13 +71,13 @@ const TrackersContacted = ({ route }) => {
             marginVertical: 20,
             backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
             borderRadius: 10,
-            padding: 15,
+            paddingVertical: 15,
             width: '100%'
         },
 
         trackerTile: {
-            borderBottomWidth: 1,
-            borderBottomColor: colorScheme === 'dark' ? 'rgba(142, 142, 147, 1)' : 'rgba(72, 72, 74, 1)',
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)'
         }
     });
 
@@ -98,7 +98,7 @@ const TrackersContacted = ({ route }) => {
                     defaultSource={webIcon}
                 />
 
-                <Text style={styles.trackerCount}>Number of trackers: <Text style={{ fontWeight: 'bold' }}>{count}</Text></Text>
+                <Text style={styles.trackerCount}>Continuity has prevented <Text style={{ fontWeight: 'bold' }}>{count} trackers</Text> from profiling you.</Text>
 
                 <View style={styles.trackerListContainer}>
                     {tracker?.map((x, i) => (
