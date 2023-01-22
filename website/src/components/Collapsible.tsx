@@ -18,15 +18,15 @@ export default function Collapsible({ data }: Props) {
         <div className={styles.parent_container}>
             {data.map(({ title, content }, idx) => (
                 <div key={`help_item_${idx}`} className={styles.collapsible_box}>
-                    <div className={styles.header_box} onClick={() => setCurrOpen(idx)}>
+                    <div className={styles.header_box} onClick={() => setCurrOpen(currOpen === idx ? -1 : idx)}>
                         <div className={styles.title}>
                             {title}
                         </div>
-                        <div className={styles.close_icon} style={{ transform: `rotate(${currOpen === idx ? '45' : '0'}deg)` }}>
+                        <div className={styles.close_icon} style={{ transform: `rotate(${currOpen === idx ? '0' : '45'}deg)` }}>
                             <FontAwesomeIcon icon={faClose} style={{ color: 'rgb(58, 58, 60)', fontSize: 'large' }} />
                         </div>
                     </div>
-                    <div className={styles.content_box} style={{display: currOpen === idx ? undefined : 'none'}}>
+                    <div className={styles.content_box} style={{ display: currOpen === idx ? undefined : 'none' }}>
                         {content}
                     </div>
                 </div>
