@@ -15,7 +15,6 @@ import { StateContext } from "./state_context";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AlertMessage from "./components/AlertMessage";
 import Loader from "./components/Loader";
 import UnifiedError from "./components/UnifiedError";
 
