@@ -35,15 +35,15 @@ export default function UnifiedError({ currentPage = null }) {
             borderWidth: 1,
             borderColor: iconMap[error?.type].color,
             borderRadius: 10,
-            padding: 15,
-            paddingHorizontal: 10,
+            paddingVertical: 15,
+            paddingHorizontal: 15,
             alignItems: "center",
             justifyContent: "center",
         },
 
         iconStyle: {
             color: iconMap[error?.type].color,
-            marginRight: 15,
+            marginRight: 10,
             fontSize: 25
         },
 
@@ -51,15 +51,22 @@ export default function UnifiedError({ currentPage = null }) {
             color: (colorScheme === 'dark') ? '#fff' : '#000',
             fontWeight: (error?.type === "message" ? undefined : "bold"),
             flex: 1,
+            marginRight: 10
+        },
+
+        closeIcon: {
+            fontSize: 20,
+            color: (colorScheme === 'dark') ? '#fff' : '#000',
         }
     })
-    
+
 
     return (
         <View style={styles.alertContainer}>
-            <View style={{ flexDirection: "row", marginHorizontal: 15, alignItems: "center" }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <MaterialCommunityIcons name={iconMap[error?.type].icon} style={styles.iconStyle} color={iconMap[error?.type]?.color} />
                 <Text style={styles.textStyle}>{error?.message}</Text>
+                <MaterialCommunityIcons name="close" style={styles.closeIcon} onPress={() => setError(null)} />
             </View>
         </View>
     )
