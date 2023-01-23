@@ -7,10 +7,11 @@ import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
 import GoogleSignInButton from './components/GoogleSignInButton';
 import { StateContext } from "./state_context";
+import UnifiedError from './components/UnifiedError';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function Login({ navigation }) {
+export default function Login({ navigation, route }) {
     const { socket, colorScheme } = useContext(StateContext);
     const [deviceName, setDeviceName] = React.useState(null);
     const [selected, setSelected] = React.useState('mobile-phone');
@@ -104,6 +105,7 @@ export default function Login({ navigation }) {
             paddingBottom: 10,
             backgroundColor: 'rgba(10, 132, 255, 1)',
             borderRadius: 10,
+            flexWrap: 'wrap'
         },
         loginText: {
             color: '#fff',
@@ -128,7 +130,8 @@ export default function Login({ navigation }) {
                 {user === null ?
                     (
                         <GoogleSignInButton
-                            onPress={() => promptAsync()}
+                            // onPress={() => promptAsync()}
+                            onPress={() => setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
                             colorScheme={colorScheme}
                         />
                     )
@@ -143,6 +146,8 @@ export default function Login({ navigation }) {
                             <View style={styles.horizontal_flex}>
                                 <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
                             </View>
+
+                            <UnifiedError currentPage={route?.name} />
 
                             <TouchableOpacity
                                 style={styles.loginScreenButton}

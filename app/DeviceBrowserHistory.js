@@ -16,6 +16,7 @@ import webIcon from "./assets/web_icon.png";
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import Loader from "./components/Loader";
+import UnifiedError from "./components/UnifiedError";
 
 class DeviceBrowserHistory extends Component {
     static contextType = StateContext;
@@ -61,7 +62,7 @@ class DeviceBrowserHistory extends Component {
             }
             else {
                 this.setState({ isNext: false });
-                console.log(data?.message)
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Search History"]) });
             }
         })
 
@@ -87,7 +88,7 @@ class DeviceBrowserHistory extends Component {
                 }
             }
             else {
-                console.log(data?.message)
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Search History"]) });
             }
         })
     }
@@ -171,13 +172,15 @@ class DeviceBrowserHistory extends Component {
                         onEndReached={this.getHistory}
                         onEndReachedThreshold={10}
                         ListHeaderComponent={
-                            <View style={{ alignItems: "center", marginBottom: 20 }}>
+                            <View style={{ alignItems: "center", marginBottom: 20, paddingHorizontal: 15 }}>
                                 <Text style={[this.styles.heading, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000' }]}>Search History</Text>
                                 {/* <MaterialCommunityIcons name="history" style={{ fontSize: 30 }}  /> */}
                                 <View style={{ flexDirection: "row" }}>
                                     <FontAwesome name={this.state.device_type} size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} />
                                     <Text style={[this.styles.subheading, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>{this.state.target_device}</Text>
                                 </View>
+                                
+                                <UnifiedError currentPage={this.props?.route?.name} />
                             </View>}
                         ListFooterComponent={
                             this.state.isNext === true ? (

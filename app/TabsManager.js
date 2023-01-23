@@ -42,7 +42,7 @@ class TabsManager extends React.Component {
                         this.addNewTab(this.props?.route?.params?.url);
                     }
                 });
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Tabs"]) });
             }
         })
 
@@ -63,7 +63,7 @@ class TabsManager extends React.Component {
                 })
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Tabs"]) });
             }
         });
 
@@ -90,7 +90,7 @@ class TabsManager extends React.Component {
                 }
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Tabs"]) });
             }
         });
 
@@ -108,7 +108,7 @@ class TabsManager extends React.Component {
                 })
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Tabs"]) });
             }
         })
 
@@ -136,7 +136,7 @@ class TabsManager extends React.Component {
                 this.setState({ metadata: metadata, tabs: tabs });
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Tabs"]) });
             }
         })
     }
@@ -258,7 +258,7 @@ class TabsManager extends React.Component {
                     (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
                         <View style={{ flex: 1 }}>
                             {this.renderTabs()}
-                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} refreshTabs={this.refreshTabs} loading={this.state.loading} navigation={this.props?.navigation} isIncognitoView={this.state.isIncognitoView} setIsIncognitoView={(value) => this.setState({ isIncognitoView: value })} /> : null}
+                            {this.state.currOpenTab === -1 ? <Tabs tabs={this.state.tabs} addNewTab={this.addNewTab} switchCurrOpenWindow={this.switchCurrOpenWindow} metadata={this.state.metadata} deleteAllTabs={this.deleteAllTabs} removeTab={this.removeTab} device_name={this.state.tabs_data.device_name} device_type={this.state.tabs_data.device_type} refreshTabs={this.refreshTabs} loading={this.state.loading} navigation={this.props?.navigation} isIncognitoView={this.state.isIncognitoView} setIsIncognitoView={(value) => this.setState({ isIncognitoView: value })} route_name={this.props?.route?.name} /> : null}
                         </View>
                     )
                 }

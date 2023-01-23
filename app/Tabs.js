@@ -10,6 +10,7 @@ import webIcon from "./assets/web_icon.png";
 import incognitoIcon from "./assets/incognito.png";
 import * as Haptics from 'expo-haptics';
 import Loader from "./components/Loader";
+import UnifiedError from "./components/UnifiedError";
 
 class Tabs extends Component {
     static contextType = StateContext;
@@ -94,6 +95,9 @@ class Tabs extends Component {
                     )}
                 </View>
             </View>
+
+            <UnifiedError currentPage={this.props?.route_name} />
+
             {tabs}
         </View>
     )

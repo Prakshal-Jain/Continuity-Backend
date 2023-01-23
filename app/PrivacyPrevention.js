@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { StateContext } from "./state_context";
 import { throttle } from 'lodash';
 import * as Haptics from 'expo-haptics';
+import UnifiedError from "./components/UnifiedError";
 
 
 const styles = StyleSheet.create({
@@ -83,12 +84,12 @@ class PrivacyPrevention extends Component {
 
     componentDidMount = () => {
         this?.context?.socket.on("enroll_feature", (data) => {
-            if (data?.successful) {
+            if (data?.successful === true) {
                 this.onNavPop();
                 this?.context?.setCredentials(data?.message);
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Privacy Prevention", "Settings"]) });
             }
         })
     }
@@ -169,6 +170,8 @@ class PrivacyPrevention extends Component {
                             </TouchableOpacity>
                         )
                     }
+
+                    <UnifiedError currentPage={this.props?.route?.name} />
 
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
                         As technology has advanced, the ability to track user behavior across websites for advertising purposes has become increasingly prevalent. This tracking can be observed when users see ads for products they have viewed online appearing on other websites. Unfortunately, many websites contain a significant number of trackers from different companies on a single page, making it difficult for users to maintain their privacy.

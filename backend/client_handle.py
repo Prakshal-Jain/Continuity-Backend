@@ -206,10 +206,13 @@ class ClientHandleNamespace(Namespace):
 
         if (
             data.get("device_name", "") == ""
+            or data.get("device_name", "") == None
             or data.get("device_type", "") == ""
+            or data.get("device_type", "") == None
             or data.get("user_id", "") == ""
+            or data.get("user_id", "") == None
         ):
-            warning = "One or more required fields (device name, device type, or user ID) are empty or not defined."
+            warning = "Please make sure to fill out all required fields correctly, including the device name, device type, and login successfully with Google."
             emit("login", {"successful": False, "message": warning, "type": "warning"})
             return
 
@@ -550,7 +553,7 @@ class ClientHandleNamespace(Namespace):
         prompt = data.get("prompt", "")
 
         if prompt == "" or prompt == None:
-            warning = "The specified query is empty or invalid."
+            warning = "The search query cannot be blank. Please enter a search query and press the search button to view the results."
 
             emit(
                 "ultra_search_query",
