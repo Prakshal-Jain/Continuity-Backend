@@ -151,9 +151,6 @@ class PrivacyPrevention extends Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 <ScrollView style={styles.scrollContainer}>
                     <Text style={[styles.heading, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000' }]}>Intelligent Privacy Prevention</Text>
                     <View style={{ alignItems: 'center' }}>

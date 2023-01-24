@@ -133,9 +133,6 @@ class DeviceBrowserHistory extends Component {
     render() {
         return (
             <SafeAreaView style={[this.styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 <View style={{ flex: 1 }}>
                     <FlatList
                         style={{ width: '100%' }}

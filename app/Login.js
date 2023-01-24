@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, TextInput, Image, SafeAreaView, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, Image, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from "react";
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -134,7 +134,7 @@ export default function Login({ navigation, route }) {
             alignItems: 'center',
             flexWrap: 'wrap',
             borderRadius: 10,
-            marginTop: 10
+            marginBottom: 10
         },
         differentEmailText: {
             color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
@@ -147,25 +147,21 @@ export default function Login({ navigation, route }) {
 
     return (
         <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
 
-            {currStep === 2 && (
-                <View style={{ width: '95%', alignItems: 'start' }}>
-                    <TouchableOpacity
-                        style={styles.differentEmailbtn}
-                        underlayColor='#fff'
-                        onPress={clearStates}
-                    >
-                        <FontAwesome name="angle-left" size={15} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 6 }} />
-                        <Text style={styles.differentEmailText}>Use a different email</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
-
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                {currStep === 2 && (
+                    <View style={{ width: '100%', alignItems: 'start' }}>
+                        <TouchableOpacity
+                            style={styles.differentEmailbtn}
+                            underlayColor='#fff'
+                            onPress={clearStates}
+                        >
+                            <FontAwesome name="angle-left" size={15} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 6 }} />
+                            <Text style={styles.differentEmailText}>Use a different email</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ?
                     (

@@ -251,9 +251,6 @@ class TabsManager extends React.Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 {
                     (this.state.tabs_data !== null && this.state.tabs_data !== undefined) && (
                         <View style={{ flex: 1 }}>

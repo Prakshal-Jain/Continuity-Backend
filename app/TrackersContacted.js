@@ -85,9 +85,6 @@ const TrackersContacted = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.scrollContainer} contentContainerStyle={{ alignItems: "center" }}>
                 <Text style={styles.heading}>Trackers Contacted by</Text>
                 <Text style={styles.subHeading}>{website}</Text>

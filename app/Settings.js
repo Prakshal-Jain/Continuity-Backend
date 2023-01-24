@@ -218,9 +218,6 @@ function Settings({ navigation, route }) {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.scrollContainer}>
                 {(action_message !== undefined && action_message !== null) && (
                     <View style={{ marginBottom: 15 }}>

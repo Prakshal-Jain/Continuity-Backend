@@ -1,4 +1,5 @@
 import 'react-native-gesture-handler';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Profile from "./Profile";
@@ -142,6 +143,10 @@ export default function () {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      <StatusBar animated={true}
+        barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
+        backgroundColor={(colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)'}
+      />
     </StateContext.Provider>
   );
 }
