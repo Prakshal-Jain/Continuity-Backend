@@ -21,18 +21,9 @@ export default function ProgressBar({ stepCount = 1, currStep = 0, showLabel = t
             height: 10,
             borderRadius: 10,
             borderWidth: 1,
-            borderColor: '#fff',
+            borderColor: 'rgba(99, 99, 102, 1)',
         }
     })
-
-    const getBackgroundColor = (step) => {
-        if (step < currStep) {
-            return;
-        }
-        else {
-            return undefined;
-        }
-    }
 
     return (
         <View style={[styles.progress_container]} ref={containerRef}>
