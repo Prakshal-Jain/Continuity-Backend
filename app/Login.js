@@ -60,11 +60,14 @@ export default function Login({ navigation, route }) {
     ];
 
     const clearStates = () => {
-        setDeviceName(null);
-        setSelected(null);
-        setAccessToken(null);
-        setUser(null);
-        setCurrStep(1);
+        setUser(prev => {
+            setDeviceName(null);
+            setSelected(null);
+            setAccessToken(null);
+            setCurrStep(1);
+            
+            return null
+        });
     }
 
 
@@ -153,7 +156,7 @@ export default function Login({ navigation, route }) {
             />
             <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
 
-            {currStep === 2 && (
+            {/* {currStep === 2 && (
                 <View style={{ width: '95%', alignItems: 'start' }}>
                     <TouchableOpacity
                         style={styles.differentEmailbtn}
@@ -164,7 +167,7 @@ export default function Login({ navigation, route }) {
                         <Text style={styles.differentEmailText}>Use a different email</Text>
                     </TouchableOpacity>
                 </View>
-            )}
+            )} */}
 
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
