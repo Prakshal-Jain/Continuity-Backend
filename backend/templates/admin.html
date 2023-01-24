@@ -104,14 +104,14 @@
         }
 
         function set_notification() {
-            var user_id = document.getElementById('set_notification_user_id').value;
+            var send_to = document.getElementById('set_notification_user_id').value;
             var message = document.getElementById('set_notification_message').value;
             var ttl = document.getElementById('ttl').value;
 
-            if (user_id == "") {
+            if (send_to == "") {
                 socket.emit("set_notification", { 'key': admin_key, message, ttl });
             } else {
-                socket.emit("set_notification", { 'key': admin_key, user_id, message, ttl });
+                socket.emit("set_notification", { 'key': admin_key, send_to, message, ttl });
             }
         }
 

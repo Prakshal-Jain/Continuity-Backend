@@ -34,6 +34,22 @@ class ClientHandleNamespace(Namespace):
     admin_socket = {}
     max_active_users = 100
 
+    def __data_check(self, fields, data):
+        event = request.event['message']
+        empty_fields = []
+        for keys in fields:
+            value = data.get(keys, '')
+            if value == '' or value == None:
+                empty_fields.append(keys)
+
+        if empty_fields != []:
+            field_str = ', '.join(empty_fields)
+            warning = f'Some required fields are empty: {field_str}'
+            emit(event, {'successful': False, 'message': warning, 'type': 'error'})
+            return True
+        
+        return False
+
     def __create_tab(self, device_name, device_type, device_token):
         return {
             device_name: {
@@ -190,6 +206,9 @@ class ClientHandleNamespace(Namespace):
     def on_login(self, data):
         if self.__at_capacity("login", data.get("user_id")):
             return
+        
+        if self.__data_check(['user_id', 'device_name', 'device_type'], data):
+            return
 
         ClientHandleNamespace.devices_in_use[
             data.get("user_id")
@@ -203,18 +222,6 @@ class ClientHandleNamespace(Namespace):
         device_token = token_urlsafe(27).encode()
 
         new_user = False
-
-        if (
-            data.get("device_name", "") == ""
-            or data.get("device_name", "") == None
-            or data.get("device_type", "") == ""
-            or data.get("device_type", "") == None
-            or data.get("user_id", "") == ""
-            or data.get("user_id", "") == None
-        ):
-            warning = "Please make sure to fill out all required fields correctly, including the device name, device type, and login successfully with Google."
-            emit("login", {"successful": False, "message": warning, "type": "warning"})
-            return
 
         if user == None:
             new_user = True
@@ -313,10 +320,14 @@ class ClientHandleNamespace(Namespace):
         sys.stdout.flush()
 
     def on_add_tab(self, data):
+        if self.__data_check(['user_id', 'device_name', 'target_device', "device_token", 'tabs_data'], data):
+            return
+            
         user = users.find_one({"user_id": data.get("user_id")})
+
         if not self.__authenticate_device("add_tab", user, data):
             return
-
+        
         target_device = data.get("target_device")
         new_tabs_data = data.get("tabs_data")
         tabs_data = user.get("tabs_data")
@@ -335,6 +346,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_remove_tab(self, data):
+        if self.__data_check(['user_id', 'device_name', 'target_device', "device_token", 'id'], data):
+            return
+        
         user = users.find_one({"user_id": data.get("user_id")})
         if not self.__authenticate_device("remove_tab", user, data):
             return
@@ -359,6 +373,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_remove_all_tabs(self, data):
+        if self.__data_check(['user_id', 'device_name', 'target_device', "device_token"], data):
+            return
+        
         user = users.find_one({"user_id": data.get("user_id")})
         if not self.__authenticate_device("remove_all_tabs", user, data):
             return
@@ -391,7 +408,11 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_update_tab(self, data):
+        if self.__data_check(['user_id', 'device_name', 'target_device', "device_token", 'tabs_data'], data):
+            return
+
         user = users.find_one({"user_id": data.get("user_id")})
+
         if not self.__authenticate_device("update_tab", user, data):
             return
 
@@ -414,6 +435,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_get_my_tabs(self, data):
+        if self.__data_check(['user_id', 'device_name', 'target_device', "device_token"], data):
+            return
+
         user = users.find_one({"user_id": data.get("user_id")})
         if not self.__authenticate_device("get_my_tabs", user, data):
             return
@@ -427,6 +451,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_all_devices(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
+        
         user = users.find_one({"user_id": data.get("user_id")})
         if not self.__authenticate_device("all_devices", user, data):
             return
@@ -441,6 +468,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_enroll_feature(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", "feature_name"], data):
+            return
+        
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -497,6 +527,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_switch_feature(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", "feature_name", "switch"], data):
+            return
+        
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -549,6 +582,9 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_ultra_search_query(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", "prompt"], data):
+            return
+        
         user_id = data.get("user_id")
         prompt = data.get("prompt", "")
 
@@ -596,6 +632,9 @@ class ClientHandleNamespace(Namespace):
             )
 
     def on_report_privacy_trackers(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", 'target_device', "website_host", "tracker"], data):
+            return
+        
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -620,6 +659,8 @@ class ClientHandleNamespace(Namespace):
         emit("report_privacy_trackers", {"successful": True, "type": "message"})
 
     def on_privacy_report(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -673,6 +714,8 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_set_history(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", 'target_device', 'url', 'title'], data):
+            return
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -697,6 +740,8 @@ class ClientHandleNamespace(Namespace):
         emit("set_history", {"successful": True, "type": "message"})
 
     def on_get_history(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", 'target_device', "timezone", 'page'], data):
+            return
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -733,7 +778,7 @@ class ClientHandleNamespace(Namespace):
                 {"url": p.get("url"), "id": str(p.get("_id")), "title": p.get("title")}
             )
 
-        if count == 0:
+        if count == 0 and page != 1:
             warning = f"The history for page {page} is empty or does not exist."
             emit(
                 "get_history",
@@ -751,6 +796,8 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_delete_history(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", 'target_device'], data):
+            return
         user_id = data.get("user_id")
 
         user = users.find_one({"user_id": user_id})
@@ -784,6 +831,8 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_ack_notification(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
 
@@ -799,6 +848,8 @@ class ClientHandleNamespace(Namespace):
         emit("ack_notification", {"successful": True, "type": "message"})
 
     def on_get_notification(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
 
@@ -822,6 +873,8 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_report_feedback(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", "feedback"], data):
+            return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
 
@@ -833,7 +886,9 @@ class ClientHandleNamespace(Namespace):
         emit("report_feedback", {"successful": True, "type": "message"})
 
     def on_auto_authenticate(self, data):
-            
+        if self.__data_check(['device_name', "device_token"], data):
+            return
+
         device_name = data.get("device_name")
         device_token = data.get("device_token")
 
@@ -887,6 +942,8 @@ class ClientHandleNamespace(Namespace):
         )
 
     def on_logout(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
         if not self.__authenticate_device("logout", user, data):
@@ -1129,15 +1186,17 @@ class ClientHandleNamespace(Namespace):
         if not (sid := self.__check_admin_socket()):
             return
 
-        send_to = data.get("send_to", set())
+        send_to = data.get("send_to", [])
         ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
         message = {"message": json.loads(data.get("message"))}
 
-        if send_to == set():
+        if send_to == []:
             notification.insert_one(
                 {"message_record": True, "message": message, "ttl": ttl}
             )
             send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
+        else:
+            send_to = json.loads(send_to)
 
         for user in send_to:
             new_notification = notification.insert_one(
