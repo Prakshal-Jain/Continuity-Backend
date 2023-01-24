@@ -8,13 +8,15 @@ import logoLight from "./assets/logo-light.png";
 import GoogleSignInButton from './components/GoogleSignInButton';
 import { StateContext } from "./state_context";
 import UnifiedError from './components/UnifiedError';
+import ProgressBar from "./components/ProgressBar";
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation, route }) {
     const { socket, colorScheme } = useContext(StateContext);
-    const [deviceName, setDeviceName] = React.useState(null);
-    const [selected, setSelected] = React.useState('mobile-phone');
+    const [deviceName, setDeviceName] = useState(null);
+    const [selected, setSelected] = useState('mobile-phone');
 
     const [accessToken, setAccessToken] = useState(null);
     const [user, setUser] = useState(null);
@@ -23,6 +25,8 @@ export default function Login({ navigation, route }) {
         iosClientId: "934339026423-o22n4psf53vs2a759e4v2233cordkg6q.apps.googleusercontent.com",
         androidClientId: "934339026423-gsjgka37gp62e5uevccgsqd0o7m8s907.apps.googleusercontent.com"
     });
+
+    const [currStep, setCurrStep] = useState(1);
 
     useEffect(() => {
         if (response?.type === "success") {
@@ -45,6 +49,7 @@ export default function Login({ navigation, route }) {
 
         const userInfo = await response.json();
         setUser(userInfo);
+        setCurrStep(currStep + 1);
     }
 
     const data = [
@@ -53,6 +58,14 @@ export default function Login({ navigation, route }) {
         { id: 'laptop', label: 'Laptop' },
         { id: 'desktop', label: 'Desktop' },
     ];
+
+    const clearStates = () => {
+        setDeviceName(null);
+        setSelected(null);
+        setAccessToken(null);
+        setUser(null);
+        setCurrStep(1);
+    }
 
 
     const styles = StyleSheet.create({
@@ -114,6 +127,19 @@ export default function Login({ navigation, route }) {
             paddingRight: 10,
             fontSize: 20,
             fontWeight: 'bold'
+        },
+        differentEmailbtn: {
+            backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
+            padding: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            borderRadius: 10,
+            marginTop: 10
+        },
+        differentEmailText: {
+            color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
+            fontSize: 12,
         }
     });
 
@@ -125,13 +151,28 @@ export default function Login({ navigation, route }) {
             <StatusBar animated={true}
                 barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
             />
+            <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
+
+            {currStep === 2 && (
+                <View style={{ width: '95%', alignItems: 'start' }}>
+                    <TouchableOpacity
+                        style={styles.differentEmailbtn}
+                        underlayColor='#fff'
+                        onPress={clearStates}
+                    >
+                        <FontAwesome name="angle-left" size={15} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 6 }} />
+                        <Text style={styles.differentEmailText}>Use a different email</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ?
                     (
                         <GoogleSignInButton
-                            onPress={() => promptAsync()}
-                            // onPress={() => setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true })}
+                            // onPress={() => promptAsync()}
+                            onPress={() => { setUser({ "email": "prakshal@buffalo.edu", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true }); setCurrStep(currStep + 1); }}
                             colorScheme={colorScheme}
                         />
                     )
@@ -142,19 +183,21 @@ export default function Login({ navigation, route }) {
                                 <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
                             </View>
 
-                            <Text style={styles.h2}>Device Type</Text>
-                            <View style={styles.horizontal_flex}>
-                                <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
+                            <View style={{ marginTop: 25, alignItems: 'center' }}>
+                                <Text style={styles.h2}>Device Type</Text>
+                                <View style={styles.horizontal_flex}>
+                                    <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
+                                </View>
+
+                                <UnifiedError currentPage={route?.name} />
+
+                                <TouchableOpacity
+                                    style={styles.loginScreenButton}
+                                    onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
+                                    underlayColor='#fff'>
+                                    <Text style={styles.loginText}>Get Started</Text>
+                                </TouchableOpacity>
                             </View>
-
-                            <UnifiedError currentPage={route?.name} />
-
-                            <TouchableOpacity
-                                style={styles.loginScreenButton}
-                                onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
-                                underlayColor='#fff'>
-                                <Text style={styles.loginText}>Get Started</Text>
-                            </TouchableOpacity>
                         </>
                     )
                 }
