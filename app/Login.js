@@ -60,14 +60,10 @@ export default function Login({ navigation, route }) {
     ];
 
     const clearStates = () => {
-        setAccessToken(prev => {
-            setUser(null);
-            setDeviceName(null);
-            setSelected(null);
-            setCurrStep(1);
-            
-            return null
-        });
+        setUser(null);
+        setDeviceName(null);
+        setSelected('mobile-phone');
+        setCurrStep(1);
     }
 
 
