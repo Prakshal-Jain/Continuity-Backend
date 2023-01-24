@@ -19,9 +19,10 @@ import CheckBoxList from "./components/CheckBoxList";
 import Loader from "./components/Loader";
 import userIcon from "./assets/user.png";
 import * as Haptics from 'expo-haptics';
+import UnifiedError from "./components/UnifiedError";
 
-export default function ({ navigation, ...props }) {
-    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, button_haptics } = useContext(StateContext);
+export default function ({ navigation, route, ...props }) {
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, button_haptics, setError } = useContext(StateContext);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [trackerCounts, setTrackerCounts] = useState(null);
     const [trackers, setTrackers] = useState(null);
@@ -44,7 +45,7 @@ export default function ({ navigation, ...props }) {
                 setWebsites(data?.message?.websites);
             }
             else {
-                console.log(data?.message);
+                setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
             }
         })
 
@@ -54,7 +55,7 @@ export default function ({ navigation, ...props }) {
                 deleteAllData();
             }
             else {
-                console.log(data?.message);
+                setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
             }
         })
 
@@ -241,9 +242,6 @@ export default function ({ navigation, ...props }) {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
 
             <ScrollView style={styles.scrollContainer}>
                 <View style={styles.container}>
@@ -279,6 +277,8 @@ export default function ({ navigation, ...props }) {
                         borderBottomWidth: StyleSheet.hairlineWidth,
                     }}
                 />
+
+                <UnifiedError currentPage={route?.name} />
 
                 <View style={styles.privacyReportContainer}>
                     <Text style={styles.heading}>Intelligent Privacy Report</Text>

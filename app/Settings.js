@@ -18,9 +18,10 @@ import AlertMessage from "./components/AlertMessage";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
+import UnifiedError from "./components/UnifiedError";
 
 function Settings({ navigation, route }) {
-    const { colorScheme, setColorScheme, credentials, socket, setCredentials, button_haptics, setButtonHaptics } = useContext(StateContext);
+    const { colorScheme, setColorScheme, credentials, socket, setCredentials, button_haptics, setButtonHaptics, setError } = useContext(StateContext);
 
     const { action_message, feature_name, icon_type } = route?.params ?? { action_message: undefined, feature_name: undefined };
 
@@ -32,7 +33,7 @@ function Settings({ navigation, route }) {
                 setCredentials(data?.message);
             }
             else {
-                console.log(data?.message);
+                setError({ message: data?.message, type: data?.type, displayPages: new Set(["Settings"]) });
             }
         })
     }, [])
@@ -149,7 +150,7 @@ function Settings({ navigation, route }) {
                     style={[styles.upgradeBtn, { backgroundColor: 'rgba(255, 149, 0, 1)' }]}
                     onPress={() => navigation.navigate('Ultra Search', { redirectScreen: 'Settings' })}
                     underlayColor='#fff'>
-                    <Text style={[styles.upgradeText, {color: '#fff'}]}>Upgrade</Text>
+                    <Text style={[styles.upgradeText, { color: '#fff' }]}>Upgrade</Text>
                 </TouchableOpacity>
             )
         }
@@ -177,7 +178,7 @@ function Settings({ navigation, route }) {
                     style={[styles.upgradeBtn, { backgroundColor: 'rgba(40, 205, 65, 1)' }]}
                     onPress={() => navigation.navigate('Privacy Prevention', { redirectScreen: 'Settings' })}
                     underlayColor='#fff'>
-                    <Text style={[styles.upgradeText, {color: '#000'}]}>Upgrade</Text>
+                    <Text style={[styles.upgradeText, { color: '#000' }]}>Upgrade</Text>
                 </TouchableOpacity>
             )
         }
@@ -217,15 +218,14 @@ function Settings({ navigation, route }) {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.scrollContainer}>
                 {(action_message !== undefined && action_message !== null) && (
                     <View style={{ marginBottom: 15 }}>
                         <AlertMessage type={icon_type} message={action_message} />
                     </View>
                 )}
+
+                <UnifiedError currentPage={route?.name} />
 
                 <Tiles
                     title="Ultra Search"
@@ -292,7 +292,7 @@ function Settings({ navigation, route }) {
                 />
 
                 {/* Adds spacing at the bottom */}
-                <View style={{marginVertical: 20}} />
+                <View style={{ marginVertical: 20 }} />
             </ScrollView>
         </SafeAreaView>
     )

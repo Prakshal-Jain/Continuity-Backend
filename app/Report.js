@@ -50,9 +50,6 @@ const Report = () => {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <KeyboardAwareScrollView style={styles.scrollContainer} enableAutomaticScroll={true}>
                 <Text style={styles.heading}>Report</Text>
                 <Text style={styles.extra_description}>Our mighty team strive to deliver the best possible experience for our valued customers. We sincerely apologize for any inconvenience you may have encountered and want to assure you that we are dedicated to addressing and resolving any issues you may have. Your satisfaction is important to us and we highly value your feedback. Rest assured, our team will work diligently to resolve your issue and ensure a positive experience for you in the future.</Text>

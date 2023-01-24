@@ -13,6 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { StateContext } from "./state_context";
 import { throttle } from 'lodash';
 import * as Haptics from 'expo-haptics';
+import UnifiedError from "./components/UnifiedError";
 
 
 const styles = StyleSheet.create({
@@ -88,7 +89,7 @@ class UltraSearch extends Component {
                 this?.context?.setCredentials(data?.message);
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Ultra Search", "Settings"]) });
             }
         })
     }
@@ -150,14 +151,13 @@ class UltraSearch extends Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 <ScrollView style={styles.scrollContainer}>
                     <Text style={[styles.heading, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000' }]}>Ultra Search</Text>
                     <View style={{ alignItems: 'center' }}>
                         <MaterialCommunityIcons name="lightning-bolt" style={{ marginRight: 15, fontSize: 25 }} color="rgba(255, 149, 0, 1)" />
                     </View>
+
+                    <UnifiedError currentPage={this.props?.route?.name} />
 
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
                         Are you tired of sifting through irrelevant search results and worrying about online safety? Ultra Search is here to change the way you search the web.

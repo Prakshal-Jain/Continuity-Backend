@@ -3,6 +3,7 @@ import { SafeAreaView, StatusBar, StyleSheet, ScrollView, Text, View, TouchableO
 import React, { Component } from "react";
 import Loader from "./components/Loader";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import UnifiedError from "./components/UnifiedError";
 
 /*
 Sample Notification structure:
@@ -45,14 +46,14 @@ class Notifications extends Component {
                 this.setState({ notifications: data?.message, loading: false })
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Notifications"]) });
                 this.setState({ loading: false })
             }
         });
 
         this?.context?.socket.on('ack_notification', (data) => {
             if (data?.successful !== true) {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Notifications"]) });
             }
         });
 
@@ -102,9 +103,6 @@ class Notifications extends Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 <ScrollView
                     style={{ width: '100%', flex: 1, padding: 20 }}
                     refreshControl={
@@ -115,6 +113,7 @@ class Notifications extends Component {
                         />
                     }
                 >
+                    <UnifiedError currentPage={this.props?.route?.name} />
                     {this.state.loading ? <Loader message="Gathering all your notifications..." showActivityIndicator={false} /> : (
                         <>
                             <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center", fontSize: 13, marginBottom: 15 }}>Pull to sync with other devices</Text>

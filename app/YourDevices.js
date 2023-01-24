@@ -19,6 +19,7 @@ import PreloadingScreen from './components/PreloadingScreen';
 import userIcon from "./assets/user.png";
 import * as Haptics from 'expo-haptics';
 import NotificationIcon from './components/NotificationIcon';
+import UnifiedError from './components/UnifiedError';
 
 class YourDevices extends Component {
     static contextType = StateContext;
@@ -57,6 +58,7 @@ class YourDevices extends Component {
             }
             else {
                 this?.context?.setCredentials(null);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
                 this.navigation.navigate('Login');
             }
         });
@@ -67,7 +69,7 @@ class YourDevices extends Component {
                 this?.context?.setDevices(data?.message);
             }
             else {
-                console.log(data?.message);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Your Devices"]) });
             }
         });
 
@@ -81,7 +83,7 @@ class YourDevices extends Component {
                 this?.context?.setDevices(all_dev);
             }
             else {
-                console.log(data?.message)
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Your Devices"]) });
             }
         });
 
@@ -90,7 +92,7 @@ class YourDevices extends Component {
                 this.setState({ notification_count: data?.message?.notification_count })
             }
             else {
-                console.log(data?.message)
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Your Devices"]) });
             }
         });
     }
@@ -107,14 +109,12 @@ class YourDevices extends Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
 
                 {(this?.context?.credentials !== null && this?.context?.credentials !== undefined) ?
                     (
                         <>
                             <ScrollView key="device_list" style={{ width: '100%' }} contentContainerStyle={styles.devices_container}>
+                                <UnifiedError currentPage={this.props?.route?.name} />
                                 {
                                     this?.context?.devices.map(((x, i) => (
                                         <ScaleTouchableOpacity

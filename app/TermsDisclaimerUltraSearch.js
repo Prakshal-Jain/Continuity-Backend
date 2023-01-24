@@ -48,9 +48,6 @@ const PrivacyPolicy = () => {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.scrollContainer}>
                 <Text style={styles.heading}>Terms of Use</Text>
                 <Text style={styles.text_style}>By using Ultra Search, you agree to the terms of use outlined in the OpenAI Terms of Service, which can be found at <Text style={styles.link} onPress={() => Linking.openURL('https://openai.com/terms/')}>https://openai.com/terms/</Text>. You also acknowledge and agree to the OpenAI Privacy Policy, which can be found at <Text style={styles.link} onPress={() => Linking.openURL('https://openai.com/privacy/')}>https://openai.com/privacy/</Text>. Please review these documents carefully before using Ultra Search.</Text>

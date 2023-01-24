@@ -106,9 +106,6 @@ export default function ({ navigation, ...props }) {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.container}>
                 <Text style={styles.heading}>Help</Text>
 

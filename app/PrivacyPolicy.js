@@ -42,9 +42,6 @@ const PrivacyPolicy = () => {
 
     return (
         <SafeAreaView style={styles.root}>
-            <StatusBar animated={true}
-                barStyle={colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-            />
             <ScrollView style={styles.scrollContainer}>
                 <Text style={styles.heading}>Continuity Privacy Policy</Text>
                 <Text style={styles.text_style}>Welcome to the <Text style={{ fontWeight: "bold" }}>Continuity</Text> app, a browser that seamlessly syncs tabs across all your devices in real-time. At Continuity, we value your privacy and are committed to protecting it. This privacy policy notice explains how we collect, use, and share your personal information when you use our app.</Text>

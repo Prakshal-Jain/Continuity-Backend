@@ -15,8 +15,8 @@ import { StateContext } from "./state_context";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as Clipboard from 'expo-clipboard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AlertMessage from "./components/AlertMessage";
 import Loader from "./components/Loader";
+import UnifiedError from "./components/UnifiedError";
 
 class UltraSearchResult extends Component {
     static contextType = StateContext;
@@ -41,10 +41,6 @@ class UltraSearchResult extends Component {
     };
 
     emitPrompt = () => {
-        if (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0) {
-            return;
-        }
-
         this.setState({ ultra_search_response: null })
         const query_creds = {
             'user_id': this?.context?.credentials?.user_id,
@@ -81,11 +77,12 @@ class UltraSearchResult extends Component {
         this.emitPrompt();
 
         this?.context?.socket.on('ultra_search_query', (data) => {
+            console.log(data);
             if (data?.successful === true) {
                 this.setState({ ultra_search_response: data?.message?.response, ultra_search_prompt: data?.message?.prompt })
             }
             else {
-                console.log(data?.message)
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Ultra Search Results"]) });
             }
             this.setState({ loading: false });
         })
@@ -94,9 +91,6 @@ class UltraSearchResult extends Component {
     render() {
         return (
             <SafeAreaView style={[styles.root, { backgroundColor: (this?.context?.colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-                <StatusBar animated={true}
-                    barStyle={this?.context?.colorScheme == 'dark' ? 'light-content' : 'dark-content'}
-                />
                 <ScrollView style={styles.scrollContainer}>
                     <View style={[styles.prompt_container, { backgroundColor: (this?.context?.colorScheme === 'dark') ? '#000' : '#fff' }]}>
                         <TextInput
@@ -114,6 +108,8 @@ class UltraSearchResult extends Component {
                             <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
                         </TouchableOpacity>
                     </View>
+
+                    <UnifiedError currentPage={this.props?.route?.name} />
 
                     <View>
                         {
@@ -139,18 +135,14 @@ class UltraSearchResult extends Component {
                                 )
                                 :
                                 (
-                                    (this.state.ultra_search_prompt === null || this.state.ultra_search_prompt === undefined || this.state.ultra_search_prompt.length === 0)
-                                        ?
+                                    (this.state.ultra_search_prompt !== null && this.state.ultra_search_prompt !== undefined && this.state.ultra_search_prompt?.length > 0)
+                                    &&
+                                    (
+                                        (this.state.loading) &&
                                         (
-                                            <AlertMessage type="warning" message="The search query cannot be blank. Please enter a search query and press the search button to view the results." />
+                                            <Loader message="Hunting for the ultimate solutions for you..." />
                                         )
-                                        :
-                                        (
-                                            (this.state.loading) &&
-                                            (
-                                                <Loader message="Hunting for the ultimate solutions for you..." />
-                                            )
-                                        )
+                                    )
                                 )
                         }
                     </View>
