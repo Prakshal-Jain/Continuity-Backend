@@ -134,7 +134,8 @@ export default function Login({ navigation, route }) {
             alignItems: 'center',
             flexWrap: 'wrap',
             borderRadius: 10,
-            marginBottom: 10
+            marginBottom: 10,
+            alignSelf: 'flex-start'
         },
         differentEmailText: {
             color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
@@ -151,7 +152,7 @@ export default function Login({ navigation, route }) {
 
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 {currStep === 2 && (
-                    <View style={{ width: '100%', alignItems: 'start' }}>
+                    <View style={{ width: '100%' }}>
                         <TouchableOpacity
                             style={styles.differentEmailbtn}
                             underlayColor='#fff'
@@ -166,8 +167,8 @@ export default function Login({ navigation, route }) {
                 {user === null ?
                     (
                         <GoogleSignInButton
-                            onPress={() => promptAsync()}
-                            // onPress={() => { setUser({ "email": "pj@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true }); setCurrStep(currStep + 1); }}
+                            // onPress={() => promptAsync()}
+                            onPress={() => { setUser({ "email": "pj@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true }); setCurrStep(currStep + 1); }}
                             colorScheme={colorScheme}
                         />
                     )

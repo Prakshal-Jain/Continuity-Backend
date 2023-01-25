@@ -4,31 +4,31 @@ import google from "../assets/google.png";
 
 const GoogleSignInButton = ({ colorScheme, ...props }) => {
     const styles = StyleSheet.create({
-        get button() {
-            return {
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderWidth: 1,
-                backgroundColor: colorScheme === 'dark' ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)',
-                padding: 12,
-                borderRadius: 8,
-                width: '80%',
-                alignItems: 'center',
-                justifyContent: 'center',
-            }
+        button: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            backgroundColor: colorScheme === 'dark' ? 'rgba(242, 242, 247, 1)' : 'rgba(28, 28, 30, 1)',
+            paddingVertical: 12,
+            paddingHorizontal: 15,
+            borderRadius: 8,
+            width: '80%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
         },
         logo: {
             width: 30,
             height: 30,
             marginRight: 12,
-            resizeMode: 'contain'
+            resizeMode: 'contain',
         },
-        get buttonText() {
-            return {
-                color: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
-                fontSize: 18,
-                fontWeight: 'bold'
-            }
+        buttonText: {
+            color: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
+            fontSize: 18,
+            fontWeight: 'bold',
+            flex: 1,
+            textAlign: 'center',
         },
     });
 
