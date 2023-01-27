@@ -57,7 +57,9 @@
     "react-native-view-shot": "^3.3.0",
     "react-native-web": "~0.18.7",
     "react-native-webview": "11.23.0",
-    "socket.io-client": "^4.5.3"
+    "socket.io-client": "^4.5.3",
+    "expo-notifications": "~0.16.1",
+    "expo-device": "~4.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

@@ -20,6 +20,7 @@ class Tabs extends Component {
         this.state = {
             refreshing: false,
             searchQuery: "",
+            selectedTab: null
         }
     }
 
@@ -121,16 +122,16 @@ class Tabs extends Component {
             tabs.push(
                 <ScaleXView key={key} deleteScaleRef={deleteScaleRef}>
                     <View style={[styles.tabTitle, {
-                        backgroundColor: 'rgba(58, 58, 60, 1)',
-                        borderColor: 'rgba(99, 99, 102, 1)',
+                        backgroundColor: (this.state.selectedTab === key) ? 'rgba(99, 99, 102, 1)' : 'rgba(58, 58, 60, 1)',
+                        borderColor: (this.state.selectedTab === key) ? 'rgba(0, 122, 255, 1)' : 'rgba(99, 99, 102, 1)',
                     }]}>
-                        <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+                        <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} onLongPress={() => { this.setState({ selectedTab: key }) }} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
                             <Image
                                 style={{ width: 40, height: 40, resizeMode: "contain", borderRadius: 10, }}
                                 source={(tab?.is_incognito === true && tab?.url === null) ? incognitoIcon : { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` }}
                                 defaultSource={(tab?.is_incognito === true) ? incognitoIcon : webIcon}
                             />
-                            <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
+                            <Text style={{ color: '#fff', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
                         </TouchableOpacity>
                         <FontAwesome name="close" size={25} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={onDelete} />
                     </View>
