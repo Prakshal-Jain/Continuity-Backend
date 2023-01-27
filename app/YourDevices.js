@@ -42,6 +42,7 @@ class YourDevices extends Component {
                     this.navigation.navigate('Your Devices');
                 }
                 else {
+                    // Set that tutorial was followed
                     await storage.set("is_show_tutorial", true);
                     this.navigation.navigate('Tutorial');
                 }
