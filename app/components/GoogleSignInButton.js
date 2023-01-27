@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Image, StyleSheet, Text } from 'react-native';
 import google from "../assets/google.png";
+import CustomText from './CustomText';
 
 const GoogleSignInButton = ({ colorScheme, ...props }) => {
     const styles = StyleSheet.create({
@@ -39,7 +40,7 @@ const GoogleSignInButton = ({ colorScheme, ...props }) => {
                 source={google}
                 style={styles.logo}
             />
-            <Text style={styles.buttonText}>Sign in with Google</Text>
+            <CustomText style={styles.buttonText}>Sign in with Google</CustomText>
         </TouchableOpacity>
     );
 };

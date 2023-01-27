@@ -183,16 +183,7 @@ class PrivacyPrevention extends Component {
                         Upgrade to Continuity now and ensure that your sensitive information, such as credit card details, passwords, and browsing history, remains private by simply clicking the button below. Browse with peace of mind knowing that your privacy is protected with Continuity.
                     </Text>
 
-                    {(this?.context?.credentials?.enrolled_features?.privacy_prevention?.enrolled === false) ?
-                        (
-                            <TouchableOpacity
-                                style={styles.upgradeBtn}
-                                onPress={this.upgradePrivacyPrevention}
-                                underlayColor='#fff'>
-                                <Text style={styles.upgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
-                            </TouchableOpacity>
-                        )
-                        :
+                    {(this?.context?.credentials?.enrolled_features?.privacy_prevention?.enrolled !== false) &&
                         (
                             <TouchableOpacity
                                 style={[styles.unenrollBtn, { borderColor: this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)' }]}
@@ -202,6 +193,7 @@ class PrivacyPrevention extends Component {
                             </TouchableOpacity>
                         )
                     }
+                    <View style={{ marginVertical: 20 }} />
                 </ScrollView>
             </SafeAreaView>
         )

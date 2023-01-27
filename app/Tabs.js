@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated, Pressable } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated, Pressable, Alert } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -259,7 +259,20 @@ class Tabs extends Component {
                             if (this?.context?.button_haptics !== 'none') {
                                 Haptics.impactAsync(this?.context?.button_haptics);
                             }
-                            this.props.deleteAllTabs();
+                            Alert.alert(
+                                "Are you sure you want to delete all the tabs?",
+                                null,
+                                [
+                                    {
+                                        text: "Cancel",
+                                        onPress: () => { }
+                                    },
+                                    {
+                                        text: "Delete",
+                                        onPress: this.props.deleteAllTabs
+                                    },
+                                ]
+                            )
                         }}
                         hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
                     >
