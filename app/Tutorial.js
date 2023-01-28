@@ -6,12 +6,19 @@ import {
     SafeAreaView,
     TouchableOpacity,
     View,
-    Linking
+    Linking,
+    Share,
+    Image
 } from "react-native";
 import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import chromeExtension1 from './assets/chromeExtension1.png';
+import chromeExtension2 from './assets/chromeExtension2.png';
+import chromeExtension3 from './assets/chromeExtension3.png';
+import chromeExtension4 from './assets/chromeExtension4.png';
+import chromeExtension5 from './assets/chromeExtension5.png';
 
 const Tutorial = ({ navigation, route }) => {
     const { colorScheme, credentials } = useContext(StateContext);
@@ -123,6 +130,13 @@ const Tutorial = ({ navigation, route }) => {
             padding: 15,
             borderRadius: 10
         },
+
+        screenshot_style: {
+            width: 360,
+            height: 225,
+            resizeMode: "contain",
+            borderRadius: 10,
+        }
     });
 
     const FooterButtons = () => (
@@ -139,6 +153,26 @@ const Tutorial = ({ navigation, route }) => {
             </TouchableOpacity>
         </>
     )
+
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+                message: 'https://chrome.google.com/webstore/detail/continuity/iialcggedkdlcbjfmgbmnjofjnlhpccc'
+            });
+
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    }
 
     const steps = [
         {
@@ -273,13 +307,101 @@ const Tutorial = ({ navigation, route }) => {
             element: (
                 <>
                     <Text style={styles.heading}>Setup your Chrome Extension</Text>
-                    <Text style={styles.larger_text}>Coming Soon!</Text>
-                    <FooterButtons />
+                    <Text style={styles.larger_text}>Enter the URL on your desktop's or laptop's Chrome browser to visit the Continuity page on Chrome Web Store</Text>
+                    <Text style={[styles.larger_text, { fontWeight: "bold" }, styles.border_container]}>https://bit.ly/3wEeeME</Text>
+                    <Text style={styles.larger_text}>OR</Text>
+
+                    <TouchableOpacity style={[styles.link_container, { alignSelf: 'center' }]} onPress={onShare}>
+                        <View style={styles.links}>
+                            <Text style={{ fontSize: 15, color: colorScheme === 'dark' ? '#fff' : '#000', textAlign: "center" }}>Share this link to your desktop / laptop</Text>
+                        </View>
+                    </TouchableOpacity>
                 </>
             ),
 
             previous: 0,
-            next: null
+            next: 9
+        },
+
+        {
+            element: (
+                <View style={{ alignItems: "center" }}>
+                    <Text style={styles.heading}>Setup your Chrome Extension</Text>
+                    <Text style={styles.larger_text}>Click on <Text style={{ fontWeight: "bold" }}>Add to Chrome</Text> button.</Text>
+                    <Image
+                        style={styles.screenshot_style}
+                        source={chromeExtension1}
+                    />
+                </View>
+            ),
+
+            previous: 8,
+            next: 10
+        },
+
+        {
+            element: (
+                <View style={{ alignItems: "center" }}>
+                    <Text style={styles.heading}>Setup your Chrome Extension</Text>
+                    <Text style={styles.larger_text}>Click <Text style={{ fontWeight: "bold" }}>Add extension</Text> button.</Text>
+                    <Image
+                        style={styles.screenshot_style}
+                        source={chromeExtension2}
+                    />
+                </View>
+            ),
+
+            previous: 9,
+            next: 11
+        },
+
+        {
+            element: (
+                <View style={{ alignItems: "center" }}>
+                    <Text style={styles.heading}>Setup your Chrome Extension</Text>
+                    <Text style={styles.larger_text}>Click on <MaterialIcons name="extension" color="rgba(10, 132, 255, 1)" size={20} style={{ marginHorizontal: 10 }} /> icon to see all your extensions.</Text>
+                    <Image
+                        style={styles.screenshot_style}
+                        source={chromeExtension3}
+                    />
+                </View>
+            ),
+
+            previous: 10,
+            next: 12
+        },
+
+        {
+            element: (
+                <View style={{ alignItems: "center" }}>
+                    <Text style={styles.heading}>Setup your Chrome Extension</Text>
+                    <Text style={styles.larger_text}>Click on <Text style={{ fontWeight: "bold" }}>Continuity</Text> extension to start.</Text>
+                    <Image
+                        style={styles.screenshot_style}
+                        source={chromeExtension4}
+                    />
+                </View>
+            ),
+
+            previous: 11,
+            next: 13
+        },
+
+        {
+            element: (
+                <View style={{ alignItems: "center" }}>
+                    <Text style={styles.heading}>Setup your Chrome Extension</Text>
+                    <Text style={styles.larger_text}>Enter the <Text style={{ fontWeight: "bold" }}>Device Name</Text> and <Text style={{ fontWeight: "bold" }}>Device Type</Text>.</Text>
+                    <Text style={styles.larger_text}>Then, click on <Text style={{ fontWeight: "bold" }}>Get Started</Text> button.</Text>
+                    <Image
+                        style={styles.screenshot_style}
+                        source={chromeExtension5}
+                    />
+                </View>
+            ),
+
+            previous: 12,
+            next: 4
         },
     ]
 

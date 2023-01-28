@@ -20,7 +20,6 @@ class Tabs extends Component {
         this.state = {
             refreshing: false,
             searchQuery: "",
-            selectedTab: null
         }
     }
 
@@ -80,19 +79,19 @@ class Tabs extends Component {
                     <Text style={{ marginLeft: 5, fontWeight: "bold", textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }}>Incognito Mode</Text>
                 </View>
             )}
-            <View style={[styles.searchBar, { backgroundColor: this.props.isIncognitoView ? 'rgba(58, 58, 60, 1)' : 'rgba(229, 229, 234, 1)' }]}>
+            <View style={[styles.searchBar, { backgroundColor: (this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(229, 229, 234, 1)' }]}>
                 <View style={{ flexDirection: 'row', justifyContent: "space-between", alignItems: "center" }}>
-                    <FontAwesome name="search" style={{ fontSize: 18 }} color={this.props.isIncognitoView ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} />
+                    <FontAwesome name="search" style={{ fontSize: 18 }} color={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} />
                     <TextInput
                         onChangeText={this.onSearch}
-                        style={[styles.searchBox, { color: this.props.isIncognitoView ? '#fff' : '#000' }]}
+                        style={[styles.searchBox, { color: (this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? '#fff' : '#000' }]}
                         placeholder="Search Tabs"
                         value={this.state.searchQuery}
-                        placeholderTextColor={this.props.isIncognitoView ? "rgba(174, 174, 178, 1)" : "rgba(72, 72, 74, 1)"}
+                        placeholderTextColor={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(174, 174, 178, 1)" : "rgba(72, 72, 74, 1)"}
                         selectTextOnFocus={true}
                     />
                     {this.state.searchQuery.length > 0 && (
-                        <Icon name="close-circle-outline" size={18} color={this.props.isIncognitoView ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} onPress={() => { this.setState({ searchQuery: "" }) }} />
+                        <Icon name="close-circle-outline" size={18} color={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} onPress={() => { this.setState({ searchQuery: "" }) }} />
                     )}
                 </View>
             </View>
@@ -122,16 +121,16 @@ class Tabs extends Component {
             tabs.push(
                 <ScaleXView key={key} deleteScaleRef={deleteScaleRef}>
                     <View style={[styles.tabTitle, {
-                        backgroundColor: (this.state.selectedTab === key) ? 'rgba(99, 99, 102, 1)' : 'rgba(58, 58, 60, 1)',
-                        borderColor: (this.state.selectedTab === key) ? 'rgba(0, 122, 255, 1)' : 'rgba(99, 99, 102, 1)',
+                        backgroundColor: 'rgba(58, 58, 60, 1)',
+                        borderColor: 'rgba(99, 99, 102, 1)',
                     }]}>
-                        <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} onLongPress={() => { this.setState({ selectedTab: key }) }} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
+                        <TouchableOpacity onPress={() => this.props.switchCurrOpenWindow(key)} style={{ flexDirection: "row", flex: 1, alignItems: "center" }}>
                             <Image
                                 style={{ width: 40, height: 40, resizeMode: "contain", borderRadius: 10, }}
                                 source={(tab?.is_incognito === true && tab?.url === null) ? incognitoIcon : { uri: `https://s2.googleusercontent.com/s2/favicons?domain_url=${tab?.url}&sz=64` }}
                                 defaultSource={(tab?.is_incognito === true) ? incognitoIcon : webIcon}
                             />
-                            <Text style={{ color: '#fff', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
+                            <Text style={{ color: 'white', fontSize: 17, marginHorizontal: 15, flex: 1 }} numberOfLines={2}>{tab.title}</Text>
                         </TouchableOpacity>
                         <FontAwesome name="close" size={25} color={this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)'} onPress={onDelete} />
                     </View>
