@@ -26,6 +26,7 @@ import storage from "./utilities/storage";
 import * as Haptics from 'expo-haptics';
 import Report from './Report';
 import Notifications from './Notifications';
+import Tutorial from './Tutorial';
 import { privacy_domain_set } from "./utilities/list";
 
 const Stack = createStackNavigator();
@@ -140,6 +141,10 @@ export default function () {
 
           <Stack.Screen name="Notifications" component={Notifications}
             options={headerOptions}
+          />
+
+          <Stack.Screen name="Tutorial" component={Tutorial}
+            options={{ ...headerOptions, headerLeft: null, headerRight: null }}
           />
         </Stack.Navigator>
       </NavigationContainer>

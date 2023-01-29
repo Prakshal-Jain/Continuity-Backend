@@ -10,6 +10,7 @@ import { StateContext } from "./state_context";
 import UnifiedError from './components/UnifiedError';
 import ProgressBar from "./components/ProgressBar";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import CustomText from './components/CustomText'
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -125,7 +126,7 @@ export default function Login({ navigation, route }) {
             paddingLeft: 10,
             paddingRight: 10,
             fontSize: 20,
-            fontWeight: 'bold'
+            fontWeight: 'bold',
         },
         differentEmailbtn: {
             backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -134,7 +135,8 @@ export default function Login({ navigation, route }) {
             alignItems: 'center',
             flexWrap: 'wrap',
             borderRadius: 10,
-            marginBottom: 10
+            marginBottom: 10,
+            alignSelf: 'flex-start'
         },
         differentEmailText: {
             color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
@@ -151,7 +153,7 @@ export default function Login({ navigation, route }) {
 
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
                 {currStep === 2 && (
-                    <View style={{ width: '100%', alignItems: 'start' }}>
+                    <View style={{ width: '100%' }}>
                         <TouchableOpacity
                             style={styles.differentEmailbtn}
                             underlayColor='#fff'
@@ -179,7 +181,7 @@ export default function Login({ navigation, route }) {
                             </View>
 
                             <View style={{ marginTop: 25, alignItems: 'center' }}>
-                                <Text style={styles.h2}>Device Type</Text>
+                                <CustomText style={styles.h2}>Device Type</CustomText>
                                 <View style={styles.horizontal_flex}>
                                     <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
                                 </View>
@@ -190,8 +192,9 @@ export default function Login({ navigation, route }) {
                                     style={styles.loginScreenButton}
                                     onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
                                     underlayColor='#fff'>
-                                    <Text style={styles.loginText}>Get Started</Text>
+                                    <CustomText style={styles.loginText}>Get Started</CustomText>
                                 </TouchableOpacity>
+                                <View style={{marginVertical: 20}} />
                             </View>
                         </>
                     )

@@ -39,7 +39,7 @@ export default function ProgressBar({ stepCount = 1, currStep = 0, showLabel = t
                         <LinearGradient
                             key={`bar_${idx}`}
                             style={[styles.progress_bar, { width: `${(100 / stepCount) - 1}%`, marginRight: (idx === (stepCount - 1) ? undefined : '3%') }]}
-                            colors={[(colorScheme === 'dark') ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)', 'rgba(0, 0, 0, 0)']}
+                            colors={[(colorScheme === 'dark') ? 'rgba(10, 132, 255, 1)' : 'rgba(0, 122, 255, 1)', 'rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0)']}
                             start={[0, 0]} end={[1, 0]}
                         >
                         </LinearGradient>

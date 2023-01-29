@@ -15,7 +15,6 @@ import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
 import PieChart from "./components/PieChart";
 import randomColor from "randomcolor";
-import CheckBoxList from "./components/CheckBoxList";
 import Loader from "./components/Loader";
 import userIcon from "./assets/user.png";
 import * as Haptics from 'expo-haptics';

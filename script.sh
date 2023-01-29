@@ -1,8 +1,8 @@
 docker-compose stop
-docker image prune -a -f
-docker volume prune -f
-docker system prune -f -a
+# docker-compose down
 mv ../.git .
-git pull origin stable --no-ff
+# docker image prune -a -f
+# docker volume prune -f
+# docker system prune -f -a
 mv .git ..
 docker-compose up -d

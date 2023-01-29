@@ -37,7 +37,15 @@ class YourDevices extends Component {
         this?.context?.socket.on('auto_authenticate', async (data) => {
             if (data?.successful === true) {
                 this?.context?.setCredentials(data?.message);
-                this.navigation.navigate('Your Devices');
+                const isShowTutorial = await storage.get("is_show_tutorial");
+                if (isShowTutorial === true) {
+                    this.navigation.navigate('Your Devices');
+                }
+                else {
+                    // Set that tutorial was followed
+                    await storage.set("is_show_tutorial", true);
+                    this.navigation.navigate('Tutorial');
+                }
             }
             else {
                 this?.context?.setCredentials(null);
@@ -54,7 +62,14 @@ class YourDevices extends Component {
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
                 this?.context?.setCredentials(data?.message);
-                this.navigation.navigate('Your Devices');
+                const isShowTutorial = await storage.get("is_show_tutorial");
+                if (isShowTutorial === true) {
+                    this.navigation.navigate('Your Devices');
+                }
+                else {
+                    await storage.set("is_show_tutorial", true);
+                    this.navigation.navigate('Tutorial');
+                }
             }
             else {
                 this?.context?.setCredentials(null);

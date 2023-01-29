@@ -221,7 +221,7 @@ export default function (props) {
                     'device_name': credentials?.device_name,
                     "device_token": credentials?.device_token,
                     target_device,
-                    updated_title,
+                    'title': updated_title,
                     url,
                 })
             }
