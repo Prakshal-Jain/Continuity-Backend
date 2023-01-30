@@ -179,7 +179,7 @@ const Tutorial = ({ navigation, route }) => {
             element: (
                 <>
                     <Text style={styles.heading}>Let's set up your other devices with Continuity</Text>
-                    <Text style={styles.text_style}>To sync all your tabs across multiple devices in real time using Continuity, please select the type of device you would like to set up next.</Text>
+                    <Text style={[styles.text_style, { textAlign: "center" }]}>To sync all your tabs across multiple devices in real time using Continuity, please select the type of device you would like to set up next.</Text>
 
                     <TouchableOpacity style={styles.link_container} onPress={() => setCurrStep(1)}>
                         <View style={styles.links}>

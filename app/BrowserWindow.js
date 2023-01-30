@@ -191,10 +191,19 @@ export default function (props) {
     }
 
     const onBrowserLoad = (syntheticEvent) => {
-        const { canGoForward, canGoBack, title } = syntheticEvent.nativeEvent;
-        const curr_url = syntheticEvent.nativeEvent?.url;
-        const updated_title = generateTitle(title, curr_url);
+        const { canGoForward, canGoBack } = syntheticEvent.nativeEvent;
         setIsFirstRequest(true);
+
+
+        setCanGoBack(canGoBack);
+        setCanGoForward(canGoForward);
+    }
+
+    const onNavigationStateChange = (navState) => {
+        const { title } = navState;
+        const curr_url = navState?.url;
+        const updated_title = generateTitle(title, curr_url);
+
 
         const tab_metadata = { "title": updated_title, "url": url, "is_incognito": incognito };
         const metadataCopy = props.metadata;
@@ -236,14 +245,15 @@ export default function (props) {
             }
         }
 
-
-        setCanGoBack(canGoBack);
-        setCanGoForward(canGoForward);
-        setURL(curr_url);
-    }
-
-    const onNavigationStateChange = (navState) => {
         setIsFirstRequest(true);
+
+        // TODO: Potential Bug when input in focus, and when blurred.
+        if (!isInputFocused) {
+            setURL(curr_url);
+        }
+        else {
+            setURLHelper(curr_url);
+        }
     }
 
     const onShouldStartLoadWithRequest = (request) => {
