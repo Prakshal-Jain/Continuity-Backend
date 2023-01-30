@@ -7,8 +7,12 @@ services:
       - '443:443'
   mongo:
     image: mongo:4.2.5
+    volumes:
+      - mongo:/var/lib/docker/volumes/
   app:
     build: .
+    volumes:
+      - app:/var/lib/docker/volumes/
     environment:
       FLASK_APP: backend/server.py
       ADMIN_PASSWORD: '317E7FF22A1F3E7E64EC5CFE4CC555E2041CC9420176F64C8B7B133C9A1562AD'
@@ -16,3 +20,6 @@ services:
       OPENAI_API_KEY: 'TEMP HOLDER'
     # ports:
     #   - '80:8000'
+volumes:
+  mongo:
+  app:
