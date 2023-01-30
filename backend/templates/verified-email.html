@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title> Continuity | syncing </title>
+    <title> Continuity | Verify Email </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
@@ -79,39 +79,12 @@
 <body>
 
     <div class="device-detail-container">
-        <div class="description">
-            <div>
-                <i style="font-size: x-large; margin-bottom: 0.5em;" class="fa fa-spinner fa-spin"></i>
-            </div>
-            Synchronizing tabs with your <span class="device_name"></span> device.
-        </div>
+        <i class="fa fa-check" style="font-size: 6rem; margin-bottom: 2rem; color: rgba(48, 209, 88, 1)"></i>
+        <div style="font-size: x-large;">{{user_id}} has been verified</div>
         <a href="https://continuitybrowser.com/" target="_blank">
             <div class="logo"></div>
         </a>
     </div>
-
-    <script>
-        const container = document.querySelector('.device-detail-container');
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const device_name = urlParams.get('device_name') ?? 'Your Device';
-        const device_type = urlParams.get('device_type') ?? 'mobile-phone';
-
-        document.querySelector('.device_name').innerHTML = device_name;
-
-        const title_container = document.createElement('div');
-        title_container.appendChild(document.createTextNode(device_name));
-        title_container.style.fontSize = 'xx-large';
-        container.prepend(title_container);
-
-        const icon_container = document.createElement('div');
-        icon_container.style.marginBottom = '2em';
-        const icon = document.createElement('i');
-        icon.classList.add('fa', `fa-${device_type}`);
-        icon.style.fontSize = '8rem';
-        icon_container.appendChild(icon);
-        container.prepend(icon_container);
-    </script>
 </body>
 
 </html>
