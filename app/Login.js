@@ -1,7 +1,5 @@
 import { Text, View, StyleSheet, TextInput, Image, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useContext, useEffect, useState } from "react";
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import React, { useContext, useState } from "react";
 import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
@@ -13,18 +11,18 @@ import CustomText from './components/CustomText';
 import storage from "./utilities/storage";
 
 export default function Login({ navigation, route }) {
-    const { socket, colorScheme } = useContext(StateContext);
+    const { socket, colorScheme, credentials } = useContext(StateContext);
     const [deviceName, setDeviceName] = useState(null);
     const [selected, setSelected] = useState('mobile-phone');
 
-    const [user, setUser] = useState(null);
-
-    const [email, setEmail] = useState(null);
+    const [user_id, setUserId] = useState(null);
     const [password, setPassword] = useState(null);
 
-    const [currStep, setCurrStep] = useState(1);
+    const [currStep, setCurrStep] = useState(route?.step ?? 1);
 
-    const postCredentials = (creds) => {
+    const postCredentials = async () => {
+        const id = await storage.get('user_id');
+        const creds = { 'device_name': deviceName, 'user_id': id, 'device_type': selected };
         socket.emit("login", creds);
     }
 
@@ -35,10 +33,13 @@ export default function Login({ navigation, route }) {
         { id: 'desktop', label: 'Desktop' },
     ];
 
-    const clearStates = () => {
-        setUser(null);
+    const clearStates = async () => {
+        // When change email
         setDeviceName(null);
+        setUserId(null);
+        setPassword(null);
         setSelected('mobile-phone');
+        await storage.clearAll();
         setCurrStep(1);
     }
 
@@ -120,11 +121,12 @@ export default function Login({ navigation, route }) {
     });
 
     const setCreds = async () => {
-        setUser({ email, user_id: email });
-        setEmail(null);
-        setPassword(null);
         await storage.set('password', password);
-        setCurrStep(2)
+        await storage.set('user_id', user_id);
+        // setCurrStep(2)
+        socket.emit('sign_in', { user_id });
+        setUserId(null);
+        setPassword(null);
     }
 
 
@@ -133,7 +135,7 @@ export default function Login({ navigation, route }) {
             <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
 
             <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                {currStep === 2 && (
+                {/* {currStep === 2 && (
                     <View style={{ width: '100%' }}>
                         <TouchableOpacity
                             style={styles.differentEmailbtn}
@@ -144,9 +146,9 @@ export default function Login({ navigation, route }) {
                             <Text style={styles.differentEmailText}>Use a different email</Text>
                         </TouchableOpacity>
                     </View>
-                )}
+                )} */}
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
-                {user === null ?
+                {(credentials === null || credentials === undefined) ?
                     (
                         <>
                             <View style={styles.horizontal_flex}>
@@ -154,7 +156,7 @@ export default function Login({ navigation, route }) {
                                     style={styles.text_input}
                                     placeholder="Email"
                                     placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'}
-                                    onChangeText={setEmail}
+                                    onChangeText={setUserId}
                                     key="email"
                                 />
                             </View>
@@ -185,7 +187,7 @@ export default function Login({ navigation, route }) {
 
                                 <TouchableOpacity
                                     style={styles.loginScreenButton}
-                                    onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
+                                    onPress={postCredentials}
                                     underlayColor='#fff'>
                                     <CustomText style={styles.loginText}>Get Started</CustomText>
                                 </TouchableOpacity>
@@ -196,6 +198,7 @@ export default function Login({ navigation, route }) {
                 }
 
                 <UnifiedError currentPage={route?.name} />
+                <View style={{ marginVertical: 20 }} />
 
             </ScrollView>
             <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>

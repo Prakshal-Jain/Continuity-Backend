@@ -11,6 +11,7 @@ import {
     Alert,
 } from "react-native";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import storage from "./utilities/storage";
 import { StateContext } from "./state_context";
 import PieChart from "./components/PieChart";
@@ -186,7 +187,25 @@ export default function ({ navigation, route, ...props }) {
             width: 20,
             borderRadius: 10,
             marginRight: 15,
-        }
+        },
+
+        privacyUpgradeBtn: {
+            marginRight: 40,
+            marginLeft: 40,
+            marginVertical: 15,
+            padding: 10,
+            backgroundColor: 'rgba(40, 205, 65, 1)',
+            borderRadius: 10,
+            alignItems: "center"
+        },
+
+        privacyUpgradeText: {
+            color: '#000',
+            textAlign: 'center',
+            paddingHorizontal: 10,
+            fontSize: 16,
+            fontWeight: 'bold'
+        },
     })
 
     const onLogout = () => {
@@ -250,7 +269,7 @@ export default function ({ navigation, route, ...props }) {
                         defaultSource={userIcon}
                     />
                     <View style={styles.infoContainer}>
-                        <Text style={styles.name}>{credentials?.name}</Text>
+                        <Text style={styles.name}>Email</Text>
                         <Text style={styles.email}>{credentials?.user_id}</Text>
                     </View>
                 </View>
@@ -294,6 +313,23 @@ export default function ({ navigation, route, ...props }) {
                                             <Text style={styles.websitesHeading}>
                                                 Websites that contacted Trackers
                                             </Text>
+                                            {(!credentials?.enrolled_features?.privacy_prevention?.enrolled) ?
+                                                (
+                                                    <>
+                                                        <TouchableOpacity
+                                                            style={styles.privacyUpgradeBtn}
+                                                            onPress={() => { }}
+                                                            underlayColor='#fff'>
+                                                            <Text style={styles.privacyUpgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
+                                                            <Text style={styles.smallText}>
+                                                                Prevent trackers from accessing your personal and sensitive information
+                                                            </Text>
+                                                            <MaterialCommunityIcons name="lock-check" style={{ marginVertical: 5, fontSize: 25 }} color="#000" />
+                                                        </TouchableOpacity>
+                                                    </>
+                                                )
+                                                :
+                                                null}
                                             <Text style={styles.smallText}>
                                                 Select the websites listed below to view the trackers that were contacted.
                                             </Text>
@@ -303,7 +339,7 @@ export default function ({ navigation, route, ...props }) {
                                     :
                                     (
                                         <Text style={{ marginTop: 10, textAlign: 'center', marginVertical: 10, color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>
-                                            No data found for this device.
+                                            Intelligent Privacy Report will show up here whenever any trackers are encountered during browsing.
                                         </Text>
                                     )
                                 }

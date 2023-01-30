@@ -34,6 +34,21 @@ class YourDevices extends Component {
     navigation = this.props?.navigation;
 
     componentDidMount = async () => {
+        this?.context?.socket.on('sign_in', async (data) => {
+            if (data?.successful === true) {
+                if (data?.message?.verified) {
+                    await this.autoAuthenticate();
+                }
+                else {
+                    this?.context?.setError({ message: "Your email is not verified. Please check your email to verify.", type: "warning", displayPages: new Set(["Login"]) });
+                }
+            }
+            else {
+                this?.context?.setCredentials(null);
+                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
+            }
+        })
+
         this?.context?.socket.on('auto_authenticate', async (data) => {
             if (data?.successful === true) {
                 this?.context?.setCredentials(data?.message);
@@ -49,11 +64,11 @@ class YourDevices extends Component {
             }
             else {
                 this?.context?.setCredentials(null);
-                this.navigation.navigate('Login');
+                this.navigation.navigate('Login', { step: 2 });
             }
         })
 
-        await this.autoAuthenticate();
+        await this.checkVerified();
 
 
         this?.context?.socket.on('login', async (data) => {
@@ -74,7 +89,7 @@ class YourDevices extends Component {
             else {
                 this?.context?.setCredentials(null);
                 this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
-                this.navigation.navigate('Login');
+                this.navigation.navigate('Login', { step: 1 });
             }
         });
 
@@ -119,6 +134,11 @@ class YourDevices extends Component {
         const device_token = await storage.get("device_token");
         // console.log({ user_id, device_name, device_token })
         this?.context?.socket.emit("auto_authenticate", { user_id, device_name, device_token })
+    }
+
+    checkVerified = async () => {
+        const user_id = await storage.get("user_id");
+        this?.context?.socket.emit('sign_in', { user_id });
     }
 
     render() {
