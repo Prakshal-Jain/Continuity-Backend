@@ -5,52 +5,27 @@ import * as WebBrowser from 'expo-web-browser';
 import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
-import GoogleSignInButton from './components/GoogleSignInButton';
 import { StateContext } from "./state_context";
 import UnifiedError from './components/UnifiedError';
 import ProgressBar from "./components/ProgressBar";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import CustomText from './components/CustomText'
-
-WebBrowser.maybeCompleteAuthSession();
+import CustomText from './components/CustomText';
+import storage from "./utilities/storage";
 
 export default function Login({ navigation, route }) {
     const { socket, colorScheme } = useContext(StateContext);
     const [deviceName, setDeviceName] = useState(null);
     const [selected, setSelected] = useState('mobile-phone');
 
-    const [accessToken, setAccessToken] = useState(null);
     const [user, setUser] = useState(null);
-    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        clientId: "934339026423-698c5rptdnkdrr1mfog4og13naph71o1.apps.googleusercontent.com",
-        iosClientId: "934339026423-o22n4psf53vs2a759e4v2233cordkg6q.apps.googleusercontent.com",
-        androidClientId: "934339026423-gsjgka37gp62e5uevccgsqd0o7m8s907.apps.googleusercontent.com"
-    });
+
+    const [email, setEmail] = useState(null);
+    const [password, setPassword] = useState(null);
 
     const [currStep, setCurrStep] = useState(1);
 
-    useEffect(() => {
-        if (response?.type === "success") {
-            setAccessToken(response.authentication.accessToken);
-            accessToken && fetchUserInformation();
-        }
-    }, [response, accessToken])
-
     const postCredentials = (creds) => {
-        creds.user_id = creds?.email;
         socket.emit("login", creds);
-    }
-
-    const fetchUserInformation = async () => {
-        const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-
-        const userInfo = await response.json();
-        setUser(userInfo);
-        setCurrStep(currStep + 1);
     }
 
     const data = [
@@ -144,7 +119,13 @@ export default function Login({ navigation, route }) {
         }
     });
 
-
+    const setCreds = async () => {
+        setUser({ email, user_id: email });
+        setEmail(null);
+        setPassword(null);
+        await storage.set('password', password);
+        setCurrStep(2)
+    }
 
 
     return (
@@ -167,17 +148,33 @@ export default function Login({ navigation, route }) {
                 <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                 {user === null ?
                     (
-                        <GoogleSignInButton
-                            onPress={() => promptAsync()}
-                            // onPress={() => { setUser({ "email": "pj@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true }); setCurrStep(currStep + 1); }}
-                            colorScheme={colorScheme}
-                        />
+                        <>
+                            <View style={styles.horizontal_flex}>
+                                <TextInput
+                                    style={styles.text_input}
+                                    placeholder="Email"
+                                    placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'}
+                                    onChangeText={setEmail}
+                                    key="email"
+                                />
+                            </View>
+                            <View style={styles.horizontal_flex}>
+                                <TextInput style={styles.text_input} placeholder="Password" secureTextEntry={true} placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setPassword} />
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.loginScreenButton}
+                                onPress={setCreds}
+                                underlayColor='#fff'>
+                                <CustomText style={styles.loginText}>Sign In</CustomText>
+                            </TouchableOpacity>
+                        </>
                     )
                     :
                     (
                         <>
                             <View style={styles.horizontal_flex}>
-                                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
+                                <TextInput style={styles.text_input} placeholder="Device Name" key="device_name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
                             </View>
 
                             <View style={{ marginTop: 25, alignItems: 'center' }}>
@@ -186,19 +183,19 @@ export default function Login({ navigation, route }) {
                                     <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
                                 </View>
 
-                                <UnifiedError currentPage={route?.name} />
-
                                 <TouchableOpacity
                                     style={styles.loginScreenButton}
                                     onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
                                     underlayColor='#fff'>
                                     <CustomText style={styles.loginText}>Get Started</CustomText>
                                 </TouchableOpacity>
-                                <View style={{marginVertical: 20}} />
+                                <View style={{ marginVertical: 20 }} />
                             </View>
                         </>
                     )
                 }
+
+                <UnifiedError currentPage={route?.name} />
 
             </ScrollView>
             <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
