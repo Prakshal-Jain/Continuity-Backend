@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 from secrets import token_urlsafe
 from bcrypt import hashpw, gensalt, checkpw
 from features.ultra_search import ultra_search_query
+from features.email_verification import email_verification
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import os
@@ -31,6 +32,7 @@ notification.create_index("ttl", expireAfterSeconds=0)
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
+    unverified = {}
     admin_socket = {}
     max_active_users = 100
 
@@ -202,6 +204,28 @@ class ClientHandleNamespace(Namespace):
             })
             return True
         return False
+    
+    def on_sign_in(self, data):
+        if self.__at_capacity("sign_in", data.get("user_id")):
+            return
+        
+        if self.__data_check(['user_id'], data):
+            return
+
+        user_id = data.get("user_id")
+        user = users.find_one({"user_id": user_id})
+        ClientHandleNamespace.unverified[user_id] = request.sid
+        if user:
+            emit('sign_in', {'successful': True, 'message': {'verified': bool(user.get('verified'))}, 'type': 'message'})
+            return
+        
+        user_entry = users.insert_one({'user_id': user_id, 'verified': False})
+
+        if not email_verification(user_id, str(user_entry.inserted_id)):
+            emit('sign_in', {'successful': False, 'message': 'Something went wrong', 'type': 'error'})
+            user.delete_one({'_id': user_entry.inserted_id})
+
+        emit('sign_in', {'successful': True, 'message': {'verified': False}, 'type': 'message'})
 
     def on_login(self, data):
         if self.__at_capacity("login", data.get("user_id")):

@@ -155,6 +155,12 @@
       console.log(data);
       console.log("========================")
     });
+
+    socket.on('sign_in', function(data) {
+      console.log("sign_in");
+      console.log(data);
+      console.log("========================")
+    });
     
     function get(){
       socket.emit("get", {'user_id': 'Swastik'});
@@ -236,6 +242,11 @@
       socket.emit("get_notification", {'user_id': 'Swastik', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
     }
 
+    function sign_in(){
+      var input_data = document.getElementById('sign_in').value;
+      socket.emit("sign_in", {'user_id': 'swasnaiktik@gmail.com'});
+    }
+
   </script>
   <title>SocketIO</title>
 </head>
@@ -260,6 +271,10 @@
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>
+    <br>
+    <br>
+    <input id="sign_in" type="text" />
+    <button onclick="sign_in();">sign_in</button>
     <br>
     <br>
 <div id="Error"></div>
