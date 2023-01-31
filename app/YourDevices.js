@@ -54,6 +54,7 @@ class YourDevices extends Component {
         })
 
         this?.context?.socket.on('auto_authenticate', async (data) => {
+            console.log(data);
             if (data?.successful === true) {
                 this?.context?.setError(null);
                 this?.context?.setCredentials(data?.message);

@@ -221,7 +221,7 @@ class ClientHandleNamespace(Namespace):
 
         new_user = {
             "user_id": user_id,
-            "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.svg",
+            "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
             "devices": {},
             "tabs_data": {},
             "enrolled_features": {
