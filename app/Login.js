@@ -11,7 +11,7 @@ import CustomText from './components/CustomText';
 import storage from "./utilities/storage";
 
 export default function Login({ navigation, route }) {
-    const { socket, colorScheme, credentials, loginCurrStep } = useContext(StateContext);
+    const { socket, colorScheme, credentials, loginCurrStep, setLoginCurrStep } = useContext(StateContext);
     const [deviceName, setDeviceName] = useState(null);
     const [selected, setSelected] = useState('mobile-phone');
 
@@ -174,18 +174,18 @@ export default function Login({ navigation, route }) {
                 <ProgressBar stepCount={2} currStep={loginCurrStep} showLabel={true} />
 
                 <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                    {/* {currStep === 2 && (
-                    <View style={{ width: '100%' }}>
-                        <TouchableOpacity
-                            style={styles.differentEmailbtn}
-                            underlayColor='#fff'
-                            onPress={clearStates}
-                        >
-                            <FontAwesome name="angle-left" size={15} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 6 }} />
-                            <Text style={styles.differentEmailText}>Use a different email</Text>
-                        </TouchableOpacity>
-                    </View>
-                )} */}
+                    {loginCurrStep === 2 && (
+                        <View style={{ width: '100%' }}>
+                            <TouchableOpacity
+                                style={styles.differentEmailbtn}
+                                underlayColor='#fff'
+                                onPress={clearStates}
+                            >
+                                <FontAwesome name="angle-left" size={15} color={(colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} style={{ marginRight: 6 }} />
+                                <Text style={styles.differentEmailText}>Use a different email</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                     <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
                     <View style={styles.horizontal_flex}>
                         <TextInput style={styles.text_input} placeholder="Device Name" key="device_name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />

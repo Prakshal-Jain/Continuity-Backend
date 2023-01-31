@@ -4,18 +4,22 @@ import {
     Text,
     StyleSheet,
     SafeAreaView,
-    StatusBar,
+    TouchableOpacity,
     View,
     Image
 } from "react-native";
 import { StateContext } from "./state_context";
-import webIcon from "./assets/web_icon.png"
+import webIcon from "./assets/web_icon.png";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useState } from "react";
 
 
-const TrackersContacted = ({ route }) => {
-    const { colorScheme } = useContext(StateContext);
-
-    const { website, tracker, count, color } = route?.params;
+const TrackersContacted = ({ navigation, route }) => {
+    const { colorScheme, credentials } = useContext(StateContext);
+    const [website, setWebsite] = useState(route?.params?.website);
+    const [tracker, setTracker] = useState(route?.params?.tracker);
+    const [count, setCount] = useState(route?.params?.count);
+    const [color, setColor] = useState(route?.params?.color);
 
     const styles = StyleSheet.create({
         root: {
@@ -78,7 +82,32 @@ const TrackersContacted = ({ route }) => {
         trackerTile: {
             borderBottomWidth: StyleSheet.hairlineWidth,
             borderBottomColor: colorScheme === 'dark' ? 'rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)'
-        }
+        },
+
+        privacyUpgradeBtn: {
+            marginRight: 40,
+            marginLeft: 40,
+            marginBottom: 10,
+            padding: 10,
+            backgroundColor: 'rgba(40, 205, 65, 1)',
+            borderRadius: 10,
+            alignItems: "center",
+            alignSelf: 'center'
+        },
+
+        privacyUpgradeText: {
+            color: '#000',
+            textAlign: 'center',
+            paddingHorizontal: 10,
+            fontSize: 16,
+            fontWeight: 'bold'
+        },
+
+        smallText: {
+            color: colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)',
+            marginBottom: 10,
+            textAlign: "center"
+        },
     });
 
     let img_url = `https://s2.googleusercontent.com/s2/favicons?domain_url=${website}&sz=128`
@@ -95,7 +124,43 @@ const TrackersContacted = ({ route }) => {
                     defaultSource={webIcon}
                 />
 
-                <Text style={styles.trackerCount}>Continuity has prevented <Text style={{ fontWeight: 'bold' }}>{count} trackers</Text> from profiling you.</Text>
+                {(!credentials?.enrolled_features?.privacy_prevention?.enrolled) ?
+                    (
+                        <>
+                            <Text style={[styles.smallText, { marginTop: 15 }]}>
+                                Prevent trackers from accessing your personal and sensitive information
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.privacyUpgradeBtn}
+                                onPress={() => navigation.navigate('Privacy Prevention', { redirectScreen: 'Trackers Contacted' })}
+                                underlayColor='#fff'>
+                                <MaterialCommunityIcons name="lock-check" style={{ marginBottom: 5, fontSize: 25 }} color="#000" />
+                                <Text style={styles.privacyUpgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.trackerCount}><Text style={{ fontWeight: 'bold' }}>{count} trackers</Text> contacted this website.</Text>
+                        </>
+                    )
+                    :
+                    ((!credentials?.enrolled_features?.privacy_prevention?.switch) ? (
+                        <>
+                            <Text style={[styles.smallText, { marginTop: 15 }]}>
+                                Prevent trackers from accessing your personal and sensitive information
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.privacyUpgradeBtn}
+                                onPress={() => navigation?.navigate('Settings', { "action_message": "To begin using Intelligent Privacy Prevention, please turn on the switch.", "feature_name": 'Intelligent Privacy Prevention', "icon_type": "warning" })}
+                                underlayColor='#fff'>
+                                <Text style={styles.privacyUpgradeText}>Turn on Intelligent Privacy Prevention</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.trackerCount}><Text style={{ fontWeight: 'bold' }}>{count} trackers</Text> contacted this website.</Text>
+                        </>
+                    )
+                        :
+                        <Text style={styles.trackerCount}>Continuity has prevented <Text style={{ fontWeight: 'bold' }}>{count} trackers</Text> from profiling you.</Text>
+                    )
+                }
+
+
 
                 <View style={styles.trackerListContainer}>
                     {tracker?.map((x, i) => (
@@ -104,6 +169,8 @@ const TrackersContacted = ({ route }) => {
                         </View>
                     ))}
                 </View>
+
+                <View style={{ marginVertical: 20 }} />
             </ScrollView>
         </SafeAreaView>
     );
