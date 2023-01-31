@@ -6,7 +6,7 @@ def email_verification(user_id, id):
     message = f"""\
     Subject: Verify your email
 
-    Visit: https://localhost/verify-email/{id} to verify."""
+    Visit: https://continuitybrowser.com/verify-email/{id} to verify."""
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
