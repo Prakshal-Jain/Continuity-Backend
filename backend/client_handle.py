@@ -264,7 +264,6 @@ class ClientHandleNamespace(Namespace):
             user_id = data.get("user_id")
             user = {
                 "user_id": user_id,
-                "name": data.get("name"),
                 "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
                 "devices": {data.get("device_name"): data.get("device_type")},
                 "tabs_data": self.__create_tab(
@@ -333,7 +332,7 @@ class ClientHandleNamespace(Namespace):
             )
 
         credentials = {
-            "picture": data.get("picture"),
+            "picture": user.get("picture"),
             "user_id": data.get("user_id"),
             "device_name": data.get("device_name"),
             "device_type": data.get("device_type"),
@@ -938,7 +937,6 @@ class ClientHandleNamespace(Namespace):
                 device_token.encode(), device_token_from_data
             ):
                 credentials = {
-                    "picture": d.get("picture"),
                     "user_id": user_id_from_data,
                     "device_name": device_name,
                     "device_type": device_data_from_data.get("device_type"),
@@ -946,6 +944,7 @@ class ClientHandleNamespace(Namespace):
                 }
                 user = users.find_one({"user_id": user_id_from_data})
                 credentials["enrolled_features"] = user.get("enrolled_features")
+                credentials["picture"] = user.get("picture")
 
                 if self.__at_capacity("auto_authenticate", user_id_from_data):
                     return
@@ -962,10 +961,14 @@ class ClientHandleNamespace(Namespace):
                         "type": "message",
                     },
                 )
+
+                if(user_id_from_data not in ClientHandleNamespace.devices_in_use):
+                    ClientHandleNamespace.devices_in_use[user_id_from_data] = {}
+
                 ClientHandleNamespace.devices_in_use[user_id_from_data][
                     device_name
                 ] = request.sid
-                self.__send_notification_count(d.get("user_id"))
+                self.__send_notification_count(user_id_from_data)
                 return
 
         warning = "The specified user could not be found in the system."
