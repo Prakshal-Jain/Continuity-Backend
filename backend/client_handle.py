@@ -216,8 +216,13 @@ class ClientHandleNamespace(Namespace):
         user = users.find_one({"user_id": user_id})
         ClientHandleNamespace.unverified[user_id] = request.sid
         if user:
-            emit('sign_in', {'successful': True, 'message': {'verified': bool(user.get('verified'))}, 'type': 'message'})
-            return
+            if(user.get('verified', False)):
+                # User exists and is verified
+                emit('sign_in', {'successful': True, 'message': {'verified': bool(user.get('verified'))}, 'type': 'message'})
+                return
+            else:
+                # User exist but not verified --> Delete the user entry and start fresh
+                users.delete_one({"user_id": user_id})
 
         new_user = {
             "user_id": user_id,
@@ -232,9 +237,10 @@ class ClientHandleNamespace(Namespace):
         }
         user_entry = users.insert_one(new_user)
 
+        # Send an email for verification
         if not email_verification(user_id, str(user_entry.inserted_id)):
             emit('sign_in', {'successful': False, 'message': 'Something went wrong', 'type': 'error'})
-            user.delete_one({'_id': user_entry.inserted_id})
+            users.delete_one({'_id': user_entry.inserted_id})
 
         emit('sign_in', {'successful': True, 'message': {'verified': False}, 'type': 'message'})
 

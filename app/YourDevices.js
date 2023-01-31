@@ -80,7 +80,6 @@ class YourDevices extends Component {
         this?.context?.socket.on('login', async (data) => {
             if (data?.successful === true) {
                 this?.context?.setError(null);
-                await storage.set("user_id", data?.message?.user_id);
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
                 this?.context?.setCredentials(data?.message);
