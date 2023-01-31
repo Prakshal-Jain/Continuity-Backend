@@ -26,16 +26,16 @@ class UltraSearchResult extends Component {
         this.state = {
             ultra_search_prompt: this.props?.route?.params?.ultra_search_prompt,
             ultra_search_response: null,
-            clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} />,
+            clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} style={{ alignSelf: 'flex-end' }} />,
             loading: false
         }
     }
 
     copyToClipboard = async () => {
         await Clipboard.setStringAsync(this.state.ultra_search_response);
-        this.setState({ clipboard_icon: <Icon name="clipboard-check-outline" size={30} color="rgba(40, 205, 65, 1)" /> }, () => {
+        this.setState({ clipboard_icon: <Icon name="clipboard-check-outline" size={30} color="rgba(40, 205, 65, 1)" style={{ alignSelf: 'flex-end' }} /> }, () => {
             setTimeout(() => {
-                this.setState({ clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} /> })
+                this.setState({ clipboard_icon: <Icon name="clipboard-outline" size={30} color="rgba(255, 149, 0, 1)" onPress={this.copyToClipboard} style={{ alignSelf: 'flex-end' }} /> })
             }, 1500)
         })
     };
@@ -77,7 +77,6 @@ class UltraSearchResult extends Component {
         this.emitPrompt();
 
         this?.context?.socket.on('ultra_search_query', (data) => {
-            console.log(data);
             if (data?.successful === true) {
                 this.setState({ ultra_search_response: data?.message?.response, ultra_search_prompt: data?.message?.prompt })
             }
@@ -104,7 +103,7 @@ class UltraSearchResult extends Component {
                             selectTextOnFocus={true}
                             editable={!this.state.loading}
                         />
-                        <TouchableOpacity style={styles.ultraSearchBtn} onPress={this.emitPrompt}>
+                        <TouchableOpacity style={[styles.ultraSearchBtn, { backgroundColor: this.state.loading ? 'rgba(255, 149, 0, 0.5)' : 'rgba(255, 149, 0, 1)' }]} onPress={this.emitPrompt} disabled={this.state.loading}>
                             <FontAwesome name="search" style={{ fontSize: 18 }} color="rgba(44, 44, 46, 1)" />
                         </TouchableOpacity>
                     </View>
@@ -123,10 +122,9 @@ class UltraSearchResult extends Component {
                                             marginBottom: 5,
                                             borderBottomColor: (this?.context?.colorScheme === 'dark') ? '#rgba(99, 99, 102, 1)' : 'rgba(174, 174, 178, 1)',
                                             flexDirection: 'row',
-                                            alignItems: "end",
                                         }}>
                                             {this.state.clipboard_icon}
-                                            <Icon name="export-variant" size={27} color="rgba(255, 149, 0, 1)" onPress={this.onShare} style={{ marginLeft: 15 }} />
+                                            <Icon name="export-variant" size={27} color="rgba(255, 149, 0, 1)" onPress={this.onShare} style={{ marginLeft: 15, alignSelf: 'flex-end' }} />
                                         </View>
                                         <Text style={[styles.response_style, { color: this?.context?.colorScheme === 'dark' ? '#fff' : '#000', fontSize: 15 }]} selectable={true}>
                                             {this.state.ultra_search_response}
@@ -168,8 +166,6 @@ const styles = StyleSheet.create({
 
     scrollContainer: {
         flex: 1,
-        padding: 15,
-        flex: 1,
         width: '100%'
     },
 
@@ -177,13 +173,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         flex: 1,
         flexDirection: "row",
-        marginBottom: 20
+        margin: 20,
     },
 
     response_container: {
         padding: 15,
         borderRadius: 10,
-        marginBottom: 20,
+        margin: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
@@ -205,7 +201,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         borderBottomRightRadius: 10,
         padding: 12,
-        backgroundColor: 'rgba(255, 149, 0, 1)',
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",

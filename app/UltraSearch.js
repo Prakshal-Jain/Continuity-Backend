@@ -157,6 +157,17 @@ class UltraSearch extends Component {
                         <MaterialCommunityIcons name="lightning-bolt" style={{ marginRight: 15, fontSize: 25 }} color="rgba(255, 149, 0, 1)" />
                     </View>
 
+                    {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === false) &&
+                        (
+                            <TouchableOpacity
+                                style={styles.upgradeBtn}
+                                onPress={this.upgradeUltraSearch}
+                                underlayColor='#fff'>
+                                <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
+                            </TouchableOpacity>
+                        )
+                    }
+
                     <UnifiedError currentPage={this.props?.route?.name} />
 
                     <Text style={[styles.text_style, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', }]}>
@@ -172,16 +183,7 @@ class UltraSearch extends Component {
                         Upgrade your search game for just $4.99 per month - that's even less than the cost of a cup of coffee! Don't miss out on this opportunity to improve your online search experience with Ultra Search. Try it out today and see the difference for yourself.
                     </Text>
 
-                    {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled === false) ?
-                        (
-                            <TouchableOpacity
-                                style={styles.upgradeBtn}
-                                onPress={this.upgradeUltraSearch}
-                                underlayColor='#fff'>
-                                <Text style={styles.upgradeText}>Upgrade to Ultra Search</Text>
-                            </TouchableOpacity>
-                        )
-                        :
+                    {(this?.context?.credentials?.enrolled_features?.ultra_search?.enrolled !== false) &&
                         (
                             <TouchableOpacity
                                 style={[styles.unenrollBtn, { borderColor: this?.context?.colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)' }]}
@@ -191,6 +193,7 @@ class UltraSearch extends Component {
                             </TouchableOpacity>
                         )
                     }
+                    <View style={{ marginVertical: 20 }} />
                 </ScrollView>
             </SafeAreaView>
         )

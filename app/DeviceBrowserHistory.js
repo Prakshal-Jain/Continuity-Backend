@@ -13,10 +13,9 @@ import { StateContext } from "./state_context";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import webIcon from "./assets/web_icon.png";
-import 'intl';
-import 'intl/locale-data/jsonp/en';
 import Loader from "./components/Loader";
 import UnifiedError from "./components/UnifiedError";
+import * as Localization from 'expo-localization';
 
 class DeviceBrowserHistory extends Component {
     static contextType = StateContext;
@@ -32,7 +31,7 @@ class DeviceBrowserHistory extends Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount = async () => {
         const target_device = this.props?.route?.params?.target_device;
         const device_type = this.props?.route?.params?.device_type;
         this.setState({ target_device, device_type }, () => {
@@ -101,7 +100,7 @@ class DeviceBrowserHistory extends Component {
                 'device_token': this?.context?.credentials?.device_token,
                 'target_device': this.state.target_device,
                 'page': this.state.page,
-                'timezone': Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone
+                'timezone': Localization.timezone
             });
         }
     }
@@ -176,7 +175,7 @@ class DeviceBrowserHistory extends Component {
                                     <FontAwesome name={this.state.device_type} size={30} color={this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} />
                                     <Text style={[this.styles.subheading, { color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }]}>{this.state.target_device}</Text>
                                 </View>
-                                
+
                                 <UnifiedError currentPage={this.props?.route?.name} />
                             </View>}
                         ListFooterComponent={

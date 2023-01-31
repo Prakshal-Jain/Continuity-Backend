@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated, Pressable } from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextInput, Image, TouchableOpacity, Animated, Pressable, Alert } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -79,19 +79,19 @@ class Tabs extends Component {
                     <Text style={{ marginLeft: 5, fontWeight: "bold", textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', fontSize: 20 }}>Incognito Mode</Text>
                 </View>
             )}
-            <View style={[styles.searchBar, { backgroundColor: this.props.isIncognitoView ? 'rgba(58, 58, 60, 1)' : 'rgba(229, 229, 234, 1)' }]}>
+            <View style={[styles.searchBar, { backgroundColor: (this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? 'rgba(58, 58, 60, 1)' : 'rgba(229, 229, 234, 1)' }]}>
                 <View style={{ flexDirection: 'row', justifyContent: "space-between", alignItems: "center" }}>
-                    <FontAwesome name="search" style={{ fontSize: 18 }} color={this.props.isIncognitoView ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} />
+                    <FontAwesome name="search" style={{ fontSize: 18 }} color={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} />
                     <TextInput
                         onChangeText={this.onSearch}
-                        style={[styles.searchBox, { color: this.props.isIncognitoView ? '#fff' : '#000' }]}
+                        style={[styles.searchBox, { color: (this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? '#fff' : '#000' }]}
                         placeholder="Search Tabs"
                         value={this.state.searchQuery}
-                        placeholderTextColor={this.props.isIncognitoView ? "rgba(174, 174, 178, 1)" : "rgba(72, 72, 74, 1)"}
+                        placeholderTextColor={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(174, 174, 178, 1)" : "rgba(72, 72, 74, 1)"}
                         selectTextOnFocus={true}
                     />
                     {this.state.searchQuery.length > 0 && (
-                        <Icon name="close-circle-outline" size={18} color={this.props.isIncognitoView ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} onPress={() => { this.setState({ searchQuery: "" }) }} />
+                        <Icon name="close-circle-outline" size={18} color={(this.props.isIncognitoView || this?.context?.colorScheme === 'dark') ? "rgba(229, 229, 234, 1)" : "rgba(44, 44, 46, 1)"} onPress={() => { this.setState({ searchQuery: "" }) }} />
                     )}
                 </View>
             </View>
@@ -259,7 +259,20 @@ class Tabs extends Component {
                             if (this?.context?.button_haptics !== 'none') {
                                 Haptics.impactAsync(this?.context?.button_haptics);
                             }
-                            this.props.deleteAllTabs();
+                            Alert.alert(
+                                "Are you sure you want to delete all the tabs?",
+                                null,
+                                [
+                                    {
+                                        text: "Cancel",
+                                        onPress: () => { }
+                                    },
+                                    {
+                                        text: "Delete",
+                                        onPress: this.props.deleteAllTabs
+                                    },
+                                ]
+                            )
                         }}
                         hitSlop={{ bottom: 10, left: 10, right: 10, top: 10 }}
                     >

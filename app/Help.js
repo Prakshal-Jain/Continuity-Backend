@@ -111,7 +111,7 @@ export default function ({ navigation, ...props }) {
 
                 <TouchableOpacity style={styles.link_container} onPress={() => navigateToTabUrl('https://discord.gg/TwJ863WJsQ')}>
                     <View style={styles.links}>
-                        <MaterialCommunityIcons name="discord" color="rgba(88, 101, 242, 1)" size={30} style={{ marginRight: 5 }} /><Text style={styles.link_text}>Join Our Discord Server</Text>
+                        <MaterialCommunityIcons name="discord" color="rgba(88, 101, 242, 1)" size={30} style={{ marginRight: 10 }} /><Text style={styles.link_text}>Join Our Discord Server</Text>
                     </View>
                     <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>for speedy and personalized assistance.</Text>
                 </TouchableOpacity>
@@ -120,11 +120,19 @@ export default function ({ navigation, ...props }) {
                     <View style={styles.links}>
                         <Image
                             source={logo}
-                            style={{ marginRight: 5, width: 30, height: 30, borderRadius: 5 }}
+                            style={{ marginRight: 10, width: 30, height: 30, borderRadius: 5 }}
                         />
                         <Text style={styles.link_text}>Visit the Help page on our website</Text>
                     </View>
                     <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>to view the most recent FAQs.</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.link_container} onPress={() => navigation.navigate('Tutorial', { target_page: 'Help' })}>
+                    <View style={styles.links}>
+                        <MaterialCommunityIcons name="map-check-outline" color="rgba(52, 199, 89, 1)" size={30} style={{ marginRight: 10 }} />
+                        <Text style={styles.link_text}>Tutorial</Text>
+                    </View>
+                    <Text style={{ color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)' }}>to setup Continuity on your other device and sync your tabs in real time.</Text>
                 </TouchableOpacity>
 
 
@@ -147,6 +155,7 @@ export default function ({ navigation, ...props }) {
                     {renderRow("Real-time tab synchronization", "Continuity allows you to access your tabs across all your devices in real-time, regardless of their operating system. Currently, Continuity works on Android, iPhones, and Windows devices, with plans to expand to other systems.")}
                     {renderRow("A seamless user experience", "Continuity is designed to provide a smooth, productive, and efficient browsing experience.")}
                 </View>
+                <View style={{ marginVertical: 20 }} />
             </ScrollView>
         </SafeAreaView>
     )

@@ -119,7 +119,7 @@ class Notifications extends Component {
                             <Text style={{ color: (this?.context?.colorScheme === 'dark') ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)', textAlign: "center", fontSize: 13, marginBottom: 15 }}>Pull to sync with other devices</Text>
                             {(this.state.notifications === null || this.state.notifications === undefined || this.state.notifications?.length === 0)
                                 ?
-                                <Text style={{ marginVertical: 10, textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)', }}>Woohoo! No new notifications yet...</Text>
+                                <Text style={{ marginVertical: 10, textAlign: "center", color: this?.context?.colorScheme === 'dark' ? 'rgba(174, 174, 178, 1)' : 'rgba(99, 99, 102, 1)', }}>Woohoo! No new notifications yet.</Text>
                                 :
                                 this.state.notifications.map((notification) => (
                                     <View key={notification?.id}>
@@ -129,6 +129,7 @@ class Notifications extends Component {
                             }
                         </>
                     )}
+                    <View style={{ marginVertical: 20 }} />
                 </ScrollView>
             </SafeAreaView>
         )

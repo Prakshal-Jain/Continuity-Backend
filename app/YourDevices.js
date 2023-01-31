@@ -34,27 +34,64 @@ class YourDevices extends Component {
     navigation = this.props?.navigation;
 
     componentDidMount = async () => {
-        this?.context?.socket.on('auto_authenticate', async (data) => {
+        this?.context?.socket.on('sign_in', async (data) => {
             if (data?.successful === true) {
-                this?.context?.setCredentials(data?.message);
-                this.navigation.navigate('Your Devices');
+                if (data?.message?.verified === true) {
+                    this?.context?.setError(null);
+                    await this.autoAuthenticate();
+                }
+                else {
+                    this?.context?.setError({ message: "A verification link has been sent to your email. Please check for it and follow the instructions to verify your account.", type: "warning", displayPages: new Set(["Login"]) });
+                    this.navigation.navigate('Login');
+                }
             }
             else {
                 this?.context?.setCredentials(null);
+                this?.context?.setLoginCurrStep(1);
+                // this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
                 this.navigation.navigate('Login');
             }
         })
 
-        await this.autoAuthenticate();
+        this?.context?.socket.on('auto_authenticate', async (data) => {
+            if (data?.successful === true) {
+                this?.context?.setError(null);
+                this?.context?.setCredentials(data?.message);
+                const isShowTutorial = await storage.get("is_show_tutorial");
+                if (isShowTutorial === true) {
+                    this.navigation.navigate('Your Devices');
+                }
+                else {
+                    // Set that tutorial was followed
+                    await storage.set("is_show_tutorial", true);
+                    this.navigation.navigate('Tutorial');
+                }
+            }
+            else {
+                this?.context?.setCredentials(null);
+                this?.context?.setLoginCurrStep(2);
+                this.navigation.navigate('Login');
+            }
+        })
+
+        await this.checkVerified();
 
 
         this?.context?.socket.on('login', async (data) => {
             if (data?.successful === true) {
+                this?.context?.setError(null);
                 await storage.set("user_id", data?.message?.user_id);
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
                 this?.context?.setCredentials(data?.message);
-                this.navigation.navigate('Your Devices');
+                const isShowTutorial = await storage.get("is_show_tutorial");
+                if (isShowTutorial === true) {
+                    this.navigation.navigate('Your Devices');
+                }
+                else {
+                    await storage.set("is_show_tutorial", true);
+                    this.navigation.navigate('Tutorial');
+                }
             }
             else {
                 this?.context?.setCredentials(null);
@@ -104,6 +141,11 @@ class YourDevices extends Component {
         const device_token = await storage.get("device_token");
         // console.log({ user_id, device_name, device_token })
         this?.context?.socket.emit("auto_authenticate", { user_id, device_name, device_token })
+    }
+
+    checkVerified = async () => {
+        const user_id = await storage.get("user_id");
+        this?.context?.socket.emit('sign_in', { user_id });
     }
 
     render() {

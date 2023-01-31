@@ -1,55 +1,27 @@
 import { Text, View, StyleSheet, TextInput, Image, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useContext, useEffect, useState } from "react";
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import React, { useContext, useState } from "react";
 import CheckBoxList from './components/CheckBoxList';
 import logoDark from "./assets/logo-dark.png";
 import logoLight from "./assets/logo-light.png";
-import GoogleSignInButton from './components/GoogleSignInButton';
 import { StateContext } from "./state_context";
 import UnifiedError from './components/UnifiedError';
 import ProgressBar from "./components/ProgressBar";
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-WebBrowser.maybeCompleteAuthSession();
+import CustomText from './components/CustomText';
+import storage from "./utilities/storage";
 
 export default function Login({ navigation, route }) {
-    const { socket, colorScheme } = useContext(StateContext);
+    const { socket, colorScheme, credentials, loginCurrStep } = useContext(StateContext);
     const [deviceName, setDeviceName] = useState(null);
     const [selected, setSelected] = useState('mobile-phone');
 
-    const [accessToken, setAccessToken] = useState(null);
-    const [user, setUser] = useState(null);
-    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        clientId: "934339026423-698c5rptdnkdrr1mfog4og13naph71o1.apps.googleusercontent.com",
-        iosClientId: "934339026423-o22n4psf53vs2a759e4v2233cordkg6q.apps.googleusercontent.com",
-        androidClientId: "934339026423-gsjgka37gp62e5uevccgsqd0o7m8s907.apps.googleusercontent.com"
-    });
+    const [user_id, setUserId] = useState(null);
+    const [password, setPassword] = useState(null);
 
-    const [currStep, setCurrStep] = useState(1);
-
-    useEffect(() => {
-        if (response?.type === "success") {
-            setAccessToken(response.authentication.accessToken);
-            accessToken && fetchUserInformation();
-        }
-    }, [response, accessToken])
-
-    const postCredentials = (creds) => {
-        creds.user_id = creds?.email;
+    const postCredentials = async () => {
+        const id = await storage.get('user_id');
+        const creds = { 'device_name': deviceName, 'user_id': id, 'device_type': selected };
         socket.emit("login", creds);
-    }
-
-    const fetchUserInformation = async () => {
-        const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-
-        const userInfo = await response.json();
-        setUser(userInfo);
-        setCurrStep(currStep + 1);
     }
 
     const data = [
@@ -59,11 +31,14 @@ export default function Login({ navigation, route }) {
         { id: 'desktop', label: 'Desktop' },
     ];
 
-    const clearStates = () => {
-        setUser(null);
+    const clearStates = async () => {
+        // When change email
         setDeviceName(null);
+        setUserId(null);
+        setPassword(null);
         setSelected('mobile-phone');
-        setCurrStep(1);
+        await storage.clearAll();
+        setLoginCurrStep(1);
     }
 
 
@@ -125,7 +100,7 @@ export default function Login({ navigation, route }) {
             paddingLeft: 10,
             paddingRight: 10,
             fontSize: 20,
-            fontWeight: 'bold'
+            fontWeight: 'bold',
         },
         differentEmailbtn: {
             backgroundColor: colorScheme === 'dark' ? 'rgba(58, 58, 60, 1)' : 'rgba(209, 209, 214, 1)',
@@ -134,7 +109,8 @@ export default function Login({ navigation, route }) {
             alignItems: 'center',
             flexWrap: 'wrap',
             borderRadius: 10,
-            marginBottom: 10
+            marginBottom: 10,
+            alignSelf: 'flex-start'
         },
         differentEmailText: {
             color: colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)',
@@ -142,16 +118,64 @@ export default function Login({ navigation, route }) {
         }
     });
 
+    const setCreds = async () => {
+        await storage.set('password', password);
+        await storage.set('user_id', user_id);
+        // setLoginCurrStep(2)
+        socket.emit('sign_in', { user_id });
+        setUserId(null);
+        setPassword(null);
+    }
 
 
+    if (loginCurrStep === 1) {
+        return (
+            <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+                <ProgressBar stepCount={2} currStep={loginCurrStep} showLabel={true} />
 
-    return (
-        <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-            <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
+                <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                    <View style={styles.horizontal_flex}>
+                        <TextInput
+                            style={styles.text_input}
+                            placeholder="Email"
+                            placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'}
+                            onChangeText={setUserId}
+                            key="email"
+                        />
+                    </View>
+                    <View style={styles.horizontal_flex}>
+                        <TextInput style={styles.text_input} placeholder="Password" secureTextEntry={true} placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setPassword} />
+                    </View>
 
-            <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                {currStep === 2 && (
-                    <View style={{ width: '100%', alignItems: 'start' }}>
+                    <TouchableOpacity
+                        style={styles.loginScreenButton}
+                        onPress={setCreds}
+                        underlayColor='#fff'>
+                        <CustomText style={styles.loginText}>Sign In</CustomText>
+                    </TouchableOpacity>
+                    <UnifiedError currentPage={route?.name} />
+                    <View style={{ marginVertical: 20 }} />
+
+                </ScrollView>
+                <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
+                    <Text style={styles.privacy}>
+                        Privacy Policy
+                    </Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        )
+    }
+
+    else if (loginCurrStep === 2) {
+
+        return (
+            <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+                <ProgressBar stepCount={2} currStep={loginCurrStep} showLabel={true} />
+
+                <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                    {/* {currStep === 2 && (
+                    <View style={{ width: '100%' }}>
                         <TouchableOpacity
                             style={styles.differentEmailbtn}
                             underlayColor='#fff'
@@ -161,48 +185,36 @@ export default function Login({ navigation, route }) {
                             <Text style={styles.differentEmailText}>Use a different email</Text>
                         </TouchableOpacity>
                     </View>
-                )}
-                <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
-                {user === null ?
-                    (
-                        <GoogleSignInButton
-                            onPress={() => promptAsync()}
-                            // onPress={() => { setUser({ "email": "pj@gmail.com", "family_name": "Jain", "given_name": "prakshal", "id": "108536725217798960329", "locale": "en", "name": "prakshal Jain", "picture": "https://lh3.googleusercontent.com/a/AEdFTp46EBCoVhTqDq7Nb_9C79dOLPFqb1bxJ4g-B9RAyQ=s96-c", "verified_email": true }); setCurrStep(currStep + 1); }}
-                            colorScheme={colorScheme}
-                        />
-                    )
-                    :
-                    (
-                        <>
-                            <View style={styles.horizontal_flex}>
-                                <TextInput style={styles.text_input} placeholder="Device Name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
-                            </View>
+                )} */}
+                    <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                    <View style={styles.horizontal_flex}>
+                        <TextInput style={styles.text_input} placeholder="Device Name" key="device_name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
+                    </View>
 
-                            <View style={{ marginTop: 25, alignItems: 'center' }}>
-                                <Text style={styles.h2}>Device Type</Text>
-                                <View style={styles.horizontal_flex}>
-                                    <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
-                                </View>
+                    <View style={{ marginTop: 25, alignItems: 'center' }}>
+                        <CustomText style={styles.h2}>Device Type</CustomText>
+                        <View style={styles.horizontal_flex}>
+                            <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
+                        </View>
 
-                                <UnifiedError currentPage={route?.name} />
+                        <TouchableOpacity
+                            style={styles.loginScreenButton}
+                            onPress={postCredentials}
+                            underlayColor='#fff'>
+                            <CustomText style={styles.loginText}>Get Started</CustomText>
+                        </TouchableOpacity>
+                    </View>
 
-                                <TouchableOpacity
-                                    style={styles.loginScreenButton}
-                                    onPress={() => { postCredentials({ 'device_name': deviceName, ...user, 'device_type': selected }) }}
-                                    underlayColor='#fff'>
-                                    <Text style={styles.loginText}>Get Started</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    )
-                }
+                    <UnifiedError currentPage={route?.name} />
+                    <View style={{ marginVertical: 20 }} />
 
-            </ScrollView>
-            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
-                <Text style={styles.privacy}>
-                    Privacy Policy
-                </Text>
-            </TouchableOpacity>
-        </SafeAreaView>
-    );
+                </ScrollView>
+                <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
+                    <Text style={styles.privacy}>
+                        Privacy Policy
+                    </Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
+    }
 }

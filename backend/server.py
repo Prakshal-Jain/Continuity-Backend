@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
-from client_handle import ClientHandleNamespace, trackers
+from client_handle import ClientHandleNamespace, trackers, users
 from random import randint
 import logging
+from bson.objectid import ObjectId
 
 logging.basicConfig(filename="error.log")
 
@@ -29,6 +30,21 @@ def index():
 @app.route("/admin")
 def admin():
     return render_template("admin.html")
+
+@app.route("/verify-email/<id>")
+def verify_email(id):
+    user = users.find_one({'_id': ObjectId(id)})
+    if not user:
+        # return render_template("404.html"), 404
+        return render_template("404.html")
+
+    users.update_one({'_id': ObjectId(id)}, {'$set': {'verified': True}})
+    user_id = user.get('user_id')
+    print("=====================", ClientHandleNamespace.unverified[user_id], flush=True)
+    socketio.emit('sign_in', {'successful': True, 'message': {'verified': True}, 'type': 'message'}, to=ClientHandleNamespace.unverified[user_id])
+
+    # return render_template("verify-email.html", user_id=user.get('user_id'))
+    return render_template("verify-email.html")
 
 
 @app.route("/assets/<path:path>")
