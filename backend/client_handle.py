@@ -261,10 +261,11 @@ class ClientHandleNamespace(Namespace):
 
         if user == None:
             new_user = True
+            user_id = data.get("user_id")
             user = {
-                "user_id": data.get("user_id"),
+                "user_id": user_id,
                 "name": data.get("name"),
-                "picture": data.get("picture"),
+                "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
                 "devices": {data.get("device_name"): data.get("device_type")},
                 "tabs_data": self.__create_tab(
                     data.get("device_name"), data.get("device_type"), device_token
@@ -332,7 +333,6 @@ class ClientHandleNamespace(Namespace):
             )
 
         credentials = {
-            "name": data.get("name"),
             "picture": data.get("picture"),
             "user_id": data.get("user_id"),
             "device_name": data.get("device_name"),
@@ -547,7 +547,6 @@ class ClientHandleNamespace(Namespace):
             },
         )
         credentials = {
-            "name": user.get("name"),
             "picture": user.get("picture"),
             "user_id": user.get("user_id"),
             "device_name": data.get("device_name"),
@@ -602,7 +601,6 @@ class ClientHandleNamespace(Namespace):
             {"$set": {f"enrolled_features.{feature_name}.switch": switch}},
         )
         credentials = {
-            "name": user.get("name"),
             "picture": user.get("picture"),
             "user_id": user.get("user_id"),
             "device_name": data.get("device_name"),
@@ -940,7 +938,6 @@ class ClientHandleNamespace(Namespace):
                 device_token.encode(), device_token_from_data
             ):
                 credentials = {
-                    "name": d.get("name"),
                     "picture": d.get("picture"),
                     "user_id": user_id_from_data,
                     "device_name": device_name,
