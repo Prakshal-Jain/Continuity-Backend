@@ -35,17 +35,21 @@ class YourDevices extends Component {
 
     componentDidMount = async () => {
         this?.context?.socket.on('sign_in', async (data) => {
+            console.log(data);
             if (data?.successful === true) {
                 if (data?.message?.verified) {
-                    await this.autoAuthenticate();
+                    this?.context?.setCredentials(data?.message?.verified);
+                    // await this.autoAuthenticate();
                 }
                 else {
                     this?.context?.setError({ message: "Your email is not verified. Please check your email to verify.", type: "warning", displayPages: new Set(["Login"]) });
+                    this.navigation.navigate('Login', { step: 1 });
                 }
             }
             else {
                 this?.context?.setCredentials(null);
-                this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
+                // this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
+                this.navigation.navigate('Login', { step: 1 });
             }
         })
 

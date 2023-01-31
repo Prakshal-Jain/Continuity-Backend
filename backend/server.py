@@ -36,13 +36,17 @@ def verify_email(id):
     user = users.find_one({'_id': ObjectId(id)})
     if not user:
         # return render_template("404.html"), 404
-        return "Failed"
+        return render_template("404.html")
 
-    users.find_one({'_id': ObjectId(id)}, {'$set': {'verified': True}})
+    users.update_one({'_id': ObjectId(id)}, {'$set': {'verified': True}})
+    user_id = user.get('user_id')
+    print("=====================", user_id)
+    print("=====================", ClientHandleNamespace.unverified[user_id])
     # emit('sign_in', {'successful': True, 'message': {'verified': True}, 'type': 'message'}, to=ClientHandleNamespace.unverified[user_id])
 
-    # return render_template("verify-email.html", email=user.get('user_id'))
-    return "Verified"
+    # return render_template("verify-email.html", user_id=user.get('user_id'))
+    return render_template("verify-email.html")
+
 
 @app.route("/assets/<path:path>")
 def assets(path):
