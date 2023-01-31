@@ -218,14 +218,26 @@ class ClientHandleNamespace(Namespace):
         if user:
             emit('sign_in', {'successful': True, 'message': {'verified': bool(user.get('verified'))}, 'type': 'message'})
             return
-        
-        user_entry = users.insert_one({'user_id': user_id, 'verified': False})
+
+        new_user = {
+            "user_id": user_id,
+            "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.svg",
+            "devices": {},
+            "tabs_data": {},
+            "enrolled_features": {
+                "ultra_search": {"enrolled": False, "switch": False},
+                "privacy_prevention": {"enrolled": False, "switch": False},
+            },
+            'verified': False
+        }
+        user_entry = users.insert_one(new_user)
 
         if not email_verification(user_id, str(user_entry.inserted_id)):
             emit('sign_in', {'successful': False, 'message': 'Something went wrong', 'type': 'error'})
             user.delete_one({'_id': user_entry.inserted_id})
 
         emit('sign_in', {'successful': True, 'message': {'verified': False}, 'type': 'message'})
+
 
     def on_login(self, data):
         if self.__at_capacity("login", data.get("user_id")):

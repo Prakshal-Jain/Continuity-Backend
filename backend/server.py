@@ -40,9 +40,8 @@ def verify_email(id):
 
     users.update_one({'_id': ObjectId(id)}, {'$set': {'verified': True}})
     user_id = user.get('user_id')
-    print("=====================", user_id)
-    print("=====================", ClientHandleNamespace.unverified[user_id])
-    # emit('sign_in', {'successful': True, 'message': {'verified': True}, 'type': 'message'}, to=ClientHandleNamespace.unverified[user_id])
+    print("=====================", ClientHandleNamespace.unverified[user_id], flush=True)
+    socketio.emit('sign_in', {'successful': True, 'message': {'verified': True}, 'type': 'message'}, to=ClientHandleNamespace.unverified[user_id])
 
     # return render_template("verify-email.html", user_id=user.get('user_id'))
     return render_template("verify-email.html")

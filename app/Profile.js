@@ -22,7 +22,7 @@ import * as Haptics from 'expo-haptics';
 import UnifiedError from "./components/UnifiedError";
 
 export default function ({ navigation, route, ...props }) {
-    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, button_haptics, setError } = useContext(StateContext);
+    const { socket, colorScheme, credentials, setDevices, setCurrentDeviceName, setCredentials, devices, button_haptics, setError, setLoginCurrStep } = useContext(StateContext);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [trackerCounts, setTrackerCounts] = useState(null);
     const [trackers, setTrackers] = useState(null);
@@ -33,6 +33,8 @@ export default function ({ navigation, route, ...props }) {
         setDevices([]);
         setCurrentDeviceName(null);
         setCredentials(null);
+        setLoginCurrStep(1);
+        await storage.set("is_show_tutorial", true);
         navigation.navigate('Login');
     }
 

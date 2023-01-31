@@ -35,26 +35,27 @@ class YourDevices extends Component {
 
     componentDidMount = async () => {
         this?.context?.socket.on('sign_in', async (data) => {
-            console.log(data);
             if (data?.successful === true) {
-                if (data?.message?.verified) {
-                    this?.context?.setCredentials(data?.message?.verified);
-                    // await this.autoAuthenticate();
+                if (data?.message?.verified === true) {
+                    this?.context?.setError(null);
+                    await this.autoAuthenticate();
                 }
                 else {
-                    this?.context?.setError({ message: "Your email is not verified. Please check your email to verify.", type: "warning", displayPages: new Set(["Login"]) });
-                    this.navigation.navigate('Login', { step: 1 });
+                    this?.context?.setError({ message: "A verification link has been sent to your email. Please check for it and follow the instructions to verify your account.", type: "warning", displayPages: new Set(["Login"]) });
+                    this.navigation.navigate('Login');
                 }
             }
             else {
                 this?.context?.setCredentials(null);
+                this?.context?.setLoginCurrStep(1);
                 // this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
-                this.navigation.navigate('Login', { step: 1 });
+                this.navigation.navigate('Login');
             }
         })
 
         this?.context?.socket.on('auto_authenticate', async (data) => {
             if (data?.successful === true) {
+                this?.context?.setError(null);
                 this?.context?.setCredentials(data?.message);
                 const isShowTutorial = await storage.get("is_show_tutorial");
                 if (isShowTutorial === true) {
@@ -68,7 +69,8 @@ class YourDevices extends Component {
             }
             else {
                 this?.context?.setCredentials(null);
-                this.navigation.navigate('Login', { step: 2 });
+                this?.context?.setLoginCurrStep(2);
+                this.navigation.navigate('Login');
             }
         })
 
@@ -77,6 +79,7 @@ class YourDevices extends Component {
 
         this?.context?.socket.on('login', async (data) => {
             if (data?.successful === true) {
+                this?.context?.setError(null);
                 await storage.set("user_id", data?.message?.user_id);
                 await storage.set("device_name", data?.message?.device_name);
                 await storage.set("device_token", data?.message?.device_token);
@@ -93,7 +96,7 @@ class YourDevices extends Component {
             else {
                 this?.context?.setCredentials(null);
                 this?.context?.setError({ message: data?.message, type: data?.type, displayPages: new Set(["Login"]) });
-                this.navigation.navigate('Login', { step: 1 });
+                this.navigation.navigate('Login');
             }
         });
 

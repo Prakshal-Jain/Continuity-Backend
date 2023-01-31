@@ -40,6 +40,7 @@ export default function () {
   const [devices, setDevices] = useState([]);
   const [button_haptics, setButtonHaptics] = useState('none');
   const [canGoBackToYourDevices, setCanGoBackToYourDevices] = useState(true);
+  const [loginCurrStep, setLoginCurrStep] = useState(1);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function () {
   }
 
   return (
-    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics, canGoBackToYourDevices, setCanGoBackToYourDevices, privacy_domain_set, error, setError }}>
+    <StateContext.Provider value={{ credentials, setCredentials, currDeviceName, setCurrentDeviceName, devices, setDevices, socket, colorScheme, setColorScheme, button_haptics, setButtonHaptics, canGoBackToYourDevices, setCanGoBackToYourDevices, privacy_domain_set, error, setError, loginCurrStep, setLoginCurrStep }}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Your Devices">
           <Stack.Screen

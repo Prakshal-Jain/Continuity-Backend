@@ -11,14 +11,12 @@ import CustomText from './components/CustomText';
 import storage from "./utilities/storage";
 
 export default function Login({ navigation, route }) {
-    const { socket, colorScheme, credentials } = useContext(StateContext);
+    const { socket, colorScheme, credentials, loginCurrStep } = useContext(StateContext);
     const [deviceName, setDeviceName] = useState(null);
     const [selected, setSelected] = useState('mobile-phone');
 
     const [user_id, setUserId] = useState(null);
     const [password, setPassword] = useState(null);
-
-    const [currStep, setCurrStep] = useState(route?.step ?? 1);
 
     const postCredentials = async () => {
         const id = await storage.get('user_id');
@@ -40,7 +38,7 @@ export default function Login({ navigation, route }) {
         setPassword(null);
         setSelected('mobile-phone');
         await storage.clearAll();
-        setCurrStep(1);
+        setLoginCurrStep(1);
     }
 
 
@@ -123,19 +121,60 @@ export default function Login({ navigation, route }) {
     const setCreds = async () => {
         await storage.set('password', password);
         await storage.set('user_id', user_id);
-        // setCurrStep(2)
+        // setLoginCurrStep(2)
         socket.emit('sign_in', { user_id });
         setUserId(null);
         setPassword(null);
     }
 
 
-    return (
-        <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
-            <ProgressBar stepCount={2} currStep={currStep} showLabel={true} />
+    if (loginCurrStep === 1) {
+        return (
+            <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+                <ProgressBar stepCount={2} currStep={loginCurrStep} showLabel={true} />
 
-            <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                {/* {currStep === 2 && (
+                <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                    <View style={styles.horizontal_flex}>
+                        <TextInput
+                            style={styles.text_input}
+                            placeholder="Email"
+                            placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'}
+                            onChangeText={setUserId}
+                            key="email"
+                        />
+                    </View>
+                    <View style={styles.horizontal_flex}>
+                        <TextInput style={styles.text_input} placeholder="Password" secureTextEntry={true} placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setPassword} />
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.loginScreenButton}
+                        onPress={setCreds}
+                        underlayColor='#fff'>
+                        <CustomText style={styles.loginText}>Sign In</CustomText>
+                    </TouchableOpacity>
+                    <UnifiedError currentPage={route?.name} />
+                    <View style={{ marginVertical: 20 }} />
+
+                </ScrollView>
+                <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
+                    <Text style={styles.privacy}>
+                        Privacy Policy
+                    </Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        )
+    }
+
+    else if (loginCurrStep === 2) {
+
+        return (
+            <SafeAreaView style={[styles.root, { backgroundColor: (colorScheme === 'dark') ? 'rgba(28, 28, 30, 1)' : 'rgba(242, 242, 247, 1)' }]}>
+                <ProgressBar stepCount={2} currStep={loginCurrStep} showLabel={true} />
+
+                <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                    {/* {currStep === 2 && (
                     <View style={{ width: '100%' }}>
                         <TouchableOpacity
                             style={styles.differentEmailbtn}
@@ -147,65 +186,35 @@ export default function Login({ navigation, route }) {
                         </TouchableOpacity>
                     </View>
                 )} */}
-                <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
-                {(credentials === null || credentials === undefined) ?
-                    (
-                        <>
-                            <View style={styles.horizontal_flex}>
-                                <TextInput
-                                    style={styles.text_input}
-                                    placeholder="Email"
-                                    placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'}
-                                    onChangeText={setUserId}
-                                    key="email"
-                                />
-                            </View>
-                            <View style={styles.horizontal_flex}>
-                                <TextInput style={styles.text_input} placeholder="Password" secureTextEntry={true} placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setPassword} />
-                            </View>
+                    <Image source={colorScheme === 'dark' ? logoLight : logoDark} style={{ width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 }} />
+                    <View style={styles.horizontal_flex}>
+                        <TextInput style={styles.text_input} placeholder="Device Name" key="device_name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
+                    </View>
 
-                            <TouchableOpacity
-                                style={styles.loginScreenButton}
-                                onPress={setCreds}
-                                underlayColor='#fff'>
-                                <CustomText style={styles.loginText}>Sign In</CustomText>
-                            </TouchableOpacity>
-                        </>
-                    )
-                    :
-                    (
-                        <>
-                            <View style={styles.horizontal_flex}>
-                                <TextInput style={styles.text_input} placeholder="Device Name" key="device_name" placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setDeviceName} />
-                            </View>
+                    <View style={{ marginTop: 25, alignItems: 'center' }}>
+                        <CustomText style={styles.h2}>Device Type</CustomText>
+                        <View style={styles.horizontal_flex}>
+                            <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
+                        </View>
 
-                            <View style={{ marginTop: 25, alignItems: 'center' }}>
-                                <CustomText style={styles.h2}>Device Type</CustomText>
-                                <View style={styles.horizontal_flex}>
-                                    <CheckBoxList check_list={data} onSelect={setSelected} selected={selected} default={data[0]} colorScheme={colorScheme} />
-                                </View>
+                        <TouchableOpacity
+                            style={styles.loginScreenButton}
+                            onPress={postCredentials}
+                            underlayColor='#fff'>
+                            <CustomText style={styles.loginText}>Get Started</CustomText>
+                        </TouchableOpacity>
+                    </View>
 
-                                <TouchableOpacity
-                                    style={styles.loginScreenButton}
-                                    onPress={postCredentials}
-                                    underlayColor='#fff'>
-                                    <CustomText style={styles.loginText}>Get Started</CustomText>
-                                </TouchableOpacity>
-                                <View style={{ marginVertical: 20 }} />
-                            </View>
-                        </>
-                    )
-                }
+                    <UnifiedError currentPage={route?.name} />
+                    <View style={{ marginVertical: 20 }} />
 
-                <UnifiedError currentPage={route?.name} />
-                <View style={{ marginVertical: 20 }} />
-
-            </ScrollView>
-            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
-                <Text style={styles.privacy}>
-                    Privacy Policy
-                </Text>
-            </TouchableOpacity>
-        </SafeAreaView>
-    );
+                </ScrollView>
+                <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }} onPress={() => navigation.navigate('Privacy Policy')}>
+                    <Text style={styles.privacy}>
+                        Privacy Policy
+                    </Text>
+                </TouchableOpacity>
+            </SafeAreaView>
+        );
+    }
 }
