@@ -41,7 +41,8 @@ class YourDevices extends Component {
                     await this.autoAuthenticate();
                 }
                 else {
-                    this?.context?.setError({ message: "A verification link has been sent to your email. Please check for it and follow the instructions to verify your account.", type: "warning", displayPages: new Set(["Login"]) });
+                    const user_id = await storage.get("user_id");
+                    this?.context?.setError({ message: `A verification link has been sent to your email:\n${user_id}. \n\nPlease check for it and follow the instructions to verify your account.`, type: "warning", displayPages: new Set(["Login"]) });
                     this.navigation.navigate('Login');
                 }
             }

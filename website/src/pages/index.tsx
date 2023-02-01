@@ -9,6 +9,7 @@ import Footer from '@/components/Footer'
 
 export default function Home() {
   const scrollRef = useRef(null);
+  const [h1Ref, h2Ref, h3Ref] = [useRef(null), useRef(null), useRef(null)];
   return (
     <>
       <Head>
@@ -19,8 +20,8 @@ export default function Home() {
       </Head>
       <main>
         <Navbar scrollTarget={scrollRef} />
-        <Hero />
-        <Features scrollTarget={scrollRef} />
+        <Hero h1Ref={h1Ref} h2Ref={h2Ref} h3Ref={h3Ref} />
+        <Features scrollTarget={scrollRef} h1Ref={h1Ref} h2Ref={h2Ref} h3Ref={h3Ref} />
         <Footer />
       </main>
     </>

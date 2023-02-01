@@ -3,8 +3,13 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons'
 
+type ScrollProps = {
+    h1Ref: React.RefObject<HTMLDivElement>,
+    h2Ref: React.RefObject<HTMLDivElement>,
+    h3Ref: React.RefObject<HTMLDivElement>,
+}
 
-export default function Hero() {
+export default function Hero({ h1Ref, h2Ref, h3Ref }: ScrollProps) {
     return (
         <main className={styles.main}>
             <Image
@@ -20,11 +25,11 @@ export default function Hero() {
 
             <div>
                 <div className={styles.subtitle}>
-                    <div className={styles.heading}>Seamless</div>
+                    <div className={styles.heading} onClick={() => h1Ref?.current?.scrollIntoView({ behavior: 'smooth' })}>Seamless</div>
                     <FontAwesomeIcon icon={faCircle} className={styles.dot} />
-                    <div className={styles.heading}>Secure</div>
+                    <div className={styles.heading} onClick={() => h2Ref?.current?.scrollIntoView({ behavior: 'smooth' })}>Secure</div>
                     <FontAwesomeIcon icon={faCircle} className={styles.dot} />
-                    <div className={styles.heading}>Productive</div>
+                    <div className={styles.heading} onClick={() => h3Ref?.current?.scrollIntoView({ behavior: 'smooth' })}>Productive</div>
                 </div>
                 <div className={styles.h2}>
                     Web Browser

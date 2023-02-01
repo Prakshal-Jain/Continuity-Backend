@@ -118,9 +118,11 @@ export default function ({ navigation, route, ...props }) {
             marginVertical: 10,
             paddingTop: 10,
             paddingBottom: 10,
+            paddingHorizontal: 15,
             borderWidth: 1,
             borderColor: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
             borderRadius: 10,
+            alignSelf: 'center'
         },
         logoutText: {
             color: colorScheme === 'dark' ? 'rgba(255, 55, 95, 1)' : 'rgba(255, 45, 85, 1)',
@@ -194,11 +196,12 @@ export default function ({ navigation, route, ...props }) {
         privacyUpgradeBtn: {
             marginRight: 40,
             marginLeft: 40,
-            marginVertical: 15,
+            marginBottom: 10,
             padding: 10,
             backgroundColor: 'rgba(40, 205, 65, 1)',
             borderRadius: 10,
-            alignItems: "center"
+            alignItems: "center",
+            alignSelf: 'center'
         },
 
         privacyUpgradeText: {
@@ -302,6 +305,37 @@ export default function ({ navigation, route, ...props }) {
 
                 <View style={styles.privacyReportContainer}>
                     <Text style={styles.heading}>Intelligent Privacy Report</Text>
+                    {(!credentials?.enrolled_features?.privacy_prevention?.enrolled) ?
+                        (
+                            <>
+                                <Text style={[styles.smallText, { marginTop: 15 }]}>
+                                    Prevent trackers from accessing your personal and sensitive information
+                                </Text>
+
+                                <TouchableOpacity
+                                    style={styles.privacyUpgradeBtn}
+                                    onPress={() => navigation.navigate('Privacy Prevention', { redirectScreen: 'Profile' })}
+                                    underlayColor='#fff'>
+                                    <MaterialCommunityIcons name="lock-check" style={{ marginBottom: 5, fontSize: 25 }} color="#000" />
+                                    <Text style={styles.privacyUpgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
+                                </TouchableOpacity>
+                            </>
+                        )
+                        :
+                        ((!credentials?.enrolled_features?.privacy_prevention?.switch) && (
+                            <>
+                                <Text style={[styles.smallText, { marginTop: 15 }]}>
+                                    Prevent trackers from accessing your personal and sensitive information
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.privacyUpgradeBtn}
+                                    onPress={() => navigation?.navigate('Settings', { "action_message": "To begin using Intelligent Privacy Prevention, please turn on the switch.", "feature_name": 'Intelligent Privacy Prevention', "icon_type": "warning" })}
+                                    underlayColor='#fff'>
+                                    <Text style={styles.privacyUpgradeText}>Turn on Intelligent Privacy Prevention</Text>
+                                </TouchableOpacity>
+                            </>
+                        ))
+                    }
 
                     {(trackerCounts !== null)
                         ?
@@ -315,23 +349,6 @@ export default function ({ navigation, route, ...props }) {
                                             <Text style={styles.websitesHeading}>
                                                 Websites that contacted Trackers
                                             </Text>
-                                            {(!credentials?.enrolled_features?.privacy_prevention?.enrolled) ?
-                                                (
-                                                    <>
-                                                        <TouchableOpacity
-                                                            style={styles.privacyUpgradeBtn}
-                                                            onPress={() => { }}
-                                                            underlayColor='#fff'>
-                                                            <Text style={styles.privacyUpgradeText}>Upgrade to Intelligent Privacy Prevention</Text>
-                                                            <Text style={styles.smallText}>
-                                                                Prevent trackers from accessing your personal and sensitive information
-                                                            </Text>
-                                                            <MaterialCommunityIcons name="lock-check" style={{ marginVertical: 5, fontSize: 25 }} color="#000" />
-                                                        </TouchableOpacity>
-                                                    </>
-                                                )
-                                                :
-                                                null}
                                             <Text style={styles.smallText}>
                                                 Select the websites listed below to view the trackers that were contacted.
                                             </Text>
