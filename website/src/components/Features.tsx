@@ -1,16 +1,19 @@
 import styles from '../styles/features.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGooglePlay, faAppStore, faChrome } from '@fortawesome/free-brands-svg-icons'
-import { feaures } from "../data/features";
+import { features } from "../data/features";
 import Tile, { Props } from './Tile';
 import React from 'react';
 import MoreFeatures from './MoreFeatures';
 
 type ScrollProps = {
-    scrollTarget: React.RefObject<HTMLDivElement>
+    scrollTarget: React.RefObject<HTMLDivElement>,
+    h1Ref: React.RefObject<HTMLDivElement>,
+    h2Ref: React.RefObject<HTMLDivElement>,
+    h3Ref: React.RefObject<HTMLDivElement>,
 }
 
-export default function Features({ scrollTarget }: ScrollProps) {
+export default function Features({ scrollTarget, h1Ref, h2Ref, h3Ref }: ScrollProps) {
     return (
         <main className={styles.main}>
             <div>
@@ -41,7 +44,15 @@ export default function Features({ scrollTarget }: ScrollProps) {
 
             <div className={styles.features}>
                 <div className={styles.title}>Features</div>
-                {feaures.map((props: Props, idx) => <Tile {...props} key={`tile_${idx}`} />)}
+                <div ref={h1Ref} className={styles.features_containers}>
+                    <Tile {...features[0]} key={`tile_0`} />
+                </div>
+                <div ref={h2Ref} className={styles.features_containers}>
+                    <Tile {...features[1]} key={`tile_1`} />
+                </div>
+                <div ref={h3Ref} className={styles.features_containers}>
+                    <Tile {...features[2]} key={`tile_2`} />
+                </div>
             </div>
 
             <div>
