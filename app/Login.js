@@ -144,9 +144,9 @@ export default function Login({ navigation, route }) {
                             key="email"
                         />
                     </View>
-                    <View style={styles.horizontal_flex}>
+                    {/* <View style={styles.horizontal_flex}>
                         <TextInput style={styles.text_input} placeholder="Password" secureTextEntry={true} placeholderTextColor={colorScheme === 'dark' ? 'rgba(209, 209, 214, 1)' : 'rgba(58, 58, 60, 1)'} onChangeText={setPassword} />
-                    </View>
+                    </View> */}
 
                     <TouchableOpacity
                         style={styles.loginScreenButton}
