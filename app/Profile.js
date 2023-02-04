@@ -59,7 +59,19 @@ export default function ({ navigation, route, ...props }) {
             else {
                 setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
             }
-        })
+        });
+
+        socket.on("delete_user", (data) => {
+            if (data?.successful === true) {
+                deleteAllData();
+
+            }
+            else {
+                setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
+            }
+        });
+
+
 
         getDevicePrivacyReport(credentials?.device_name);
     }, [])
@@ -234,6 +246,29 @@ export default function ({ navigation, route, ...props }) {
         )
     }
 
+    const onDeleteUser = () => {
+        if (button_haptics !== 'none') {
+            Haptics.impactAsync(button_haptics);
+        }
+
+        Alert.alert(
+            "Are you sure you wish to delete your account?",
+            null,
+            [
+                {
+                    text: "No",
+                    onPress: () => { }
+                },
+                {
+                    text: "Yes",
+                    onPress: () => {
+                        socket.emit("delete_user", { user_id: credentials?.user_id, device_token: credentials?.device_token, device_name: credentials?.device_name });
+                    }
+                },
+            ]
+        )
+    }
+
     const TrackerList = () => (
         websites?.map((x, i) => (
             <TouchableOpacity style={[styles.websiteContainer, { borderColor: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] }]} key={`website_${i}`} onPress={() => navigation.navigate('Trackers Contacted', { website: x, tracker: trackers[i], count: trackerCounts[i], color: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] })}>
@@ -370,17 +405,22 @@ export default function ({ navigation, route, ...props }) {
                         )
                     }
                 </View>
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={onDeleteUser}
+                    underlayColor='#fff'>
+                    <Text style={styles.logoutText}>Delete My Account</Text>
+                </TouchableOpacity>
 
-            </ScrollView>
-
-            <View>
                 <TouchableOpacity
                     style={styles.logoutButton}
                     onPress={onLogout}
                     underlayColor='#fff'>
                     <Text style={styles.logoutText}>Sign Out</Text>
                 </TouchableOpacity>
-            </View>
+
+                <View style={{ marginVertical: 20 }} />
+            </ScrollView>
         </SafeAreaView>
     )
 }
