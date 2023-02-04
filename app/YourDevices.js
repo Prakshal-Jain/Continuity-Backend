@@ -34,7 +34,15 @@ class YourDevices extends Component {
     navigation = this.props?.navigation;
 
     componentDidMount = async () => {
+        // const timeoutId = setTimeout(async () => {
+        //     if (this?.context?.credentials === null || this?.context?.credentials === undefined) {
+        //         await storage.clearAll();
+        //     }
+        // }, 10000);
+
         this?.context?.socket.on('sign_in', async (data) => {
+            // clearTimeout(timeoutId);
+
             if (data?.successful === true) {
                 if (data?.message?.verified === true) {
                     this?.context?.setError(null);

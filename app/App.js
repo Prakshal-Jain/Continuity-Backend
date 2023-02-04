@@ -30,7 +30,9 @@ import Tutorial from './Tutorial';
 import { privacy_domain_set } from "./utilities/list";
 
 const Stack = createStackNavigator();
-const socket = io("https://continuitybrowser.com");
+// const socket = io("https://continuitybrowser.com");
+const socket = io("https://10.84.65.3");
+
 
 export default function () {
   const scheme = useColorScheme();

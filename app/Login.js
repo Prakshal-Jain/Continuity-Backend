@@ -19,7 +19,7 @@ export default function Login({ navigation, route }) {
     const [password, setPassword] = useState(null);
 
     const postCredentials = async () => {
-        const id = await storage.get('user_id');
+        const id = await storage.get('user_id') ?? credentials?.user_id;
         const creds = { 'device_name': deviceName, 'user_id': id, 'device_type': selected };
         socket.emit("login", creds);
     }
