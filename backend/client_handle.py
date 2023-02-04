@@ -1025,7 +1025,7 @@ class ClientHandleNamespace(Namespace):
         print("Logged Out Successfully")
 
     def on_delete_user(self, data):
-        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+        if self.__data_check(['user_id', "device_token"], data):
             return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
