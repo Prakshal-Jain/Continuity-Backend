@@ -1024,6 +1024,23 @@ class ClientHandleNamespace(Namespace):
         emit("logout", {"successful": True, "type": "message"})
         print("Logged Out Successfully")
 
+    def on_delete_user(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token"], data):
+            return
+        user_id = data.get("user_id")
+        user = users.find_one({"user_id": user_id})
+        if not self.__authenticate_device("delete_user", user, data):
+            return
+        
+        users.delete_many({"user_id": user_id})
+        privacy_report.delete_many({"user_id": user_id})
+        ultra_search.delete_many({"user_id": user_id})
+        history.delete_many({"user_id": user_id})
+        notification.delete_many({"user_id": user_id})
+        feedback.delete_many({"user_id": user_id})
+
+        emit("delete_user", {"successful": True, "type": "message"})
+
     def __authenticate_admin(self, key):
         hashed_key = os.getenv("ADMIN_PASSWORD")
         key_hash = hashlib.sha256()
