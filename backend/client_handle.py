@@ -297,6 +297,7 @@ class ClientHandleNamespace(Namespace):
                     "privacy_prevention": {"enrolled": False, "switch": False},
                 },
             }
+            print(user.get("tabs_data"),"=========================", flush=True)
             users.insert_one(user)
         elif user.get("devices").get(data.get("device_name")) == None:
             device_token = self.__check_for_same_token(
@@ -1025,7 +1026,7 @@ class ClientHandleNamespace(Namespace):
         print("Logged Out Successfully")
 
     def on_delete_user(self, data):
-        if self.__data_check(['user_id', "device_token"], data):
+        if self.__data_check(['user_id', "device_token", "device_name"], data):
             return
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
@@ -1039,6 +1040,8 @@ class ClientHandleNamespace(Namespace):
         notification.delete_many({"user_id": user_id})
         feedback.delete_many({"user_id": user_id})
 
+        del ClientHandleNamespace.devices_in_use[user_id]
+        
         emit("delete_user", {"successful": True, "type": "message"})
 
     def __authenticate_admin(self, key):
