@@ -209,8 +209,11 @@ class ClientHandleNamespace(Namespace):
         if self.__at_capacity("sign_in", data.get("user_id")):
             return
         
+        data['user_id'] = (data['user_id']).lower()
         if self.__data_check(['user_id'], data):
             return
+
+        user_entry = None
 
         user_id = data.get("user_id")
         user = users.find_one({"user_id": user_id})
@@ -222,20 +225,32 @@ class ClientHandleNamespace(Namespace):
                 return
             else:
                 # User exist but not verified --> Delete the user entry and start fresh
+                new_user = {
+                    "user_id": user_id,
+                    "picture": user.get("picture", f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png"),
+                    "devices": user.get("devices", {}),
+                    "tabs_data": user.get("tabs_data", {}),
+                    "enrolled_features": user.get('enrolled_features', {
+                        "ultra_search": {"enrolled": False, "switch": False},
+                        "privacy_prevention": {"enrolled": False, "switch": False},
+                    }),
+                    'verified': bool(user.get('verified', False))
+                }
                 users.delete_one({"user_id": user_id})
-
-        new_user = {
-            "user_id": user_id,
-            "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
-            "devices": {},
-            "tabs_data": {},
-            "enrolled_features": {
-                "ultra_search": {"enrolled": False, "switch": False},
-                "privacy_prevention": {"enrolled": False, "switch": False},
-            },
-            'verified': False
-        }
-        user_entry = users.insert_one(new_user)
+                user_entry = users.insert_one(new_user)
+        else:
+            new_user = {
+                "user_id": user_id,
+                "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
+                "devices": {},
+                "tabs_data": {},
+                "enrolled_features": {
+                    "ultra_search": {"enrolled": False, "switch": False},
+                    "privacy_prevention": {"enrolled": False, "switch": False},
+                },
+                'verified': False
+            }
+            user_entry = users.insert_one(new_user)
 
         # Send an email for verification
         if not email_verification(user_id, str(user_entry.inserted_id)):
@@ -251,6 +266,8 @@ class ClientHandleNamespace(Namespace):
         
         if self.__data_check(['user_id', 'device_name', 'device_type'], data):
             return
+
+        data['user_id'] = (data['user_id']).lower()
 
         ClientHandleNamespace.devices_in_use[
             data.get("user_id")
@@ -280,6 +297,7 @@ class ClientHandleNamespace(Namespace):
                     "privacy_prevention": {"enrolled": False, "switch": False},
                 },
             }
+            print(user.get("tabs_data"),"=========================", flush=True)
             users.insert_one(user)
         elif user.get("devices").get(data.get("device_name")) == None:
             device_token = self.__check_for_same_token(
@@ -997,7 +1015,7 @@ class ClientHandleNamespace(Namespace):
 
         device_tabs_data["device_token"] = None
         users.update_one(
-            {"user_id": user_id}, {"$set": {"tabs_data": user.get("tabs_data")}}
+            {"user_id": user_id}, {"$set": {"tabs_data": user.get("tabs_data"), "verified": False}}
         )
 
         del ClientHandleNamespace.devices_in_use.get(user_id)[device]
@@ -1006,6 +1024,25 @@ class ClientHandleNamespace(Namespace):
 
         emit("logout", {"successful": True, "type": "message"})
         print("Logged Out Successfully")
+
+    def on_delete_user(self, data):
+        if self.__data_check(['user_id', "device_token", "device_name"], data):
+            return
+        user_id = data.get("user_id")
+        user = users.find_one({"user_id": user_id})
+        if not self.__authenticate_device("delete_user", user, data):
+            return
+        
+        users.delete_many({"user_id": user_id})
+        privacy_report.delete_many({"user_id": user_id})
+        ultra_search.delete_many({"user_id": user_id})
+        history.delete_many({"user_id": user_id})
+        notification.delete_many({"user_id": user_id})
+        feedback.delete_many({"user_id": user_id})
+
+        del ClientHandleNamespace.devices_in_use[user_id]
+        
+        emit("delete_user", {"successful": True, "type": "message"})
 
     def __authenticate_admin(self, key):
         hashed_key = os.getenv("ADMIN_PASSWORD")

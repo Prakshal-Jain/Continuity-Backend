@@ -20,7 +20,6 @@ const messages = [
     "Secure browsing with Continuity",
     "Continuity = seamless browsing",
     "UltraBrowser = AI-generated responses"
-
 ]
 
 export default function () {

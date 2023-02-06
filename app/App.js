@@ -32,6 +32,7 @@ import { privacy_domain_set } from "./utilities/list";
 const Stack = createStackNavigator();
 const socket = io("https://continuitybrowser.com");
 
+
 export default function () {
   const scheme = useColorScheme();
   const [colorScheme, setColorScheme] = useState(scheme);

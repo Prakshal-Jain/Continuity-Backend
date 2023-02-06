@@ -3,7 +3,7 @@
     "name": "Continuity",
     "scheme": "continuity",
     "slug": "Continuity",
-    "version": "1.0.4",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.continuity",
-      "buildNumber": "5"
+      "buildNumber": "8"
     },
     "android": {
       "package": "com.continuity",

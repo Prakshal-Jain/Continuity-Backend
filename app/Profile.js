@@ -59,7 +59,19 @@ export default function ({ navigation, route, ...props }) {
             else {
                 setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
             }
-        })
+        });
+
+        socket.on("delete_user", (data) => {
+            if (data?.successful === true) {
+                deleteAllData();
+
+            }
+            else {
+                setError({ message: data?.message, type: data?.type, displayPages: new Set(["Profile"]) });
+            }
+        });
+
+
 
         getDevicePrivacyReport(credentials?.device_name);
     }, [])
@@ -234,6 +246,29 @@ export default function ({ navigation, route, ...props }) {
         )
     }
 
+    const onDeleteUser = () => {
+        if (button_haptics !== 'none') {
+            Haptics.impactAsync(button_haptics);
+        }
+
+        Alert.alert(
+            "Are you sure you wish to delete your account?",
+            null,
+            [
+                {
+                    text: "No",
+                    onPress: () => { }
+                },
+                {
+                    text: "Yes",
+                    onPress: () => {
+                        socket.emit("delete_user", { user_id: credentials?.user_id, device_token: credentials?.device_token, device_name: credentials?.device_name });
+                    }
+                },
+            ]
+        )
+    }
+
     const TrackerList = () => (
         websites?.map((x, i) => (
             <TouchableOpacity style={[styles.websiteContainer, { borderColor: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] }]} key={`website_${i}`} onPress={() => navigation.navigate('Trackers Contacted', { website: x, tracker: trackers[i], count: trackerCounts[i], color: (colorScheme === 'dark') ? colors_dark[i] : colors_light[i] })}>
@@ -246,8 +281,6 @@ export default function ({ navigation, route, ...props }) {
             </TouchableOpacity>
         ))
     )
-
-    const all_devices = devices.map(({ device_name }) => ({ id: device_name, label: device_name }));
 
     const colors_light = ['rgb(255, 59, 48)', 'rgb(245, 59, 173)', 'rgb(255, 149, 0)', 'rgb(255, 204, 0)', 'rgb(175, 82, 222)', 'rgb(88, 86, 214)', "rgb(52, 199, 89)", "rgb(50, 173, 230)", "rgb(0, 122, 255)", "rgb(162, 132, 94)"];
     const colors_dark = ['rgb(255, 69, 58)', 'rgb(245, 73, 178)', 'rgb(255, 159, 10)', 'rgb(255, 214, 10)', 'rgb(191, 90, 242)', 'rgb(94, 92, 230)', "rgb(48, 209, 88)", "rgb(100, 210, 255)", "rgb(10, 132, 255)", "rgb(172, 142, 104)"];
@@ -370,9 +403,15 @@ export default function ({ navigation, route, ...props }) {
                         )
                     }
                 </View>
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={onDeleteUser}
+                    underlayColor='#fff'>
+                    <Text style={styles.logoutText}>Delete My Account</Text>
+                </TouchableOpacity>
 
+                <View style={{ marginVertical: 20 }} />
             </ScrollView>
-
             <View>
                 <TouchableOpacity
                     style={styles.logoutButton}
