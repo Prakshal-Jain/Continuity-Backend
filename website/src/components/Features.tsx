@@ -19,14 +19,14 @@ export default function Features({ scrollTarget, h1Ref, h2Ref, h3Ref }: ScrollPr
             <div>
                 <div className={styles.download_options} ref={scrollTarget} id="download">Download for free on</div>
                 <div className={styles.download_icons}>
-                    <a href="https://discord.gg/TwJ863WJsQ" target="_blank" rel="noreferrer">
+                    <a href="https://play.google.com/store/apps/details?id=com.continuity&pli=1" target="_blank" rel="noreferrer">
                         <div style={{ textAlign: 'center' }}>
                             <FontAwesomeIcon icon={faGooglePlay} className={`${styles.playstore} ${styles.scale}`} />
                             <div className={styles.description}>Google Playstore</div>
                         </div>
                     </a>
 
-                    <a href="https://testflight.apple.com/join/niH1xOyN" target="_blank" rel="noreferrer">
+                    <a href="https://apps.apple.com/us/app/continuity-browser/id1666743201" target="_blank" rel="noreferrer">
                         <div style={{ textAlign: 'center' }}>
                             <FontAwesomeIcon icon={faAppStore} className={`${styles.appstore} ${styles.scale}`} />
                             <div className={styles.description}>Apple AppStore</div>
