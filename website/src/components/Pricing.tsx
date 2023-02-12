@@ -2,7 +2,9 @@ import styles from '../styles/pricing.module.css';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faClose, faHeart } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
+import { faCheck, faClose, faExternalLink } from '@fortawesome/free-solid-svg-icons';
+import tutorial_illustration from "../../public/images/tutorial_illustration.svg";
 
 type featureProps = { featureList: { name: JSX.Element | string, is_available: boolean }[] }
 
@@ -42,6 +44,22 @@ export default function Pricing() {
 
     return (
         <main className={styles.main}>
+            <div className={styles.title}>Device Setup Tutorial</div>
+            <Image
+                style={{ margin: 20 }}
+                src={tutorial_illustration}
+                alt="Device Setup Tutorial SVG"
+                height={200} // Desired size with correct aspect ratio
+                width={200} // Desired size with correct aspect ratio
+            />
+            <Link href="/sync_tutorial" className={styles.link} style={{fontSize: 'large'}} target="_blank">
+                Learn how to sync tabs across multiple devices with Continuity <FontAwesomeIcon icon={faExternalLink} className={styles.link} style={{ marginLeft: '0.5rem' }} />
+            </Link>
+        </main>
+    )
+
+    return (
+        <main className={styles.main}>
             <div className={styles.title}>Pricing</div>
 
             <SubscriptionTime />
@@ -51,13 +69,13 @@ export default function Pricing() {
                     <div style={{ color: 'rgb(0, 122, 255)' }}>Most Popular</div>
                     <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>Essentials</h2>
                     <button className={styles.buy_btn} style={{ background: 'rgb(0, 122, 255)' }}>Start Free Trial</button>
-                    <div className={styles.price_tag}>7 days free, then just {isMonthly ? <span style={{fontSize: 'large'}}>$4.99/month</span> : <span><del>$59.88</del>{' '}<span style={{fontSize: 'large'}}>$49.88/year</span></span>}.</div>
+                    <div className={styles.price_tag}>7 days free, then just {isMonthly ? <span style={{ fontSize: 'large' }}>$4.99/month</span> : <span><del>$59.88</del>{' '}<span style={{ fontSize: 'large' }}>$49.88/year</span></span>}.</div>
                     <AvailableFeatures featureList={essentials} />
                 </div>
                 <div className={styles.price_card}>
                     <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>Professional</h2>
                     <button className={styles.buy_btn} style={{ background: '#00a173' }}>Start Free Trial</button>
-                    <div className={styles.price_tag}>7 days free, then just {isMonthly ? <span style={{fontSize: 'large'}}>$9.99/month</span> : <span><del>$119.88</del>{' '}<span style={{fontSize: 'large'}}>$99.99/year</span></span>}.</div>
+                    <div className={styles.price_tag}>7 days free, then just {isMonthly ? <span style={{ fontSize: 'large' }}>$9.99/month</span> : <span><del>$119.88</del>{' '}<span style={{ fontSize: 'large' }}>$99.99/year</span></span>}.</div>
 
                     <AvailableFeatures featureList={professional} />
                 </div>
