@@ -1,9 +1,23 @@
 import styles from '../styles/tile.module.css';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 
 export const features = [
     {
         title: "Kick off here, wrap up there",
-        description: "Imagine the convenience of having all your tabs seamlessly synced across multiple devices in real-time with Continuity. No more need to manually transfer tabs or waste time searching for the one you were just on. Continuity allows for effortless access to your open tabs on any device, whether you're on your desktop or on-the-go with your mobile phone.",
+        description: (
+            <>
+                <div>
+                    Imagine the convenience of having all your tabs seamlessly synced across multiple devices in real-time with Continuity. No more need to manually transfer tabs or waste time searching for the one you were just on. Continuity allows for effortless access to your open tabs on any device, whether you're on your desktop or on-the-go with your mobile phone.
+                </div>
+                <div style={{ marginTop: '1rem' }}>
+                    <Link href="/sync_tutorial" className={styles.link} target="_blank">
+                        Learn how to sync tabs across multiple devices <FontAwesomeIcon icon={faExternalLink} className={styles.link} style={{ marginLeft: '0.5rem' }} />
+                    </Link>
+                </div>
+            </>
+        ),
         video: (
             <video autoPlay={true} muted={true} loop={true} style={{ width: '100%', borderRadius: '15px' }}>
                 <source src="videos/sync.mp4" type="video/mp4" />

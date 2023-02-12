@@ -2,7 +2,7 @@ import styles from '../styles/footer.module.css';
 import React from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDiscord, faInstagram, faInstagramSquare } from '@fortawesome/free-brands-svg-icons'
+import { faDiscord, faInstagram } from '@fortawesome/free-brands-svg-icons'
 
 export default function Footer() {
     return (

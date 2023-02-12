@@ -1,6 +1,6 @@
 import styles from '../styles/collapsible.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCancel, faClose, faCross } from '@fortawesome/free-solid-svg-icons';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 
 type Props = {

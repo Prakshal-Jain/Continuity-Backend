@@ -84,7 +84,7 @@ socket.on('login', async function (d) {
     }
     else {
         await chrome.storage.local.clear();
-        render_error(data?.message, data?.type);
+        render_error(d?.message, d?.type);
     }
 });
 
