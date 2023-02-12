@@ -122,7 +122,3 @@ export const render_error = (message, type) => {
     error_container.appendChild(m);
     content_container.appendChild(error_container);
 }
-
-
-export const render_setup_tutorial = (message, type) => {
-}

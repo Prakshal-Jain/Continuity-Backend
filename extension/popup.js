@@ -1,5 +1,5 @@
 import "./websocket.js";
-import { setup_login_page, render_loading_page, setup_verify_email_page, render_error, render_setup_tutorial } from "./pages.js";
+import { setup_login_page, render_loading_page, setup_verify_email_page, render_error } from "./pages.js";
 import { throttle } from "./utilities.js";
 
 // ============= Render Functions =============
@@ -34,6 +34,19 @@ function render_verify_email_page() {
         await chrome.storage.local.set(d);
         socket.emit('sign_in', d);
     })
+}
+
+function render_devices_page() {
+    chrome.storage.local.get(['setup_tutorial'], async function (result) {
+        if (result?.setup_tutorial === true) {
+            setup_devices_page();
+        }
+        else {
+            await chrome.storage.local.set({ setup_tutorial: true });
+            render_setup_tutorial();
+        }
+    });
+
 }
 // =============================================
 
@@ -80,7 +93,7 @@ socket.on('login', async function (d) {
     if (d?.successful === true) {
         const data = d?.message;
         const to_save = { device_name: data?.device_name, device_token: data?.device_token, user_id: data?.user_id };
-        chrome.storage.local.set(to_save);
+        await chrome.storage.local.set(to_save);
     }
     else {
         render_error(d?.message, d?.type);
@@ -120,7 +133,7 @@ socket.on("all_devices", function (data) {
 socket.on("add_device", function (data) {
     if (data?.successful === true) {
         all_devices = [...all_devices, data?.message];
-        render_devices_page();
+        setup_devices_page();
     }
     else {
         render_error(data?.message, data?.type);
@@ -187,7 +200,7 @@ socket.on('remove_all_tabs', (data) => {
 
 render_loading_page();
 
-function render_devices_page() {
+function setup_devices_page() {
     content_container.innerHTML = '';
     const heading_container = document.createElement('div');
     heading_container.classList.add('heading_container');
@@ -213,6 +226,7 @@ function render_devices_page() {
     const tutorial_icon = document.createElement('i');
     tutorial_icon.classList.add('fa', 'fa-map');
     tutorial_icon.style.fontSize = 'large';
+    tutorial_icon.setAttribute('title', 'Device setup tutorial');
     tutorial_icon.onclick = () => {
         chrome.storage.local.get(['device_name', 'user_id'], function (result) {
             window.open(`http://continuitybrowser.com/sync_tutorial/?email=${result?.user_id}&device_name=${result?.device_name}`, '_blank');
@@ -234,10 +248,11 @@ function render_devices_page() {
     }
     logout_icon.style.color = 'rgba(255, 45, 85, 1)';
     logout_icon.style.cursor = 'pointer';
+    logout_icon.setAttribute('title', 'Logout');
     headerRight.appendChild(logout_icon);
 
 
-    headerRight.style.justifyContent = 'end';
+
     heading_container.appendChild(headerRight);
     content_container.appendChild(heading_container);
 
@@ -368,18 +383,18 @@ function render_tabs(tabs) {
     const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
     headerLeft.classList.add('header_parts', 'header_left');
     headerRight.classList.add('header_parts', 'header_right');
-    headerLeft.style.cursor = 'pointer';
     const back = document.createElement('div');
     const angle_left = document.createElement('i');
     angle_left.classList.add('fa', 'fa-angle-left');
     angle_left.style.fontSize = 'x-large';
-    angle_left.style.marginRight = '0.5rem';
     back.appendChild(angle_left);
+    back.classList.add('nav_container');
+    back.appendChild(document.createTextNode('Back'));
     headerLeft.appendChild(back);
-    headerLeft.appendChild(document.createTextNode('Back'));
-    headerLeft.onclick = () => {
+
+    back.onclick = () => {
         target_device = null;
-        render_devices_page();
+        setup_devices_page();
     }
     heading_container.appendChild(headerLeft);
 
@@ -421,6 +436,7 @@ function render_tabs(tabs) {
     }, 1000, { leading: true, trailing: false });
 
     add_new_tab_icon.style.color = 'rgba(0, 122, 255, 1)';
+    add_new_tab_icon.setAttribute('title', 'Add a new tab');
     headerRight.appendChild(add_new_tab_icon);
 
 
@@ -439,9 +455,10 @@ function render_tabs(tabs) {
         })
     }
     delete_all.style.color = 'rgba(255, 45, 85, 1)';
+    delete_all.setAttribute('title', 'Delete all tabs');
     headerRight.appendChild(delete_all);
 
-    headerRight.style.justifyContent = 'end';
+
     heading_container.appendChild(headerRight);
 
     content_container.appendChild(heading_container)
@@ -467,4 +484,67 @@ function render_tabs(tabs) {
 
     content_container.appendChild(all_tabs);
     content_container.appendChild(no_tabs)
+}
+
+const render_setup_tutorial = () => {
+    content_container.innerHTML = '';
+    const heading_container = document.createElement('div');
+    heading_container.classList.add('heading_container');
+    const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
+    headerLeft.classList.add('header_parts', 'header_left');
+    headerRight.classList.add('header_parts', 'header_right');
+
+    const logo_link = document.createElement('a');
+    logo_link.setAttribute('href', 'https://continuitybrowser.com/');
+    logo_link.setAttribute('target', '_blank');
+    const small_logo = document.createElement('div');
+    small_logo.classList.add('small_logo');
+    logo_link.appendChild(small_logo);
+    headerLeft.appendChild(logo_link);
+    heading_container.appendChild(headerLeft);
+
+    const heading = document.createElement('div');
+    heading.appendChild(document.createTextNode('Tutorial'));
+    heading.classList.add('heading1')
+    heading_container.appendChild(heading);
+
+
+    const skip = document.createElement('div');
+    skip.classList.add('nav_container');
+    skip.appendChild(document.createTextNode('Skip'));
+    const angle_right = document.createElement('i');
+    angle_right.classList.add('fa', 'fa-angle-right');
+    angle_right.style.fontSize = 'x-large';
+    skip.appendChild(angle_right);
+    skip.onclick = () => {
+        setup_devices_page();
+    }
+    headerRight.appendChild(skip);
+
+    heading_container.appendChild(headerRight);
+    content_container.appendChild(heading_container)
+
+    const padded_container = document.createElement('div');
+    padded_container.style.padding = '0.5rem';
+    const title = document.createElement('h2');
+    title.style.color = '#fff';
+    title.appendChild(document.createTextNode("Let's set up your other devices with Continuity"));
+    padded_container.appendChild(title);
+
+    const subheading = document.createElement('div');
+    subheading.classList.add('subheading');
+    subheading.appendChild(document.createTextNode('To sync all your tabs across multiple devices in real time using Continuity, follow this tutorial on our website.'))
+    padded_container.appendChild(subheading);
+
+    const get_started = document.createElement('button');
+    get_started.innerHTML = 'Start the Tutorial&nbsp;&nbsp;<i class="fa fa-external-link"></i>';
+    get_started.classList.add('start_tutorial');
+    get_started.onclick = () => {
+        chrome.storage.local.get(['device_name', 'user_id'], function (result) {
+            window.open(`http://continuitybrowser.com/sync_tutorial/?email=${result?.user_id}&device_name=${result?.device_name}`, '_blank');
+        })
+    }
+    padded_container.appendChild(get_started);
+
+    content_container.appendChild(padded_container);
 }

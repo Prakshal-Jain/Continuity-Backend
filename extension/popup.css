@@ -77,7 +77,8 @@ input:focus {
 }
 
 .get_started,
-.sign_in {
+.sign_in,
+.start_tutorial {
     border: 0em;
     background-color: rgba(10, 132, 255, 1);
     color: #fff;
@@ -92,7 +93,8 @@ input:focus {
 }
 
 .get_started:active,
-.sign_in:active {
+.sign_in:active,
+.start_tutorial:active {
     box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
     transform: translateY(1.5px);
     /* Moving button 4px to y-axis */
@@ -173,6 +175,7 @@ input:focus {
 
 .header_right {
     margin-right: 1em;
+    justify-content: end;
 }
 
 .subheading {
@@ -271,6 +274,15 @@ input:focus {
     overflow-wrap: break-word;
     max-width: 93%;
     text-align: left;
+}
+
+.nav_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
 }
 
 @media (prefers-color-scheme: dark) {
