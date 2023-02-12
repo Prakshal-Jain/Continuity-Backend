@@ -37,6 +37,9 @@
 .link {
     color: rgba(0, 122, 255, 1);
 }
+.link:hover {
+    text-decoration: underline;
+}
 
 .link_container {
     cursor: pointer;
