@@ -1,5 +1,5 @@
 import "./websocket.js";
-import { setup_login_page, render_loading_page, setup_verify_email_page, render_error } from "./pages.js";
+import { setup_login_page, render_loading_page, setup_verify_email_page, render_error, render_setup_tutorial } from "./pages.js";
 import { throttle } from "./utilities.js";
 
 // ============= Render Functions =============
@@ -83,7 +83,6 @@ socket.on('login', async function (d) {
         chrome.storage.local.set(to_save);
     }
     else {
-        await chrome.storage.local.clear();
         render_error(d?.message, d?.type);
     }
 });
@@ -181,7 +180,7 @@ socket.on('remove_all_tabs', (data) => {
         document.getElementById(`no_tabs-${target_device}`).innerHTML = '';
         document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`));
     }
-    else{
+    else {
         render_error(data?.message, data?.type);
     }
 })
@@ -211,10 +210,22 @@ function render_devices_page() {
     heading_container.appendChild(heading);
 
 
+    const tutorial_icon = document.createElement('i');
+    tutorial_icon.classList.add('fa', 'fa-map');
+    tutorial_icon.style.fontSize = 'large';
+    tutorial_icon.onclick = () => {
+        chrome.storage.local.get(['device_name', 'user_id'], function (result) {
+            window.open(`http://continuitybrowser.com/sync_tutorial/?email=${result?.user_id}&device_name=${result?.device_name}`, '_blank');
+        })
+    }
+    tutorial_icon.style.color = 'rgba(40, 205, 65, 1)';
+    tutorial_icon.style.cursor = 'pointer';
+    headerRight.appendChild(tutorial_icon);
+
     const logout_icon = document.createElement('i');
     logout_icon.classList.add('fa', 'fa-sign-out');
     logout_icon.style.fontSize = 'x-large';
-    logout_icon.style.marginLeft = '0.5rem';
+    logout_icon.style.marginLeft = '1rem';
     logout_icon.onclick = () => {
         chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
             const to_send = { "user_id": result?.user_id, "device_name": result?.device_name, "device_token": result?.device_token };
@@ -222,7 +233,9 @@ function render_devices_page() {
         })
     }
     logout_icon.style.color = 'rgba(255, 45, 85, 1)';
+    logout_icon.style.cursor = 'pointer';
     headerRight.appendChild(logout_icon);
+
 
     headerRight.style.justifyContent = 'end';
     heading_container.appendChild(headerRight);
@@ -355,6 +368,7 @@ function render_tabs(tabs) {
     const [headerLeft, headerRight] = [document.createElement('div'), document.createElement('div')];
     headerLeft.classList.add('header_parts', 'header_left');
     headerRight.classList.add('header_parts', 'header_right');
+    headerLeft.style.cursor = 'pointer';
     const back = document.createElement('div');
     const angle_left = document.createElement('i');
     angle_left.classList.add('fa', 'fa-angle-left');
@@ -390,6 +404,7 @@ function render_tabs(tabs) {
     const add_new_tab_icon = document.createElement('i');
     add_new_tab_icon.classList.add('fa', 'fa-plus');
     add_new_tab_icon.style.fontSize = 'x-large';
+    add_new_tab_icon.style.cursor = 'pointer';
     add_new_tab_icon.style.marginLeft = '0.5rem';
     add_new_tab_icon.style.marginRight = '0.5rem';
     add_new_tab_icon.onclick = throttle(() => {
@@ -412,6 +427,7 @@ function render_tabs(tabs) {
     const delete_all = document.createElement('i');
     delete_all.classList.add('fa', 'fa-trash');
     delete_all.style.fontSize = 'x-large';
+    delete_all.style.cursor = 'pointer';
     delete_all.style.marginLeft = '0.5rem';
     delete_all.onclick = () => {
         chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {

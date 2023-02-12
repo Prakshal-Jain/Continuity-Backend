@@ -33,6 +33,7 @@ body > * {
     content: url("./assets/logo-dark.png");
     width: 3rem;
     height: auto;
+    cursor: pointer;
 }
 
 textarea:focus,
@@ -163,7 +164,6 @@ input:focus {
     flex-direction: row;
     width: 25%;
     align-items: center;
-    cursor: pointer;
     font-size: medium;
 }
 
