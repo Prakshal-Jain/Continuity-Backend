@@ -1,6 +1,44 @@
 import "./websocket.js";
-import { render_login_page, render_loading_page } from "./pages.js";
+import { setup_login_page, render_loading_page, setup_verify_email_page, render_error } from "./pages.js";
 import { throttle } from "./utilities.js";
+
+// ============= Render Functions =============
+function render_login_page() {
+    setup_login_page();
+
+    document.querySelector('.get_started')?.addEventListener('click', async () => {
+        const curr_device = document.querySelector('.device_name').value;
+        const d = await chrome.storage.local.get(['user_id']);
+
+        socket.emit('login', {
+            device_name: curr_device,
+            device_type: document.querySelector('input[name="device_type"]:checked').id,
+            user_id: d?.user_id
+        });
+
+        chrome.runtime.sendMessage({
+            type: "login",
+            data: {
+                curr_device,
+            }
+        });
+    })
+}
+
+function render_verify_email_page() {
+    setup_verify_email_page();
+
+    document.querySelector('.sign_in')?.addEventListener('click', async () => {
+        const user_id = (document.querySelector('.email').value)?.trim();
+        const d = { user_id };
+        await chrome.storage.local.set(d);
+        socket.emit('sign_in', d);
+    })
+}
+// =============================================
+
+
+
 
 const socket = io.connect("https://continuitybrowser.com");
 let all_devices = [];
@@ -9,48 +47,63 @@ let target_device_type = null;
 const content_container = document.body;
 
 socket.on('connect', async function () {
-    chrome.storage.local.get(['device_name', 'device_token', 'user_id'], function (result) {
-        socket.emit('auto_authenticate', result);
+    chrome.storage.local.get(['user_id'], function (result) {
+        socket.emit('sign_in', result);
     })
 });
 
 socket.on('disconnect', async function () {
-    render_login_page();
-
-    add_login_btn_eventlistner();
+    render_verify_email_page();
 });
 
-socket.on('login', function (d) {
+socket.on('sign_in', async (data) => {
+    if (data?.successful === true) {
+        const result = await chrome.storage.local.get(['device_name', 'device_token', 'user_id']);
+        if (data?.message?.verified === true) {
+            socket.emit('auto_authenticate', result);
+        }
+        else {
+            render_verify_email_page();
+            render_error(`A verification link has been sent to your email:<br/><b>${result?.user_id}</b>. <br/><br/>Please check for it and follow the instructions to verify your account.<br/><br/>Make sure to check your Spam folder if you cannot find the email in your inbox.`, "warning")
+        }
+    }
+    else {
+        all_devices = [];
+        target_device = null;
+        target_device_type = null;
+        await chrome.storage.local.clear();
+        render_verify_email_page();
+    }
+})
+
+socket.on('login', async function (d) {
     if (d?.successful === true) {
         const data = d?.message;
         const to_save = { device_name: data?.device_name, device_token: data?.device_token, user_id: data?.user_id };
         chrome.storage.local.set(to_save);
     }
     else {
-        chrome.storage.local.clear();
+        await chrome.storage.local.clear();
+        render_error(data?.message, data?.type);
     }
 });
 
-socket.on("logout", function (data) {
+socket.on("logout", async function (data) {
     if (data?.successful === true) {
-        chrome.storage.local.clear()
-        render_login_page();
-        add_login_btn_eventlistner();
+        await chrome.storage.local.clear();
+        render_verify_email_page();
     }
     else {
-        console.log(data?.message);
+        render_error(data?.message, data?.type);
     }
 })
 
-socket.on("auto_authenticate", function (data) {
+socket.on("auto_authenticate", async function (data) {
     if (data?.successful === true) {
         console.log(data);
     }
     else {
-        chrome.storage.local.clear()
         render_login_page();
-
-        add_login_btn_eventlistner();
     }
 });
 
@@ -60,12 +113,18 @@ socket.on("all_devices", function (data) {
         all_devices = data?.message;
         render_devices_page();
     }
+    else {
+        render_error(data?.message, data?.type);
+    }
 });
 
 socket.on("add_device", function (data) {
     if (data?.successful === true) {
         all_devices = [...all_devices, data?.message];
         render_devices_page();
+    }
+    else {
+        render_error(data?.message, data?.type);
     }
 });
 
@@ -74,7 +133,7 @@ socket.on("get_my_tabs", (data) => {
         render_tabs(data?.message);
     }
     else {
-        console.log(data?.message);
+        render_error(data?.message, data?.type);
     }
 });
 
@@ -87,7 +146,7 @@ socket.on('update_tab', (data) => {
         }
     }
     else {
-        console.log(data?.message);
+        render_error(data?.message, data?.type);
     }
 });
 
@@ -99,7 +158,7 @@ socket.on('add_tab', (data) => {
         }
     }
     else {
-        console.log(data?.message);
+        render_error(data?.message, data?.type);
     }
 });
 
@@ -112,7 +171,7 @@ socket.on('remove_tab', (data) => {
         }
     }
     else {
-        console.log(data?.message);
+        render_error(data?.message, data?.type);
     }
 });
 
@@ -122,33 +181,12 @@ socket.on('remove_all_tabs', (data) => {
         document.getElementById(`no_tabs-${target_device}`).innerHTML = '';
         document.getElementById(`no_tabs-${target_device}`).appendChild(document.createTextNode(`No open tabs on device: ${target_device}.`));
     }
+    else{
+        render_error(data?.message, data?.type);
+    }
 })
 
 render_loading_page();
-
-
-function add_login_btn_eventlistner() {
-    document.querySelector('.get_started')?.addEventListener('click', () => {
-        chrome.identity.getProfileUserInfo().then(function (userInfo) {
-            const curr_device = document.querySelector('.device_name').value;
-            socket.emit('login', {
-                device_name: curr_device,
-                device_type: document.querySelector('input[name="device_type"]:checked').id,
-                user_id: userInfo?.email
-            });
-
-            chrome.runtime.sendMessage({
-                type: "login",
-                data: {
-                    curr_device,
-                }
-            });
-        },
-            (err) => console.log(err)
-        )
-    })
-}
-
 
 function render_devices_page() {
     content_container.innerHTML = '';

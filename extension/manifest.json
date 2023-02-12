@@ -33,8 +33,6 @@
         "tabs",
         "windows",
         "background",
-        "identity",
-        "identity.email",
         "storage"
     ]
 }
