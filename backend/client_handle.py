@@ -652,8 +652,8 @@ class ClientHandleNamespace(Namespace):
         }
         emit(
             "enroll_feature",
-            {"successful": True, "message": credentials, "type": "message"},
-            to=list(ClientHandleNamespace.devices_in_use.get(user_id, {}).values())
+            {"successful": True, "message": credentials, "type": "message"}
+            # to=list(ClientHandleNamespace.devices_in_use.get(user_id, {}).values())
         )
 
     def on_switch_feature(self, data):
