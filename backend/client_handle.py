@@ -13,6 +13,14 @@ from zoneinfo import ZoneInfo
 import os
 import hashlib
 import json
+import stripe   
+
+stripe_keys = {
+  'secret_key': os.environ['SECRET_KEY'],
+  'publishable_key': os.environ['PUBLISHABLE_KEY']
+}
+
+stripe.api_key = stripe_keys['secret_key']
 
 client = MongoClient("mongo")
 db = client["user_data"]
@@ -23,6 +31,7 @@ history = db["history"]
 notification = db["notification"]
 feedback = db["feedback"]
 trackers = db['trackers']
+payment = db['payment']
 
 
 privacy_report.create_index("expireAt", expireAfterSeconds=0)
@@ -52,11 +61,12 @@ class ClientHandleNamespace(Namespace):
         
         return False
 
-    def __create_tab(self, device_name, device_type, device_token):
+    def __create_tab(self, device_name, device_type, device_os, device_token):
         return {
             device_name: {
                 "tabs": {},
                 "device_type": device_type,
+                "device_os": device_os,
                 "device_token": hashpw(device_token, gensalt()),
             }
         }
@@ -173,6 +183,10 @@ class ClientHandleNamespace(Namespace):
             notification_count = 0
             all_notifications = notification.find({"message_record": True})
             for n in all_notifications:
+                constraint = n.get('constraint', {})
+                constraint.update({'user_id': user_id})
+                if not users.find_one(constraint):
+                    continue
                 notification_count += 1
                 message = {"message": n.get("message")}
                 notification.insert_one(
@@ -209,10 +223,10 @@ class ClientHandleNamespace(Namespace):
         if self.__at_capacity("sign_in", data.get("user_id")):
             return
         
-        data['user_id'] = (data['user_id']).lower()
         if self.__data_check(['user_id'], data):
             return
 
+        data['user_id'] = (data['user_id']).lower()
         user_entry = None
 
         user_id = data.get("user_id")
@@ -290,14 +304,13 @@ class ClientHandleNamespace(Namespace):
                 "picture": f"https://continuitybrowser.com/assets/avtars/{(user_id[0].upper())}.png",
                 "devices": {data.get("device_name"): data.get("device_type")},
                 "tabs_data": self.__create_tab(
-                    data.get("device_name"), data.get("device_type"), device_token
+                    data.get("device_name"), data.get("device_type"), data.get("device_os"), device_token
                 ),
                 "enrolled_features": {
                     "ultra_search": {"enrolled": False, "switch": False},
                     "privacy_prevention": {"enrolled": False, "switch": False},
                 },
             }
-            print(user.get("tabs_data"),"=========================", flush=True)
             users.insert_one(user)
         elif user.get("devices").get(data.get("device_name")) == None:
             device_token = self.__check_for_same_token(
@@ -306,7 +319,7 @@ class ClientHandleNamespace(Namespace):
             devices = user.get("devices")
             devices[data.get("device_name")] = data.get("device_type")
             new_device = self.__create_tab(
-                data.get("device_name"), data.get("device_type"), device_token
+                data.get("device_name"), data.get("device_type"), data.get("device_os"), device_token
             )
             user.get("tabs_data").update(new_device)
             users.update_one(
@@ -526,6 +539,64 @@ class ClientHandleNamespace(Namespace):
             },
         )
 
+    def on_payment(self, data):
+        if self.__data_check(['user_id', 'device_name', "device_token", "bundle"], data):
+            return
+        
+        user_id = data.get("user_id")
+        user = users.find_one({"user_id": user_id})
+
+        if not self.__authenticate_device("payment", user, data):
+            return
+
+        bundle_dict = {'essentials': {'price': 499, 'product_id': 'price_1MZaXtAuOsRyx3wnAFmKLvj5'}, 'supported':{'price': 999, 'product_id':'price_1MZaZ1AuOsRyx3wnhHcO7wiV'}}
+        bundle = data.get("bundle")
+        user_id = data.get("user_id")
+        currency = data.get("currency", "usd")
+        product = bundle_dict.get(bundle, {})
+
+        if bundle not in bundle_dict:
+            error = 'Bundle not found'
+            emit('payment', {"successful": True, "message": error, "type": "error"})
+            return
+
+        customer = user.get('customer_id') or stripe.Customer.create(email=user_id)  
+        
+        ephemeralKey = stripe.EphemeralKey.create(
+            customer=customer['id'],
+            stripe_version='2022-11-15',
+        )
+        print("product.get('price', 0): ", product.get('price', 0), flush=True)
+        payment_intent = stripe.PaymentIntent.create(
+            currency=currency,
+            customer=customer['id'],
+            payment_method_types=["card"],
+            metadata={
+                'product_id': product.get('product_id'),
+                'amount': product.get('price')
+            },
+            setup_future_usage="off_session",
+            amount=product.get('price', 0)
+        )
+
+        payment_intent_id = payment_intent['id']
+
+        payment.insert_one({'user_id': user_id, 'bundle': bundle, 'payment_intent_id': payment_intent_id, 'customer_id': customer['id']})
+        if not user.get('customer_id'):
+            users.update_one({'user_id': user_id}, {"$set": {'customer_id': {'id': customer['id']}}})
+
+        emit(
+            "payment",
+            {"successful": True, "message": 
+                {
+                    'paymentIntent': payment_intent.client_secret,
+                    'ephemeralKey': ephemeralKey.secret,
+                    'customer': customer['id'],
+                    'publishableKey': stripe_keys.get('publishable_key')
+                }, 
+            "type": "message"},
+        )
+        
     def on_enroll_feature(self, data):
         if self.__data_check(['user_id', 'device_name', "device_token", "feature_name"], data):
             return
@@ -582,6 +653,7 @@ class ClientHandleNamespace(Namespace):
         emit(
             "enroll_feature",
             {"successful": True, "message": credentials, "type": "message"},
+            to=list(ClientHandleNamespace.devices_in_use.get(user_id, {}).values())
         )
 
     def on_switch_feature(self, data):
@@ -1040,9 +1112,10 @@ class ClientHandleNamespace(Namespace):
         notification.delete_many({"user_id": user_id})
         feedback.delete_many({"user_id": user_id})
 
+        user_sids = list(ClientHandleNamespace.devices_in_use.get(user_id, {}).values())
         del ClientHandleNamespace.devices_in_use[user_id]
         
-        emit("delete_user", {"successful": True, "type": "message"})
+        emit("delete_user", {"successful": True, "type": "message"}, to=user_sids)
 
     def __authenticate_admin(self, key):
         hashed_key = os.getenv("ADMIN_PASSWORD")
@@ -1266,14 +1339,15 @@ class ClientHandleNamespace(Namespace):
             return
 
         send_to = data.get("send_to", [])
+        constraint = json.loads(data.get("constraint", '{}'))
         ttl = datetime.utcnow() + timedelta(days=int(data.get("ttl")))
         message = {"message": json.loads(data.get("message"))}
 
         if send_to == []:
             notification.insert_one(
-                {"message_record": True, "message": message, "ttl": ttl}
+                {"message_record": True, "message": message, "constraint":constraint, "ttl": ttl}
             )
-            send_to = [u.get("user_id") for u in users.find({}, {"user_id": 1})]
+            send_to = [u.get("user_id") for u in users.find(constraint, {"user_id": 1})]
         else:
             send_to = json.loads(send_to)
 

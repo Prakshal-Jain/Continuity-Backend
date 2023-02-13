@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import { useRef } from 'react'
 import "animate.css/animate.min.css"
 import Footer from '@/components/Footer'
+import Pricing from '@/components/Pricing'
 
 
 export default function Home() {
@@ -22,6 +23,7 @@ export default function Home() {
         <Navbar scrollTarget={scrollRef} />
         <Hero h1Ref={h1Ref} h2Ref={h2Ref} h3Ref={h3Ref} />
         <Features scrollTarget={scrollRef} h1Ref={h1Ref} h2Ref={h2Ref} h3Ref={h3Ref} />
+        <Pricing />
         <Footer />
       </main>
     </>

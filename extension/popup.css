@@ -29,10 +29,11 @@ body > * {
     height: auto;
 }
 
-.small_logo{
+.small_logo {
     content: url("./assets/logo-dark.png");
     width: 3rem;
     height: auto;
+    cursor: pointer;
 }
 
 textarea:focus,
@@ -40,7 +41,8 @@ input:focus {
     outline: none;
 }
 
-.device_name {
+.device_name,
+.email {
     margin-top: 1rem;
     margin-bottom: 1rem;
     width: 80%;
@@ -51,7 +53,8 @@ input:focus {
     border-radius: 6px;
 }
 
-.device_name::placeholder {
+.device_name::placeholder,
+.email::placeholder {
     color: rgba(142, 142, 147, 1);
 }
 
@@ -73,7 +76,9 @@ input:focus {
     font-size: medium;
 }
 
-.get_started {
+.get_started,
+.sign_in,
+.start_tutorial {
     border: 0em;
     background-color: rgba(10, 132, 255, 1);
     color: #fff;
@@ -87,7 +92,9 @@ input:focus {
     box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
 }
 
-.get_started:active {
+.get_started:active,
+.sign_in:active,
+.start_tutorial:active {
     box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
     transform: translateY(1.5px);
     /* Moving button 4px to y-axis */
@@ -159,19 +166,19 @@ input:focus {
     flex-direction: row;
     width: 25%;
     align-items: center;
-    cursor: pointer;
     font-size: medium;
 }
 
-.header_left{
+.header_left {
     margin-left: 1em;
 }
 
-.header_right{
+.header_right {
     margin-right: 1em;
+    justify-content: end;
 }
 
-.subheading{
+.subheading {
     margin-top: 0.5em;
     font-size: small;
     color: rgba(99, 99, 102, 1);
@@ -235,6 +242,49 @@ input:focus {
     height: 2rem;
 }
 
+.error_container {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    width: 80%;
+    border-radius: 6px;
+    color: #000;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: medium;
+}
+
+.error {
+    background-color: rgba(255, 59, 48, 0.3);
+    border: 0.1rem solid rgba(255, 59, 48, 1);
+}
+
+.warning {
+    background-color: rgba(255, 149, 0, 0.3);
+    border: 0.1rem solid rgba(255, 149, 0, 1);
+}
+
+.message {
+    background-color: rgba(0, 122, 255, 0.3);
+    border: 0.1rem solid rgba(0, 122, 255, 1);
+}
+
+.break_word {
+    overflow-wrap: break-word;
+    max-width: 93%;
+    text-align: left;
+}
+
+.nav_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
 @media (prefers-color-scheme: dark) {
     body {
         background-color: rgba(28, 28, 30, 1);
@@ -244,11 +294,12 @@ input:focus {
         content: url("./assets/logo-light.png");
     }
 
-    .small_logo{
+    .small_logo {
         content: url("./assets/logo-light.png");
     }
 
-    .device_name {
+    .device_name,
+    .email {
         border: 0.1rem solid rgba(209, 209, 214, 1);
         color: rgba(209, 209, 214, 1);
     }
@@ -263,6 +314,7 @@ input:focus {
 
     .device_box {
         border: 0.1rem solid rgba(209, 209, 214, 1);
+        transition: background-color 200ms ease-in-out;
     }
 
     .device_box:hover {
@@ -286,7 +338,26 @@ input:focus {
         color: rgba(174, 174, 178, 1);
     }
 
-    .subheading{
+    .subheading {
         color: rgba(174, 174, 178, 1);
+    }
+
+    .error_container {
+        color: #fff;
+    }
+
+    .error {
+        background-color: rgba(255, 69, 58, 0.3);
+        border: 0.1rem solid rgba(255, 69, 58, 1);
+    }
+
+    .warning {
+        background-color: rgba(255, 214, 10, 0.3);
+        border: 0.1rem solid rgba(255, 214, 10, 1);
+    }
+
+    .message {
+        background-color: rgba(10, 132, 255, 0.3);
+        border: 0.1rem solid rgba(10, 132, 255, 1);
     }
 }

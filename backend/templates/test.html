@@ -257,7 +257,20 @@
       socket.emit("delete_user", {'user_id': 'swasnaiktik@gmail.com', 'device_token': device_token, 'device_name': '{{device_name}}'});
     }
 
+    function charge(){
+      socket.emit("payment", {'user_id': 'swasnaiktik@gmail.com', 'device_token': device_token, 'device_name': '{{device_name}}', 'currency':'usd', "bundle":'essentials'});
+    }
   </script>
+  <style type="text/css" media="screen">
+    form article label {
+      display: block;
+      margin: 5px;
+    }
+
+    form .submit {
+      margin: 15px 0;
+    }
+  </style>
   <title>SocketIO</title>
 </head>
 <body>
@@ -286,6 +299,22 @@
     <br>
     <input id="sign_in" type="text" />
     <button onclick="sign_in();">sign_in</button>
+    <br>
+    <button onclick="charge();">Charge</button>
+    <br>
+    <!-- <form action="/feature-payment/supported" method="post">
+      <article>
+        <label>
+          <span>Amount is $5.00</span>
+        </label>
+      </article>
+      <input name="user_id" value="swasnaiktik@gmail.com" hidden>
+      <input name="device_name" value="{{device_name}}" hidden>
+      <input name="device_token" value='' hidden>
+      <input name="bundle" value="supported" hidden>
+      <input name="currency" value="usd" hidden>
+      <button type="submit">Submit</button>
+    </form> -->
     <br>
     <br>
 <div id="Error"></div>

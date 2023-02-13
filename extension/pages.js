@@ -23,6 +23,25 @@ export const render_loading_page = () => {
 
 
 
+export const setup_verify_email_page = () => {
+    content_container.innerHTML = '';
+    const logo = document.createElement('div');
+    logo.classList.add('logo');
+    content_container.appendChild(logo);
+
+    const input = document.createElement('input');
+    input.placeholder = 'Email';
+    input.classList.add('email');
+    input.setAttribute('required', true);
+    content_container.appendChild(input);
+
+    const get_started = document.createElement('button');
+    get_started.appendChild(document.createTextNode('Sign In'));
+    get_started.classList.add('sign_in');
+    content_container.appendChild(get_started);
+}
+
+
 
 const device_type_checklist = [
     { id: 'mobile-phone', label: 'Mobile Phone' },
@@ -31,7 +50,7 @@ const device_type_checklist = [
     { id: 'desktop', label: 'Desktop', isSelected: true },
 ];
 
-export const render_login_page = () => {
+export const setup_login_page = () => {
     content_container.innerHTML = '';
     const logo = document.createElement('div');
     logo.classList.add('logo');
@@ -76,4 +95,30 @@ export const render_login_page = () => {
     get_started.appendChild(document.createTextNode('Get Started'));
     get_started.classList.add('get_started');
     content_container.appendChild(get_started);
+}
+
+
+const icons = {
+    error: { icon: 'fa-exclamation-circle', color: 'rgba(255, 59, 48, 1)' },
+    warning: { icon: 'fa-warning', color: 'rgba(255, 149, 0, 1)' },
+    message: { icon: 'fa-bell', color: 'rgba(0, 122, 255, 1)' },
+}
+
+export const render_error = (message, type) => {
+    // If an error message already exist --> remove it
+    document.querySelector('.error_container')?.remove();
+
+    const error_container = document.createElement('div');
+    error_container.classList.add('error_container', type);
+    const icon = document.createElement('i');
+    icon.classList.add('fa', icons[type]?.icon);
+    icon.style.color = icons[type]?.color;
+    icon.style.fontSize = 'large';
+    error_container.appendChild(icon);
+
+    const m = document.createElement('div');
+    m.classList.add('break_word');
+    m.innerHTML = message;
+    error_container.appendChild(m);
+    content_container.appendChild(error_container);
 }

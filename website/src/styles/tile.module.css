@@ -46,6 +46,13 @@
     border: 0.5rem solid black;
 }
 
+.link {
+    color: rgba(0, 122, 255, 1);
+}
+.link:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 767px) {
     .extra_width,
     .normal_width {

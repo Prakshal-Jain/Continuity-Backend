@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
-export default function privacy() {
+export default function contact() {
     return (
         <>
             <Head>
@@ -25,7 +25,7 @@ export default function privacy() {
                         </div>
                     </a>
 
-                    <a href="mailto:prakshaljain422@gmail.com" rel="noreferrer">
+                    <a href="mailto:continuitybrowser@gmail.com" rel="noreferrer">
                         <div className={styles.option}>
                             <FontAwesomeIcon icon={faEnvelope} style={{ color: 'rgba(255, 45, 85, 1)', fontSize: 'x-large' }} />
                             <span style={{fontSize: 'x-large', fontWeight: 'bold'}}>Email us</span>
