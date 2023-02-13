@@ -197,6 +197,10 @@ def contact():
 def help():
     return send_from_directory("../website/out", "help.html")
 
+@app.route("/sync_tutorial")
+def sync_tutorial():
+    return send_from_directory("../website/out", "sync_tutorial.html")
+
 @app.route("/<path:path>")
 def website_next(path):
     return send_from_directory("../website/out", path)
