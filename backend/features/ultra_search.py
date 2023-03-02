@@ -1,6 +1,6 @@
 import openai
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 def ultra_search_query(data):
     try:
