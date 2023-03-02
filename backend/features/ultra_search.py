@@ -1,26 +1,26 @@
 import openai
 
-openai.api_key = "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"
-
+openai.api_key = "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"
 
 def ultra_search_query(data):
     try:
         prompt = data.get("prompt", "").strip()
-        model = "text-davinci-002"
 
-        completion_instance = openai.Completion()
-        completion = completion_instance.create(
-            model=model, prompt=prompt, max_tokens=1024, n=1, stop=None, temperature=0.5
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": prompt}]
         )
 
         if (
             completion == None
             or completion.get("choices", []) == []
-            or completion.get("choices")[0].get("text", "") == ""
+            or completion.get("choices")[0].get("message", {}).get("content", "") == ""
         ):
             return None
 
-        response = completion.get("choices")[0].get("text", "").strip()
+        response = completion.get("choices")[0].get(
+            "message", {}).get("content", "").strip()
         return {"response": response, "prompt": prompt}
     except:
         return None
