@@ -30,7 +30,7 @@ export default function SyncTutorial() {
         if (router?.query?.device_name !== null && router?.query?.device_name !== undefined) {
             setDeviceName(router?.query?.device_name)
         };
-    }, [])
+    }, [router?.query])
 
     const steps = [
         {
