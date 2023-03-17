@@ -201,6 +201,10 @@ def help():
 def sync_tutorial():
     return send_from_directory("../website/out", "sync_tutorial.html")
 
+@app.route("/our_story")
+def our_story():
+    return send_from_directory("../website/out", "our_story.html")
+
 @app.route("/<path:path>")
 def website_next(path):
     return send_from_directory("../website/out", path)
