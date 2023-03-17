@@ -23,7 +23,7 @@ export default function Footer() {
                 <Link href="/contact">Contact</Link>
                 <a href="https://www.buymeacoffee.com/prakshaljain" target="_blank" rel="noreferrer">Donate</a>
                 <Link href="/privacy">Privacy</Link>
-                <Link href="/about">About Us</Link>
+                <Link href="/our_story">Our Story</Link>
             </div>
             <div className={styles.design_develop}>
                 Website Designed and Developed by <a href="https://prakshal-jain.github.io/Portfolio/" target="_blank" rel="noreferrer" className={styles.name}>Prakshal Jain</a>
