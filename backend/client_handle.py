@@ -38,6 +38,27 @@ privacy_report.create_index("expireAt", expireAfterSeconds=0)
 history.create_index("expireAt", expireAfterSeconds=0)
 notification.create_index("ttl", expireAfterSeconds=0)
 
+# ================================================================
+# TODO
+# 1. Complete payment
+# 2. Setup referral                                                       ----------------------- 3
+# 3. Adjust active users count to be more accurate
+# 4. Add email verified check
+# 5. Notification distinguish
+# 6. Add https://github.com/mitchellkrogza/Phishing.Database 
+# 7. Add remove device end point (do not allow if it is the only device)  ----------------------- 2
+# 8. Improve connect device and disconnect device
+# 9. Improve admin connected stats
+# 10. Time stamp for error                                                ----------------------- 5
+# 11. Download volume file from admin
+# 12. Deprecate TEMP HOLDER
+# 13. Email ChatGPT response to user
+# 14. Save Bookmarks - user_id, device_name, device_token, title, url
+# 15. Bookmarks limited to 150                                            ----------------------- 4
+# 16. Device name, email - strip                                          ----------------------- 1
+# 17. Signup Timestamp                                                    ----------------------- 6
+# ================================================================
+
 
 class ClientHandleNamespace(Namespace):
     devices_in_use = {}
@@ -1116,6 +1137,38 @@ class ClientHandleNamespace(Namespace):
         del ClientHandleNamespace.devices_in_use[user_id]
         
         emit("delete_user", {"successful": True, "type": "message"}, to=user_sids)
+
+    def on_delete_device(self, data):
+        if self.__data_check(['user_id', "device_token", "device_name", "target_device"], data):
+            return
+        user_id = data.get("user_id")
+        user = users.find_one({"user_id": user_id})
+        if not self.__authenticate_device("delete_device", user, data):
+            return
+        
+        target_device = data.get('target_device')
+        target_device_data = user['devices'].get(target_device)
+        if target_device_data is None or target_device_data == '':
+            emit("delete_user", {"successful": False, "type": "error", 'message': 'Device does not exist'})
+            return
+        
+        if len(user['devices']) == 1:
+            emit("delete_user", {"successful": False, "type": "error", 'message': 'Only account on the device cannot be deleted'})
+            return
+                        
+        del user['devices'][target_device]
+        del user['tabs_data'][target_device]
+
+        users.update_one({"user_id": user_id}, {"$set": {"devices": user['devices'], "tabs_data": user['tabs_data']}})
+
+        emit("delete_device", {"successful": True, "type": "message"})
+        
+        del ClientHandleNamespace.devices_in_use.get(user_id)[target_device]
+
+        if ClientHandleNamespace.devices_in_use.get(user_id) == {}:
+            del ClientHandleNamespace.devices_in_use[user_id]
+            
+        user_sids = list(ClientHandleNamespace.devices_in_use.get(user_id, {}).values()) # -> update all the users
 
     def __authenticate_admin(self, key):
         hashed_key = os.getenv("ADMIN_PASSWORD")

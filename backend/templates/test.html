@@ -163,7 +163,13 @@
     });
     
     socket.on('delete_user', function(data) {
-      console.log("sign_in");
+      console.log("delete_user");
+      console.log(data);
+      console.log("========================")
+    });
+
+    socket.on('delete_device', function(data) {
+      console.log("delete_device");
       console.log(data);
       console.log("========================")
     });
@@ -202,6 +208,10 @@
 
     function auto_authenticate(){
       socket.emit("auto_authenticate", {'user_id': 'swasnaiktik@gmail.com', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
+    }
+
+    function delete_device(){
+      socket.emit("delete_device", {'user_id': 'swasnaiktik@gmail.com', 'device_name': '{{device_name}}', 'target_device': '{{device_name}}', 'device_token': device_token});
     }
 
     function enroll(){
@@ -292,6 +302,8 @@
     <button onclick="set_notification();">set_notification</button>
     <button onclick="get_notification();">get_notification</button>
     <button onclick="delete_user();">delete_user</button>
+    <button onclick="delete_device();">delete_device</button>
+
     <br>
     <input id="input" type="text" />
     <button onclick="ultra();">ultra</button>
